@@ -1,11 +1,11 @@
 {
   "name": "datacap-ui",
   "description": "DataCap console",
-  "version": "2024.3.11-SNAPSHOT",
+  "version": "2024.3.11",
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
+    "build": "vue-tsc --skipLibCheck && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -46,7 +46,7 @@
     "@types/nprogress": "^0.2.3",
     "@vitejs/plugin-vue": "^5.0.4",
     "tippy.js": "^6.3.7",
-    "typescript": "5.2.2",
+    "typescript": "^5.2.2",
     "vite": "^5.4.8",
     "vue-tsc": "^1.8.27"
   }

@@ -34,6 +34,7 @@ target/
 node/
 node_modules
 tmp/
+.npm
 
 # vscode #
 .vscode
@@ -52,7 +53,6 @@ config/
 docs/site/
 data/
 !parser/datacap-parser-trino/src/main/java/io/edurt/datacap/parser/node/
-pnpm-lock.yaml
 depcheck-output.json
 
 !configure/schema/*/data/
@@ -71,3 +71,4 @@ convert/datacap-convert-xml/*.xml
 
 # Skip ui #
 core/datacap-ui/depcheck-output.json
+core/datacap-ui/yarn.lock
