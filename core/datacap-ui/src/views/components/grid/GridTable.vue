@@ -1,43 +1,43 @@
 <template>
-  <div>
-    <Card class="p-0" style="border-radius: 0;">
-      <CardHeader class="p-0">
-        <CardTitle class="pt-1 pl-3 space-x-2">
-          <Button size="sm" class="h-7 space-x-1">
-            <RouterLink :to="`/admin/dataset/info/source/${configure.code}`" target="_blank">
+  <ShadcnCard>
+    <template #title>
+      <ShadcnSpace>
+        <ShadcnButton>
+          <RouterLink :to="`/admin/dataset/info/source/${configure.code}`" target="_blank">
               <span class="flex items-center">
-                <Plus :size="18"/> {{ $t('common.dataset') }}
+                <ShadcnIcon icon="Plus" size="15"/>
+                <span>{{ $t('common.dataset') }}</span>
               </span>
-            </RouterLink>
-          </Button>
-          <Button size="sm" variant="outline" class="h-7 space-x-1" @click="visualVisible = true">
-            <BarChart :size="18"/>
-            <span>{{ $t('dataset.common.visual') }}</span>
-          </Button>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <Switch :default-checked="isPage" @update:checked="handlerChange"/>
-              </TooltipTrigger>
-              <TooltipContent>{{ $t('query.tip.pageShow') }}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <HoverCard>
-            <HoverCardTrigger as-child>
-              <Button size="icon" class="h-7 w-7" variant="outline">
-                <CircleHelp :size="18"/>
-              </Button>
-            </HoverCardTrigger>
-            <HoverCardContent class="w-80">{{ $t('query.tip.smallTips') }}</HoverCardContent>
-          </HoverCard>
-        </CardTitle>
-        <CardContent class="p-0" style="margin-top: -5px;">
-          <ag-grid-vue v-if="type === 'table'" :key="timestamp" :style="{width: configure.width + 'px', height: configure.height + 'px', 'margin-top': '2px'}" :pagination="isPage"
-                       class="ag-theme-datacap" :columnDefs="columnDefs" :rowData="configure.columns" :gridOptions="gridOptions as any"/>
-        </CardContent>
-      </CardHeader>
-    </Card>
-  </div>
+          </RouterLink>
+        </ShadcnButton>
+
+        <ShadcnButton type="default" @click="visualVisible = true">
+          <ShadcnIcon icon="BarChart" :size="15"/>
+          <span>{{ $t('dataset.common.visual') }}</span>
+        </ShadcnButton>
+
+        <ShadcnTooltip class="mt-1" :content="$t('query.tip.pageShow')">
+          <ShadcnSwitch v-model="isPage" @on-change="onChange"/>
+        </ShadcnTooltip>
+
+        <ShadcnTooltip :content="$t('query.tip.smallTips')">
+          <ShadcnButton circle type="default">
+            <ShadcnIcon icon="CircleHelp" :size="15"/>
+          </ShadcnButton>
+        </ShadcnTooltip>
+      </ShadcnSpace>
+    </template>
+
+    <ag-grid-vue v-if="type === 'table'"
+                 class="ag-theme-datacap"
+                 :key="timestamp"
+                 :style="{width: configure.width + 'px', height: configure.height + 'px', 'margin-top': '2px'}"
+                 :pagination="isPage"
+                 :columnDefs="columnDefs"
+                 :rowData="configure.columns"
+                 :gridOptions="gridOptions as any"/>
+  </ShadcnCard>
+
   <GridVisual :is-visible="visualVisible" :configure="configure" @close="visualVisible = $event"/>
 </template>
 
@@ -52,25 +52,11 @@ import { GridConfigure } from '@/views/components/grid/GridConfigure'
 import GridOptions from '@/views/components/grid/GridOptions'
 import { GridColumn } from '@/views/components/grid/GridColumn'
 import { ObjectUtils } from '@/utils/object'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { BarChart, CircleHelp, Plus } from 'lucide-vue-next'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Switch } from '@/components/ui/switch'
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import GridVisual from '@/views/components/grid/GridVisual.vue'
 
 export default defineComponent({
   name: 'GridTable',
-  components: {
-    GridVisual,
-    HoverCardContent, HoverCardTrigger, HoverCard,
-    CardContent, TooltipTrigger, Tooltip, TooltipProvider, TooltipContent,
-    BarChart, Plus, CircleHelp,
-    Button, Switch,
-    CardHeader, Card, CardTitle,
-    AgGridVue
-  },
+  components: { GridVisual, AgGridVue },
   props: {
     configure: {
       type: Object as () => GridConfigure,
@@ -89,7 +75,7 @@ export default defineComponent({
   },
   created()
   {
-    this.handlerInitialize()
+    this.handleInitialize()
   },
   data()
   {
@@ -104,7 +90,7 @@ export default defineComponent({
   },
   methods: {
     ...mapActions(['updateData']),
-    handlerInitialize()
+    handleInitialize()
     {
       if (this.configure) {
         this.updateData(this.configure)
@@ -114,12 +100,7 @@ export default defineComponent({
         })
       }
     },
-    handlerApplyColumn()
-    {
-      this.columnDefs = this.visibleColumns
-      this.columnDrawerVisible = false
-    },
-    handlerChange(value: boolean)
+    onChange(value: boolean)
     {
       this.timestamp = ObjectUtils.getTimestamp()
       this.isPage = value

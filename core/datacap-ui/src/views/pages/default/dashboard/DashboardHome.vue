@@ -1,45 +1,51 @@
 <template>
-  <div class="hidden flex-col md:flex">
-    <div class="flex-1 space-y-4 p-8 pt-6">
-      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <DataCapCard :loading="loading">
-          <template #title>{{ $t('user.common.sourceCount') }}</template>
-          <template #content>
-            <div class="p-5">
-              <div class="text-2xl font-bold">{{ summary.sourceCount }}</div>
-              <p class="text-xs text-muted-foreground mt-2">{{ $t('user.tip.sourceCountTip') }}</p>
-            </div>
-          </template>
-        </DataCapCard>
-        <DataCapCard :loading="loading">
-          <template #title>{{ $t('user.common.queryCount') }}</template>
-          <template #content>
-            <div class="p-5">
-              <div class="text-2xl font-bold">{{ summary.queryCount }}</div>
-              <p class="text-xs text-muted-foreground mt-2">{{ $t('user.tip.queryCountTip') }}</p>
-            </div>
-          </template>
-        </DataCapCard>
-      </div>
-    </div>
-  </div>
+  <ShadcnRow :gutter="10">
+    <ShadcnCol span="2">
+      <ShadcnCard :loading="loading">
+        <template #title>
+          <div class="text-center">
+            {{ $t('user.common.sourceCount') }}
+          </div>
+        </template>
+        <div class="flex flex-col items-center justify-center py-8">
+          <div class="text-2xl font-bold">
+            {{ summary.sourceCount }}
+          </div>
+          <div class="text-xs text-muted-foreground mt-2">
+            {{ $t('user.tip.sourceCountTip') }}
+          </div>
+        </div>
+      </ShadcnCard>
+    </ShadcnCol>
+
+    <ShadcnCol span="2">
+      <ShadcnCard :loading="loading">
+        <template #title>
+          <div class="text-center">
+            {{ $t('user.common.queryCount') }}
+          </div>
+        </template>
+        <div class="flex flex-col items-center justify-center py-8">
+          <div class="text-2xl font-bold">
+            {{ summary.queryCount }}
+          </div>
+          <div class="text-xs text-muted-foreground mt-2">
+            {{ $t('user.tip.queryCountTip') }}
+          </div>
+        </div>
+      </ShadcnCard>
+    </ShadcnCol>
+  </ShadcnRow>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2 } from 'lucide-vue-next'
+
 import { HttpUtils } from '@/utils/http'
 import UserService from '@/services/user'
-import { DataCapCard } from '@/views/ui/card'
 
 export default defineComponent({
   name: 'DashboardHome',
-  components: {
-    DataCapCard,
-    Loader2,
-    CardContent, CardTitle, CardHeader, Card
-  },
   data()
   {
     return {

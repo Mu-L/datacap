@@ -1,41 +1,24 @@
 <template>
   <div>
-    <Select v-model="applySource" :default-value="value ? value as string : undefined" @update:modelValue="handlerChangeValue">
-      <SelectTrigger class="w-full">
-        <SelectValue :placeholder="$t('source.tip.selectSource')"/>
-      </SelectTrigger>
-      <SelectContent>
-        <Loader2 v-if="loading" class="w-full justify-center animate-spin"/>
-        <SelectGroup v-else>
-          <SelectItem v-for="item in items" :value="`${item.id}:${item.type}:${item.code}`" :disabled="!item.available" class="cursor-pointer">
-            <TooltipProvider>
-              <Tooltip :content="item.type">
-                {{ `${ item.name } (${ item.protocol })` }}
-              </Tooltip>
-            </TooltipProvider>
-          </SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
+    <ShadcnSelect v-model="applySource"
+                  v-model:options="options"
+                  lazy
+                  :placeholder="$t('source.tip.selectSource')"
+                  :load-data="loadMoreData"
+                  @on-change="onChange">
+    </ShadcnSelect>
   </div>
 </template>
 
 <script lang="ts">
 import SourceService from '@/services/source'
 import { defineComponent } from 'vue'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { SourceModel } from '@/model/source'
-import Tooltip from '@/views/ui/tooltip'
-import { Loader2 } from 'lucide-vue-next'
+
 import { FilterModel } from '@/model/filter.ts'
 
 export default defineComponent({
   name: 'SourceSelect',
-  components: {
-    Loader2,
-    Tooltip,
-    Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue
-  },
   props: {
     value: {
       type: Object as () => String | undefined
@@ -51,23 +34,29 @@ export default defineComponent({
   data()
   {
     return {
-      items: [] as SourceModel[],
+      options: [] as SourceModel[],
       loading: false,
-      applySource: undefined
+      applySource: undefined,
+      pageIndex: 1,
+      pageTotal: 10,
+      dataCount: 0
     }
   },
   created()
   {
-    this.handlerInitialize()
+    this.handleInitialize()
   },
   methods: {
-    handlerInitialize()
+    handleInitialize()
     {
       this.loading = true
       SourceService.getAll(this.filter)
                    .then((response) => {
                      if (response.status) {
-                       this.items = response.data.content
+                       this.options = response.data.content.map((item: any) => ({ ...item, label: item.name, value: `${ item.id }:${ item.type }:${ item.code }` }))
+                       this.dataCount = response.data.total
+                       this.pageTotal = response.data.totalPage
+                       this.pageIndex = response.data.page
                        if (this.value) {
                          this.applySource = this.value as any
                        }
@@ -75,9 +64,25 @@ export default defineComponent({
                    })
                    .finally(() => this.loading = false)
     },
-    handlerChangeValue()
+    async loadMoreData(callback: (children: any[]) => void)
     {
-      this.$emit('changeValue', this.applySource)
+      if (this.pageIndex < this.pageTotal) {
+        this.filter.page = this.pageIndex + 1
+        const response = await SourceService.getAll(this.filter)
+
+        if (response.status) {
+          const options = response.data.content.map((item: any) => ({ ...item, label: item.name, value: `${ item.id }:${ item.type }:${ item.code }` }))
+          this.dataCount = response.data.total
+          this.pageTotal = response.data.totalPage
+          this.pageIndex = response.data.page
+          console.log(options)
+          callback(options)
+        }
+      }
+    },
+    onChange()
+    {
+      this.$emit('on-change', this.applySource)
     }
   }
 })

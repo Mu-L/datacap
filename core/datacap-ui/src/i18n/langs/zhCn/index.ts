@@ -120,7 +120,9 @@ export default {
             filterCondition: '筛选条件',
             addFilter: '添加筛选条件',
             statement: 'SQL 语句',
-            erDiagram: 'ER 图形'
+            erDiagram: 'ER 图形',
+            type: '数据源类型',
+            configures: '配置信息'
         },
         tip: {
             selectSource: '请选择数据源',
@@ -158,6 +160,41 @@ export default {
             dropColumn5: '如果您对执行删除列操作有任何疑问或需要帮助，请联系您的数据库管理员或技术支持团队。',
             updateSuccess: '更新成功',
             deleteSuccess: '删除成功'
+        },
+        placeholder: {
+            name: '请输入数据源名称',
+            tableName: '请输入表名',
+            tableEngine: '请选择表引擎',
+            tableComment: '请输入表注释',
+            columnName: '请输入列名',
+            columnType: '请输入列类型',
+            columnLength: '请输入列长度',
+            columnDefaultValue: '请输入默认值',
+            columnComment: '请输入列注释'
+        },
+        validator: {
+            name: {
+                required: '数据源名称不能为空',
+                match: '输入的数据源名称不正确，请输入 [$VALUE]'
+            },
+            tableName: {
+                required: '表名不能为空',
+                pattern: '输入的表名不正确，必须以字母开头，且只包含字母、数字、下划线和横线'
+            },
+            tableEngine: {
+                required: '表引擎不能为空'
+            },
+            columnName: {
+                required: '列名不能为空',
+                pattern: '输入的列名不正确，必须以字母开头，且只包含字母、数字、下划线和横线'
+            },
+            columnType: {
+                required: '列类型不能为空'
+            },
+            columnLength: {
+                required: '列长度不能为空',
+                min: '列长度不能小于 0'
+            }
         }
     },
     grid: {
@@ -514,6 +551,15 @@ export default {
             deleteAlert2: '删除代码片段后，与之相关的数据将被永久删除。',
             deleteAlert3: '删除代码片段后，它将无法恢复。',
             deleteAlert4: '要确认，请在下面的框中键入 [ $VALUE ]'
+        },
+        placeholder: {
+            name: '请输入片段名称'
+        },
+        validator: {
+            name: {
+                required: '片段名称不能为空',
+                match: '输入的片段名称不正确，请输入 [$VALUE]'
+            }
         }
     },
     report: {
@@ -531,8 +577,15 @@ export default {
             deleteAlert3: '要确认，请在下面的框中键入 [ $VALUE ]',
             publishSuccess: '报表 [ $VALUE ] 发布成功'
         },
+        placeholder: {
+            name: '请输入报表名称',
+            description: '请输入报表描述'
+        },
         validator: {
-            name: '请输入报表名称'
+            name: {
+                required: '报表名称不能为空',
+                match: '输入的报表名称不正确，请输入 [$VALUE]'
+            }
         }
     },
     pipeline: {
@@ -551,11 +604,6 @@ export default {
             output: '输出源',
             resetTransform: '重置变换'
         },
-        validator: {
-            from: '请配置输入源信息',
-            to: '请配置输出源信息',
-            edge: '请连接输入和输出源'
-        },
         tip: {
             deleteSuccess: '删除流水线 [ $VALUE ] 成功',
             deleteAlert1: '您正在删除流水线。此操作将永久删除流水线。在继续操作之前，请务必确认您的操作。',
@@ -566,6 +614,18 @@ export default {
             stopAlert3: '要确认，请在下面的框中键入 [ $VALUE ]',
             stopSuccess: '流水线 [ $VALUE ] 停止成功',
             publishSuccess: '流水线 [ $VALUE ] 发布成功'
+        },
+        placeholder: {
+            name: '请输入流水线名称'
+        },
+        validator: {
+            from: '请配置输入源信息',
+            to: '请配置输出源信息',
+            edge: '请连接输入和输出源',
+            name: {
+                required: '流水线名称不能为空',
+                match: '输入的流水线名称不正确，请输入 [$VALUE]'
+            }
         }
     },
     common: {
@@ -807,6 +867,16 @@ export default {
             deleteTip3: '要确认，请在下面的框中键入 [ $NAME ]',
             publishSuccess: '仪表板 [ $VALUE ] 发布成功',
             notFound: '仪表板 [ $VALUE ] 不存在'
+        },
+        placeholder: {
+            name: '请输入仪表盘名称',
+            description: '请输入仪表盘描述'
+        },
+        validator: {
+            name: {
+                required: '仪表盘名称不能为空',
+                match: '输入的仪表盘名称不正确，请输入 [$VALUE]'
+            }
         }
     },
     function: {
@@ -960,6 +1030,7 @@ export default {
             info: '查看详情',
             lifeCycleColumn: '生命周期列',
             lifeCycleNumber: '生命周期数',
+            lifeCycleType: '生命周期类型',
             continuousBuild: '连续构建'
         },
         validator: {

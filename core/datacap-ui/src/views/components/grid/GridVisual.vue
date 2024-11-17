@@ -1,76 +1,58 @@
 <template>
-  <Dialog :is-visible="visible" width="80%" @close="handlerCancel">
-    <template #title>
-      <div class="flex items-center space-x-2">
-        <BarChart :size="18"/>
-        <span>{{ $t('dataset.common.visual') }}</span>
+  <ShadcnModal v-model="visible"
+               width="80%"
+               :title="$t('dataset.common.visual')"
+               @on-close="onCancel">
+
+    <ShadcnAlert v-if="message" type="error" :title="message"/>
+
+    <ShadcnForm v-model="formState" @on-submit="onSubmit">
+      <ShadcnFormItem name="name"
+                      :label="$t('common.name')"
+                      :rules="[
+                            { required: true, message: $t('report.validator.name.required') }
+                      ]">
+        <ShadcnInput v-model="formState.name" name="name" :placeholder="$t('report.placeholder.name')"/>
+      </ShadcnFormItem>
+
+      <ShadcnFormItem name="description"
+                      :label="$t('common.description')">
+        <ShadcnInput v-model="formState.description"
+                     type="textarea"
+                     name="description"
+                     :placeholder="$t('report.placeholder.description')"/>
+      </ShadcnFormItem>
+
+      <ShadcnFormItem>
+        <VisualEditor :loading="loading" :configuration="configuration as any" @commitOptions="onCommitOptions"/>
+      </ShadcnFormItem>
+
+      <div class="flex justify-end">
+        <ShadcnSpace>
+          <ShadcnButton type="default" @click="onCancel">
+            {{ $t('common.cancel') }}
+          </ShadcnButton>
+
+          <ShadcnButton submit :disabled="published" :loading="published">
+            {{ $t('common.publish') }}
+          </ShadcnButton>
+        </ShadcnSpace>
       </div>
-    </template>
-    <div class="pl-4 pr-4">
-      <Alert v-if="message" type="error" :description="message"/>
-      <FormField name="name">
-        <FormItem>
-          <FormLabel class="mr-1 w-20 text-right">
-            {{ $t('common.name') }}
-          </FormLabel>
-          <FormControl>
-            <Input v-model="formState.name"/>
-          </FormControl>
-        </FormItem>
-      </FormField>
-      <FormField name="description">
-        <FormItem>
-          <FormLabel class="mr-1 w-20 text-right">
-            {{ $t('common.description') }}
-          </FormLabel>
-          <FormControl>
-            <Textarea v-model="formState.description"/>
-          </FormControl>
-        </FormItem>
-      </FormField>
-      <VisualEditor :loading="loading" :configuration="configuration" @commitOptions="handlerCommitOptions"/>
-    </div>
-    <template #footer>
-      <div class="space-x-2">
-        <Button size="sm" variant="outline" class="h-7 space-x-1" @click="handlerCancel">
-          {{ $t('common.cancel') }}
-        </Button>
-        <Button size="sm" class="h-7 space-x-1" :loading="published" @click="handlerPublish">
-          {{ $t('common.publish') }}
-        </Button>
-      </div>
-    </template>
-  </Dialog>
+    </ShadcnForm>
+  </ShadcnModal>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Dialog from '@/views/ui/dialog'
-import { BarChart } from 'lucide-vue-next'
-import Button from '@/views/ui/button'
 import VisualEditor from '@/views/components/visual/VisualEditor.vue'
 import { Configuration } from '@/views/components/visual/Configuration.ts'
 import { GridConfigure } from '@/views/components/grid/GridConfigure.ts'
-import { Textarea } from '@/components/ui/textarea'
-import { FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { ToastUtils } from '@/utils/toast.ts'
 import router from '@/router'
 import ReportService from '@/services/report'
-import Alert from '@/views/ui/alert'
 
 export default defineComponent({
   name: 'GridVisual',
-  components: {
-    Alert,
-    Input,
-    FormControl, FormField, FormLabel, FormItem,
-    Textarea,
-    VisualEditor,
-    Button,
-    BarChart,
-    Dialog
-  },
+  components: { VisualEditor },
   computed: {
     visible: {
       get(): boolean
@@ -122,11 +104,11 @@ export default defineComponent({
     }
   },
   methods: {
-    handlerCommitOptions(value: any)
+    onCommitOptions(value: any)
     {
       this.formState.configure = JSON.stringify(value)
     },
-    handlerPublish()
+    onSubmit()
     {
       this.validator()
       if (!this.message) {
@@ -134,17 +116,23 @@ export default defineComponent({
         ReportService.saveOrUpdate(this.formState)
                      .then(response => {
                        if (response.status) {
-                         ToastUtils.success(this.$t('report.tip.publishSuccess').replace('$VALUE', this.formState.name))
+                         this.$Message.success({
+                           content: this.$t('report.tip.publishSuccess').replace('$VALUE', this.formState.name),
+                           showIcon: true
+                         })
                          router.push('/admin/report')
                        }
                        else {
-                         ToastUtils.error(response.message)
+                         this.$Message.error({
+                           content: response.message,
+                           showIcon: true
+                         })
                        }
                      })
                      .finally(() => this.published = false)
       }
     },
-    handlerCancel()
+    onCancel()
     {
       this.visible = false
     },

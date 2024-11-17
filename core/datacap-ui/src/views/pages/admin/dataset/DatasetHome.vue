@@ -1,128 +1,155 @@
 <template>
-  <div class="w-full">
-    <DataCapCard>
-      <template #title>{{ $t('dataset.common.list') }}</template>
-      <template #content>
-        <TableCommon :loading="loading" :columns="headers" :data="data" :pagination="pagination" @changePage="handlerChangePage">
-          <template #source="{row}">
-            <Tooltip :content="row?.source.type">
-              <Avatar :size="'sm'" :src="'/static/images/plugin/' + row?.source.type + '.png'" :alt="row?.source.type" class="cursor-pointer"/>
-            </Tooltip>
-          </template>
-          <template #syncMode="{ row }">
-            <Badge v-if="row?.syncMode === 'MANUAL'">{{ $t('dataset.common.syncModeManual') }}</Badge>
-            <Badge v-else-if="row?.syncMode === 'TIMING'">{{ $t('dataset.common.syncModeTiming') }}</Badge>
-            <Badge v-else-if="row?.syncMode === 'OUT_SYNC'">{{ $t('dataset.common.syncModeOutSync') }}</Badge>
-          </template>
-          <template #state="{ row }">
-            <HoverCard>
-              <HoverCardTrigger>{{ getState(row?.state) }}</HoverCardTrigger>
-              <HoverCardContent>
-                <DatasetState class="mt-[25px]" :states="row?.state"/>
-              </HoverCardContent>
-            </HoverCard>
-          </template>
-          <template #action="{row}">
-            <DropdownMenu>
-              <DropdownMenuTrigger as-child>
-                <Button variant="outline">
-                  <Cog class="w-full justify-center" :size="20"/>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <RouterLink :to="`/admin/dataset/info/${row?.code}`" target="_blank" class="flex items-center">
-                      <Info class="mr-2 h-4 w-4"/>
-                      <span>{{ $t('dataset.common.info') }}</span>
-                    </RouterLink>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem :disabled="!isSuccess(row?.state)">
-                    <RouterLink :to="`/admin/dataset/adhoc/${row?.code}`" target="_blank" class="flex items-center">
-                      <BarChart2 class="mr-2 h-4 w-4"/>
-                      <span>{{ $t('dataset.common.adhoc') }}</span>
-                    </RouterLink>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator/>
-                  <DropdownMenuItem :disabled="!isSuccess(row?.state)" style="cursor: pointer;" @click="handlerSyncData(row, true)">
-                    <RefreshCcw class="mr-2 h-4 w-4"/>
-                    <span>{{ $t('dataset.common.syncData') }}</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem style="cursor: pointer;" @click="handlerHistory(row, true)">
-                    <History class="mr-2 h-4 w-4"/>
-                    <span>{{ $t('dataset.common.history') }}</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator/>
-                  <DropdownMenuItem :disabled="isSuccess(row?.state)" style="cursor: pointer;" @click="handlerError(row, true)">
-                    <TriangleAlert class="mr-2 h-4 w-4"/>
-                    <span>{{ $t('dataset.common.error') }}</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem :disabled="isSuccess(row?.state)" style="cursor: pointer;" @click="handlerRebuild(row, true)">
-                    <CirclePlay v-if="row?.state === 'SUCCESS'" class="mr-2 h-4 w-4"/>
-                    <CircleStop v-else class="mr-2 h-4 w-4"/>
-                    {{ $t('dataset.common.rebuild') }}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem :disabled="!(row?.totalRows > 0)" style="cursor: pointer;" @click="handlerClearData(row, true)">
-                    <SquareX class="mr-2 h-4 w-4"/>
-                    {{ $t('dataset.common.clearData') }}
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </template>
-        </TableCommon>
-      </template>
-    </DataCapCard>
-    <DatasetRebuild v-if="rebuildVisible" :is-visible="rebuildVisible" :data="contextData" @close="handlerRebuild(null, false)"/>
-    <DatasetHistory v-if="historyVisible" :is-visible="historyVisible" :info="contextData" @close="handlerHistory(null, false)"/>
-    <DatasetSync v-if="syncDataVisible" :is-visible="syncDataVisible" :info="contextData" @close="handlerSyncData(null, false)"/>
-    <DatasetClear v-if="clearDataVisible" :is-visible="clearDataVisible" :info="contextData" @close="handlerClearData(null, false)"/>
-    <MarkdownPreview v-if="errorVisible && contextData" :is-visible="errorVisible" :content="'```java\n' + contextData.message + '\n```'" @close="handlerError(null, false)"/>
-  </div>
+  <ShadcnCard>
+    <template #title>
+      <div class="ml-2 font-normal text-sm">{{ $t('dataset.common.list') }}</div>
+    </template>
+
+    <div class="relative">
+      <ShadcnSpin v-if="loading" fixed/>
+
+      <ShadcnTable size="small" :columns="headers" :data="data">
+        <template #source="{row}">
+          <ShadcnTooltip :content="row?.source.type">
+            <ShadcnAvatar size="small" :src="'/static/images/plugin/' + row?.source.type + '.png'" :alt="row?.source.type"/>
+          </ShadcnTooltip>
+        </template>
+
+        <template #syncMode="{ row }">
+          <ShadcnBadge v-if="row?.syncMode === 'MANUAL'" :text=" $t('dataset.common.syncModeManual')"/>
+          <ShadcnBadge v-else-if="row?.syncMode === 'TIMING'" :text="$t('dataset.common.syncModeTiming')"/>
+          <ShadcnBadge v-else-if="row?.syncMode === 'OUT_SYNC'" :text="$t('dataset.common.syncModeOutSync')"/>
+        </template>
+
+        <template #state="{ row }">
+          <ShadcnHoverCard>
+            <template #content>
+              <DatasetState :states="row?.state"/>
+            </template>
+            {{ getState(row?.state) }}
+          </ShadcnHoverCard>
+        </template>
+
+        <template #action="{ row }">
+          <ShadcnSpace>
+            <ShadcnTooltip :content="$t('dataset.common.adhoc')">
+              <ShadcnLink :link="`/admin/dataset/adhoc/${row?.code}`" target="_blank">
+                <ShadcnButton circle size="small" :disabled="!isSuccess(row?.state)">
+                  <ShadcnIcon icon="BarChart2" size="15"/>
+                </ShadcnButton>
+              </ShadcnLink>
+            </ShadcnTooltip>
+
+            <ShadcnDropdown trigger="click" position="right">
+              <template #trigger>
+                <ShadcnButton circle size="small">
+                  <ShadcnIcon icon="Cog" size="15"/>
+                </ShadcnButton>
+              </template>
+
+              <ShadcnDropdownItem>
+                <RouterLink :to="`/admin/dataset/info/${row?.code}`" target="_blank" class="flex items-center">
+                  <ShadcnIcon icon="Info" size="15"/>
+                  <span class="ml-2">{{ $t('dataset.common.info') }}</span>
+                </RouterLink>
+              </ShadcnDropdownItem>
+
+              <ShadcnDropdownItem :disabled="!isSuccess(row?.state)" @on-click="visibleSyncData(row, true)">
+                <div class="flex items-center space-x-2">
+                  <ShadcnIcon icon="RefreshCcw" size="15"/>
+                  <span>{{ $t('dataset.common.syncData') }}</span>
+                </div>
+              </ShadcnDropdownItem>
+
+              <ShadcnDropdownItem @on-click="visibleHistory(row, true)">
+                <div class="flex items-center space-x-2">
+                  <ShadcnIcon icon="History" size="15"/>
+                  <span>{{ $t('dataset.common.history') }}</span>
+                </div>
+              </ShadcnDropdownItem>
+
+              <ShadcnDropdownItem :disabled="isSuccess(row?.state)" @on-click="visibleError(row, true)">
+                <div class="flex items-center space-x-2">
+                  <ShadcnIcon icon="TriangleAlert" size="15"/>
+                  <span>{{ $t('dataset.common.error') }}</span>
+                </div>
+              </ShadcnDropdownItem>
+
+              <ShadcnDropdownItem :disabled="isSuccess(row?.state)" @on-click="visibleRebuild(row, true)">
+                <div class="flex items-center space-x-2">
+                  <ShadcnIcon :icon="row?.state === 'SUCCESS' ? 'CirclePlay' : 'CircleStop'" size="15"/>
+                  <span>{{ $t('dataset.common.rebuild') }}</span>
+                </div>
+              </ShadcnDropdownItem>
+
+              <ShadcnDropdownItem :disabled="!(row?.totalRows > 0)" @on-click="visibleClearData(row, true)">
+                <div class="flex items-center space-x-2">
+                  <ShadcnIcon icon="SquareX" size="15"/>
+                  <span>{{ $t('dataset.common.clearData') }}</span>
+                </div>
+              </ShadcnDropdownItem>
+            </ShadcnDropdown>
+          </ShadcnSpace>
+        </template>
+      </ShadcnTable>
+
+      <ShadcnPagination v-if="data?.length > 0"
+                        v-model="pageIndex"
+                        class="py-2"
+                        show-total
+                        show-sizer
+                        :page-size="pageSize"
+                        :total="dataCount"
+                        :sizerOptions="[10, 20, 50]"
+                        @on-change="onPageChange"
+                        @on-prev="onPrevChange"
+                        @on-next="onNextChange"
+                        @on-change-size="onSizeChange"/>
+    </div>
+  </ShadcnCard>
+
+  <DatasetRebuild v-if="rebuildVisible"
+                  :is-visible="rebuildVisible"
+                  :data="contextData"
+                  @close="visibleRebuild(null, false)"/>
+
+  <DatasetHistory v-if="historyVisible"
+                  :is-visible="historyVisible"
+                  :info="contextData"
+                  @close="visibleHistory(null, false)"/>
+
+  <DatasetSync v-if="syncDataVisible"
+               :is-visible="syncDataVisible"
+               :info="contextData"
+               @close="visibleSyncData(null, false)"/>
+
+  <DatasetClear v-if="clearDataVisible"
+                :is-visible="clearDataVisible"
+                :info="contextData"
+                @close="visibleClearData(null, false)"/>
+
+  <MarkdownPreview v-if="errorVisible && contextData"
+                   :is-visible="errorVisible"
+                   :content="'```java\n' + contextData.message + '\n```'"
+                   @close="visibleError(null, false)"/>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import TableCommon from '@/views/components/table/TableCommon.vue'
 import { FilterModel } from '@/model/filter'
 import { useI18n } from 'vue-i18n'
-import { PaginationModel, PaginationRequest } from '@/model/pagination'
 import { createHeaders } from './DatasetUtils'
 import DatasetService from '@/services/dataset'
-import Tooltip from '@/views/ui/tooltip'
-import Avatar from '@/views/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import DatasetState from '@/views/pages/admin/dataset/components/DatasetState.vue'
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
-import { BarChart2, CirclePlay, CircleStop, Cog, History, Info, RefreshCcw, SquareX, TriangleAlert } from 'lucide-vue-next'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
 import { DatasetModel } from '@/model/dataset'
-import DatasetRebuild from '@/views/pages/admin/dataset/DatasetRebuild.vue'
-import DatasetHistory from '@/views/pages/admin/dataset/DatasetHistory.vue'
+import DatasetState from '@/views/pages/admin/dataset/components/DatasetState.vue'
 import DatasetSync from '@/views/pages/admin/dataset/DatasetSync.vue'
-import DatasetClear from '@/views/pages/admin/dataset/DatasetClear.vue'
+import DatasetHistory from '@/views/pages/admin/dataset/DatasetHistory.vue'
 import MarkdownPreview from '@/views/components/markdown/MarkdownView.vue'
-import { DataCapCard } from '@/views/ui/card'
+import DatasetRebuild from '@/views/pages/admin/dataset/DatasetRebuild.vue'
+import DatasetClear from '@/views/pages/admin/dataset/DatasetClear.vue'
 
 export default defineComponent({
   name: 'DatasetHome',
-  components: {
-    DataCapCard,
-    DatasetClear, DatasetSync, DatasetHistory, DatasetRebuild, DatasetState,
-    DropdownMenuItem, DropdownMenuGroup, DropdownMenuSeparator, DropdownMenuLabel, DropdownMenuContent, DropdownMenuTrigger, DropdownMenu,
-    HoverCardContent, HoverCardTrigger, HoverCard,
-    Badge, Avatar, Tooltip,
-    MarkdownPreview, TableCommon,
-    Cog, BarChart2, CirclePlay, CircleStop, History, RefreshCcw, SquareX, TriangleAlert, Info
-  },
+  components: { DatasetClear, DatasetRebuild, MarkdownPreview, DatasetHistory, DatasetSync, DatasetState },
   setup()
   {
     const filter: FilterModel = new FilterModel()
@@ -138,7 +165,9 @@ export default defineComponent({
     return {
       loading: false,
       data: [],
-      pagination: {} as PaginationModel,
+      pageIndex: 1,
+      pageSize: 10,
+      dataCount: 0,
       contextData: null as DatasetModel | null,
       rebuildVisible: false,
       historyVisible: false,
@@ -149,28 +178,47 @@ export default defineComponent({
   },
   created()
   {
-    this.handlerInitialize()
+    this.handleInitialize()
   },
   methods: {
-    handlerInitialize()
+    handleInitialize()
     {
       this.loading = true
       DatasetService.getAll(this.filter)
                     .then((response) => {
                       if (response.status) {
                         this.data = response.data.content
-                        this.pagination = PaginationRequest.of(response.data)
+                        this.dataCount = response.data.total
+                        this.pageSize = response.data.size
+                        this.pageIndex = response.data.page
                       }
                     })
                     .finally(() => this.loading = false)
     },
-    handlerChangePage(value: PaginationModel)
+    fetchData(value: number)
     {
-      this.filter.page = value.currentPage
-      this.filter.size = value.pageSize
-      this.handlerInitialize()
+      this.filter.page = value
+      this.filter.size = this.pageSize
+      this.handleInitialize()
     },
-    handlerRebuild(record: DatasetModel | null, opened: boolean)
+    onPageChange(value: number)
+    {
+      this.fetchData(value)
+    },
+    onPrevChange(value: number)
+    {
+      this.fetchData(value)
+    },
+    onNextChange(value: number)
+    {
+      this.fetchData(value)
+    },
+    onSizeChange(value: number)
+    {
+      this.pageSize = value
+      this.fetchData(this.pageIndex)
+    },
+    visibleRebuild(record: DatasetModel | null, opened: boolean)
     {
       if (record && this.isSuccess(record.state)) {
         return
@@ -178,12 +226,12 @@ export default defineComponent({
       this.rebuildVisible = opened
       this.contextData = record
     },
-    handlerHistory(record: DatasetModel | null, opened: boolean)
+    visibleHistory(record: DatasetModel | null, opened: boolean)
     {
       this.contextData = record
       this.historyVisible = opened
     },
-    handlerSyncData(record: DatasetModel | null, opened: boolean)
+    visibleSyncData(record: DatasetModel | null, opened: boolean)
     {
       if (record && !this.isSuccess(record.state)) {
         return
@@ -191,7 +239,7 @@ export default defineComponent({
       this.contextData = record
       this.syncDataVisible = opened
     },
-    handlerClearData(record: DatasetModel | null, opened: boolean)
+    visibleClearData(record: DatasetModel | null, opened: boolean)
     {
       if (record && !(record.totalRows > 0)) {
         return
@@ -199,10 +247,10 @@ export default defineComponent({
       this.contextData = record
       this.clearDataVisible = opened
       if (!opened) {
-        this.handlerInitialize()
+        this.handleInitialize()
       }
     },
-    handlerError(record: DatasetModel | null, opened: boolean)
+    visibleError(record: DatasetModel | null, opened: boolean)
     {
       this.errorVisible = opened
       this.contextData = record

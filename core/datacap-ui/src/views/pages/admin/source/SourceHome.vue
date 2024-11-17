@@ -1,129 +1,147 @@
 <template>
-  <DataCapCard>
-    <template #title>{{ $t('source.common.list') }}</template>
+  <ShadcnCard>
+    <template #title>
+      <div class="ml-2">{{ $t('source.common.list') }}</div>
+    </template>
+
     <template #extra>
-      <Button size="icon" class="ml-auto gap-1 h-6 w-6" @click="handlerInfo(true, null)">
-        <Plus :size="15"/>
-      </Button>
+      <ShadcnButton circle size="small" @click="visibleInfo(true, null)">
+        <ShadcnIcon icon="Plus" :size="20"/>
+      </ShadcnButton>
     </template>
-    <template #content>
-      <TableCommon :loading="loading" :columns="headers" :data="data" :pagination="pagination" @changePage="handlerChangePage">
+
+    <div class="relative">
+      <ShadcnSpin v-if="loading" fixed/>
+
+      <ShadcnTable size="small" :columns="headers" :data="data">
         <template #type="{row}">
-          <Tooltip :content="row.type">
-            <Avatar :size="'sm'" :src="'/static/images/plugin/' + row.type + '.png'" :alt="row.type" class="cursor-pointer"/>
-          </Tooltip>
+          <ShadcnTooltip :content="row.type">
+            <ShadcnAvatar class="cursor-pointer"
+                          size="small"
+                          :src="'/static/images/plugin/' + row.type + '.png'"
+                          :alt="row.type"/>
+          </ShadcnTooltip>
         </template>
+
         <template #public="{row}">
-          <Switch disabled :default-checked="row.public"/>
+          <ShadcnSwitch v-model="row.public" disabled size="small"/>
         </template>
+
         <template #version="{row}">
-          <Tag v-if="row.version">{{ row.version }}</Tag>
-          <Tag v-else>-</Tag>
+          <ShadcnTag :text="row.version || '-'" size="default" type="primary"/>
         </template>
-        <template #available="{ row }">
-          <Tooltip v-if="!row.available" :content="row.message">
-            <CircleX class="cursor-pointer" style="color: #cc0000"/>
-          </Tooltip>
-          <CirclePlay v-else class="cursor-pointer" style="color: hsl(var(--primary))"/>
+
+        <template #available="{row}">
+          <ShadcnTooltip v-if="!row.available" :content="row.message">
+            <ShadcnIcon icon="CircleX" :size="20" class="cursor-pointer text-red-500"/>
+          </ShadcnTooltip>
+          <ShadcnIcon v-else icon="CirclePlay" :size="20" class="text-green-500"/>
         </template>
-        <template #action="{ row }">
-          <div class="space-x-2">
-            <Tooltip :content="$t('source.common.modify').replace('$NAME', row.name)">
-              <Button :disabled="loginUserId !== row.user.id" size="icon" class="rounded-full w-6 h-6" @click="handlerInfo(true, row)">
-                <Pencil :size="14"/>
-              </Button>
-            </Tooltip>
-            <DropdownMenu>
-              <DropdownMenuTrigger as-child>
-                <Button size="icon" class="rounded-full w-6 h-6" variant="outline">
-                  <Cog class="w-full justify-center" :size="14"/>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuGroup>
-                  <DropdownMenuItem :disabled="(loginUserId !== row.user.id) || !row.available" class="cursor-pointer">
-                    <RouterLink :to="`/admin/source/${row?.code}`" target="_blank" class="flex items-center">
-                      <Cog class="mr-2 h-4 w-4"/>
-                      <span>{{ $t('source.common.manager') }}</span>
-                    </RouterLink>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem :disabled="loginUserId !== row.user.id" class="cursor-pointer" @click="handlerDelete(true, row)">
-                    <Trash class="mr-2 h-4 w-4"/>
-                    <span>{{ $t('common.deleteData') }}</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem :disabled="(loginUserId !== row.user.id)" class="cursor-pointer" @click="handlerHistory(true, row)">
-                    <History class="mr-2 h-4 w-4"/>
-                    {{ $t('source.common.syncHistory') }}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem :disabled="(loginUserId !== row.user.id) || !row.available" class="cursor-pointer" @click="handlerSyncMetadata(true, row)">
-                    <RefreshCcwDot class="mr-2 h-4 w-4"/>
-                    {{ $t('source.common.syncMetadata') }}
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+
+        <template #action="{row}">
+          <ShadcnSpace>
+            <ShadcnTooltip :content="$t('source.common.modify').replace('$NAME', row.name)">
+              <ShadcnButton circle
+                            size="small"
+                            :disabled="loginUserId !== row.user.id"
+                            @click="visibleInfo(true, row)">
+                <ShadcnIcon icon="Pencil" :size="15"/>
+              </ShadcnButton>
+            </ShadcnTooltip>
+
+            <ShadcnDropdown trigger="click">
+              <template #trigger>
+                <ShadcnButton circle size="small">
+                  <ShadcnIcon icon="Cog" :size="15"/>
+                </ShadcnButton>
+              </template>
+
+              <ShadcnDropdownItem :disabled="(loginUserId !== row.user.id) || !row.available">
+                <ShadcnLink :link="`/admin/source/${row?.code}`" target="_blank">
+                  <div class="flex items-center space-x-2">
+                    <ShadcnIcon icon="Cog" size="15"/>
+                    <span>{{ $t('source.common.manager') }}</span>
+                  </div>
+                </ShadcnLink>
+              </ShadcnDropdownItem>
+
+              <ShadcnDropdownItem :disabled="(loginUserId !== row.user.id)" @on-click="visibleHistory(true, row)">
+                <div class="flex items-center space-x-2">
+                  <ShadcnIcon icon="History" size="15"/>
+                  <span>{{ $t('source.common.syncHistory') }}</span>
+                </div>
+              </ShadcnDropdownItem>
+
+              <ShadcnDropdownItem :disabled="(loginUserId !== row.user.id) || !row.available" @on-click="visibleSyncMetadata(true, row)">
+                <div class="flex items-center space-x-2">
+                  <ShadcnIcon icon="RefreshCcwDot" size="15"/>
+                  <span>{{ $t('source.common.syncMetadata') }}</span>
+                </div>
+              </ShadcnDropdownItem>
+
+              <ShadcnDropdownItem :disabled="loginUserId !== row.user.id" @on-click="visibleDelete(true, row)">
+                <div class="flex items-center space-x-2">
+                  <ShadcnIcon icon="Trash" size="15"/>
+                  <span>{{ $t('common.deleteData') }}</span>
+                </div>
+              </ShadcnDropdownItem>
+            </ShadcnDropdown>
+          </ShadcnSpace>
         </template>
-      </TableCommon>
-    </template>
-  </DataCapCard>
-  <div class="w-full">
-    <SourceInfo v-if="dataInfoVisible" :is-visible="dataInfoVisible" :info="dataInfo" @close="handlerInfo(false, null)"/>
-    <SourceDelete v-if="dataDeleteVisible" :is-visible="dataDeleteVisible" :info="dataInfo" @close="handlerDelete(false, null)"/>
-    <SourceMetadata v-if="dataSyncMetadataVisible" :is-visible="dataSyncMetadataVisible" :info="dataInfo" @close="handlerSyncMetadata(false, null)"/>
-    <SourceHistory v-if="dataHistoryVisible" :is-visible="dataHistoryVisible" :info="dataInfo" @close="handlerHistory(false, null)"/>
-  </div>
+      </ShadcnTable>
+
+      <ShadcnPagination v-if="data.length > 0"
+                        v-model="pageIndex"
+                        class="py-2"
+                        show-total
+                        show-sizer
+                        :page-size="pageSize"
+                        :total="dataCount"
+                        :sizerOptions="[10, 20, 50]"
+                        @on-change="onPageChange"
+                        @on-prev="onPrevChange"
+                        @on-next="onNextChange"
+                        @on-change-size="onSizeChange"/>
+    </div>
+  </ShadcnCard>
+
+  <SourceInfo v-if="dataInfoVisible"
+              :is-visible="dataInfoVisible"
+              :info="dataInfo"
+              @close="visibleInfo(false, null)"/>
+
+  <SourceDelete v-if="dataDeleteVisible"
+                :is-visible="dataDeleteVisible"
+                :info="dataInfo"
+                @close="visibleDelete(false, null)"/>
+
+  <SourceMetadata v-if="dataSyncMetadataVisible"
+                  :is-visible="dataSyncMetadataVisible"
+                  :info="dataInfo"
+                  @close="visibleSyncMetadata(false, null)"/>
+
+  <SourceHistory v-if="dataHistoryVisible"
+                 :is-visible="dataHistoryVisible"
+                 :info="dataInfo"
+                 @close="visibleHistory(false, null)"/>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import Button from '@/views/ui/button'
-import { CirclePlay, CircleX, Cog, History, Info, Pencil, Plus, RefreshCcwDot, Trash } from 'lucide-vue-next'
-import TableCommon from '@/views/components/table/TableCommon.vue'
-import { FilterModel } from '@/model/filter'
 import { useI18n } from 'vue-i18n'
-import { PaginationModel, PaginationRequest } from '@/model/pagination'
+import Common from '@/utils/common'
+import { createHeaders } from '@/views/pages/admin/source/SourceUtils'
+import { FilterModel } from '@/model/filter'
 import { SourceModel } from '@/model/source'
 import SourceService from '@/services/source'
-import { createHeaders } from '@/views/pages/admin/source/SourceUtils'
-import Avatar from '@/views/ui/avatar'
-import Tooltip from '@/views/ui/tooltip'
-import Tag from '@/views/ui/tag'
-import { Switch } from '@/components/ui/switch'
-import Common from '@/utils/common'
 import SourceInfo from '@/views/pages/admin/source/SourceInfo.vue'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+import SourceHistory from '@/views/pages/admin/source/SourceHistory.vue'
 import SourceDelete from '@/views/pages/admin/source/SourceDelete.vue'
 import SourceMetadata from '@/views/pages/admin/source/SourceMetadata.vue'
-import SourceHistory from '@/views/pages/admin/source/SourceHistory.vue'
-import { DataCapCard } from '@/views/ui/card'
 
 export default defineComponent({
   name: 'SourceHome',
-  components: {
-    DataCapCard,
-    Info,
-    SourceHistory,
-    SourceMetadata,
-    SourceDelete,
-    DropdownMenuItem, DropdownMenuGroup, DropdownMenuSeparator, DropdownMenuLabel, DropdownMenuContent, DropdownMenuTrigger, DropdownMenu,
-    SourceInfo,
-    Tag,
-    Tooltip,
-    Switch,
-    Avatar,
-    TableCommon,
-    Pencil, CircleX, CirclePlay, Cog, Trash, Plus, RefreshCcwDot, History,
-    Button
-  },
+  components: { SourceMetadata, SourceDelete, SourceHistory, SourceInfo },
   setup()
   {
     const filter: FilterModel = new FilterModel()
@@ -141,7 +159,9 @@ export default defineComponent({
     return {
       loading: false,
       data: [],
-      pagination: {} as PaginationModel,
+      pageIndex: 1,
+      pageSize: 10,
+      dataCount: 0,
       dataInfoVisible: false,
       dataInfo: null as SourceModel | null,
       dataDeleteVisible: false,
@@ -161,18 +181,37 @@ export default defineComponent({
                    .then((response) => {
                      if (response.status) {
                        this.data = response.data.content
-                       this.pagination = PaginationRequest.of(response.data)
+                       this.dataCount = response.data.total
+                       this.pageSize = response.data.size
+                       this.pageIndex = response.data.page
                      }
                    })
                    .finally(() => this.loading = false)
     },
-    handlerChangePage(value: PaginationModel)
+    fetchData(value: number)
     {
-      this.filter.page = value.currentPage
-      this.filter.size = value.pageSize
+      this.filter.page = value
+      this.filter.size = this.pageSize
       this.handlerInitialize()
     },
-    handlerInfo(opened: boolean, value: null | SourceModel)
+    onPageChange(value: number)
+    {
+      this.fetchData(value)
+    },
+    onPrevChange(value: number)
+    {
+      this.fetchData(value)
+    },
+    onNextChange(value: number)
+    {
+      this.fetchData(value)
+    },
+    onSizeChange(value: number)
+    {
+      this.pageSize = value
+      this.fetchData(this.pageIndex)
+    },
+    visibleInfo(opened: boolean, value: null | SourceModel)
     {
       this.dataInfoVisible = opened
       this.dataInfo = value
@@ -180,7 +219,7 @@ export default defineComponent({
         this.handlerInitialize()
       }
     },
-    handlerDelete(opened: boolean, value: null | SourceModel)
+    visibleDelete(opened: boolean, value: null | SourceModel)
     {
       this.dataDeleteVisible = opened
       this.dataInfo = value
@@ -188,12 +227,12 @@ export default defineComponent({
         this.handlerInitialize()
       }
     },
-    handlerSyncMetadata(opened: boolean, value: null | SourceModel)
+    visibleSyncMetadata(opened: boolean, value: null | SourceModel)
     {
       this.dataSyncMetadataVisible = opened
       this.dataInfo = value
     },
-    handlerHistory(opened: boolean, value: null | SourceModel)
+    visibleHistory(opened: boolean, value: null | SourceModel)
     {
       this.dataHistoryVisible = opened
       this.dataInfo = value

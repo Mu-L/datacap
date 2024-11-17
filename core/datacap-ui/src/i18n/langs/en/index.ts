@@ -120,7 +120,9 @@ export default {
             filterCondition: 'Filter Condition',
             addFilter: 'Add Filter',
             statement: 'Statement',
-            erDiagram: 'ER Diagram'
+            erDiagram: 'ER Diagram',
+            type: 'Data source type',
+            configures: 'Data source configuration'
         },
         tip: {
             selectSource: 'Please select a source',
@@ -158,6 +160,41 @@ export default {
             dropColumn5: 'If you have any questions or need assistance performing a drop column operation, please contact your database administrator or technical support team. ',
             updateSuccess: 'Update success',
             deleteSuccess: 'Delete success'
+        },
+        placeholder: {
+            name: 'Please enter the source name',
+            tableName: 'Please enter the table name',
+            tableEngine: 'Please select the table engine',
+            tableComment: 'Please enter the table comment',
+            columnName: 'Please enter the column name',
+            columnType: 'Please select the column type',
+            columnLength: 'Please enter the column length',
+            columnDefaultValue: 'Please enter the default value',
+            columnComment: 'Please enter the column comment',
+        },
+        validator: {
+            name: {
+                required: 'Source name cannot be empty',
+                match: 'The source name entered is incorrect, please enter [$VALUE]'
+            },
+            tableName: {
+                required: 'Table name cannot be empty',
+                pattern: 'The table name entered is incorrect, must start with a letter, and contain only letters, digits, underscores, and dashes'
+            },
+            tableEngine: {
+                required: 'Table engine cannot be empty'
+            },
+            columnName: {
+                required: 'Column name cannot be empty',
+                pattern: 'The column name entered is incorrect, must start with a letter, and contain only letters, digits, underscores, and dashes'
+            },
+            columnType: {
+                required: 'Column type cannot be empty'
+            },
+            columnLength: {
+                required: 'Column length cannot be empty',
+                min: 'The column length cannot be less than 0',
+            }
         }
     },
     grid: {
@@ -514,6 +551,15 @@ export default {
             deleteAlert2: 'After deleting the code fragment, the data related to it will be permanently deleted. ',
             deleteAlert3: 'After a code fragment is deleted, it cannot be restored. ',
             deleteAlert4: 'To confirm, type [ $VALUE ] in the box below'
+        },
+        placeholder: {
+            name: 'Please enter the snippet name',
+        },
+        validator: {
+            name: {
+                required: 'The snippet name cannot be empty',
+                match: 'The entered fragment name is incorrect, please enter [$VALUE]'
+            }
         }
     },
     report: {
@@ -531,8 +577,15 @@ export default {
             deleteAlert3: 'To confirm, type [ $VALUE ] in the box below',
             publishSuccess: 'Report [ $VALUE ] published successfully'
         },
+        placeholder: {
+            name: 'Please enter the report name',
+            description: 'Please enter the report description'
+        },
         validator: {
-            name: 'Please enter the report name'
+            name: {
+                required: 'Report name cannot be empty',
+                match: 'The entered report name is incorrect, please enter [$VALUE]'
+            }
         }
     },
     pipeline: {
@@ -551,11 +604,6 @@ export default {
             output: 'Output Source',
             resetTransform: 'Reset Transform'
         },
-        validator: {
-            from: 'Please configure the input source information',
-            to: 'Please configure the output source information',
-            edge: 'Please connect the input and output source'
-        },
         tip: {
             deleteSuccess: 'Delete pipeline [ $VALUE ] successfully',
             deleteAlert1: 'You are deleting a pipeline. This action permanently deletes the pipeline. Please be sure to confirm your actions before proceeding.',
@@ -566,6 +614,18 @@ export default {
             stopAlert3: 'To confirm, type [ $VALUE ] in the box below',
             stopSuccess: 'Pipeline [ $VALUE ] stopped successfully',
             publishSuccess: 'Pipeline [ $VALUE ] published successfully'
+        },
+        placeholder: {
+            name: 'Please enter the pipeline name',
+        },
+        validator: {
+            from: 'Please configure the input source information',
+            to: 'Please configure the output source information',
+            edge: 'Please connect the input and output source',
+            name: {
+                required: 'Pipeline name cannot be empty',
+                match: 'The entered pipeline name is incorrect, please enter [$VALUE]'
+            }
         }
     },
     common: {
@@ -807,6 +867,16 @@ export default {
             deleteTip3: 'To confirm, type [ $NAME ] in the box below',
             publishSuccess: 'Dashboard [ $VALUE ] published successfully',
             notFound: 'Dashboard [ $VALUE ] not found'
+        },
+        placeholder: {
+            name: 'Please enter the dashboard name',
+            description: 'Please enter the dashboard description'
+        },
+        validator: {
+            name: {
+                required: 'Dashboard name cannot be empty',
+                match: 'The entered dashboard name is incorrect, please enter [$VALUE]'
+            }
         }
     },
     function: {
@@ -960,6 +1030,7 @@ export default {
             info: 'View Info',
             lifeCycleColumn: 'Lifecycle columns',
             lifeCycleNumber: 'Lifecycle number',
+            lifeCycleType: 'Lifecycle type',
             continuousBuild: 'Continuous Build'
         },
         validator: {

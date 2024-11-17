@@ -1,21 +1,20 @@
 <template>
-  <div>
-    <CircularLoading v-if="loading" :show="loading"/>
-    <div v-else>
-      <ErDiagram :options="options"/>
-    </div>
+  <div class="relative h-screen">
+    <ShadcnSpin v-model="loading" fixed/>
+
+    <ErDiagram v-if="!loading" :options="options"/>
   </div>
 </template>
 <script lang="ts">
 import { defineComponent, watch } from 'vue'
 import ColumnService from '@/services/column.ts'
-import CircularLoading from '@/views/components/loading/CircularLoading.vue'
+
 import ErDiagram from '@/views/components/diagram/ErDiagram.vue'
 import { ErDiagramOptions } from '@/views/components/diagram/ErDiagramOptions.ts'
 
 export default defineComponent({
   name: 'SourceTableErDiagram',
-  components: { ErDiagram, CircularLoading },
+  components: { ErDiagram },
   data()
   {
     return {
@@ -25,11 +24,11 @@ export default defineComponent({
   },
   created()
   {
-    this.handlerInitialize()
+    this.handleInitialize()
     this.watchChange()
   },
   methods: {
-    handlerInitialize()
+    handleInitialize()
     {
       const code = this.$route?.params.table as string
       if (code) {
@@ -50,7 +49,7 @@ export default defineComponent({
     {
       watch(
           () => this.$route?.params.table,
-          () => this.handlerInitialize()
+          () => this.handleInitialize()
       )
     }
   }

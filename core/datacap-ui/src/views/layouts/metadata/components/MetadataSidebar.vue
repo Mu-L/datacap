@@ -1,122 +1,130 @@
 <template>
-  <DataCapCard>
-    <template #title>
-      <Select v-model="selectDatabase" :default-value="originalDatabase ? originalDatabase : selectDatabase" @update:modelValue="handlerChangeDatabase">
-        <SelectTrigger class="border-0 w-[200px]">
-          <SelectValue :placeholder="$t('source.tip.selectDatabase')"/>
-        </SelectTrigger>
-        <SelectContent class="w-full">
-          <SelectGroup class="w-full">
-            <SelectItem v-for="item in databaseArray" :value="item.code as any" :key="item.title as string" class="cursor-pointer">
-              {{ item.title }}
-            </SelectItem>
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-    </template>
-    <template #content>
-      <div class="h-[700px] overflow-x-auto overflow-y-auto">
-        <CircularLoading v-if="loading" :show="loading"/>
-        <div v-else>
-          <Tree :data="dataTreeArray" :empty-text="$t('source.tip.selectDatabase')" :load-data="handlerLoadChildData" @on-select-change="handlerSelectNode"
-                @on-contextmenu="handlerContextMenu">
-            <template #contextMenu>
-              <DropdownMenu>
-                <DropdownMenuTrigger as-child>
-                  <span id="contextMenu"></span>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent class="-mt-3">
-                  <DropdownMenuLabel>{{ $t('common.action') }}</DropdownMenuLabel>
-                  <DropdownMenuSeparator/>
-                  <DropdownMenuGroup>
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger class="cursor-pointer">{{ $t('source.common.menuNew') }}</DropdownMenuSubTrigger>
-                      <DropdownMenuPortal>
-                        <DropdownMenuSubContent>
-                          <DropdownMenuItem v-if="dataInfo?.level === StructureEnum.TABLE" class="cursor-pointer" @click="handlerCreateTable(true)">
-                            <Table :size="18" class="mr-2"/>
-                            {{ $t('source.common.menuNewTable') }}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem class="cursor-pointer" @click="handlerCreateColumn(true)">
-                            <Columns :size="18" class="mr-2"/>
-                            {{ $t('source.common.newColumn') }}
-                          </DropdownMenuItem>
-                        </DropdownMenuSubContent>
-                      </DropdownMenuPortal>
-                    </DropdownMenuSub>
-                  </DropdownMenuGroup>
-                  <DropdownMenuGroup v-if="dataInfo?.level === StructureEnum.TABLE">
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger class="cursor-pointer">{{ $t('source.common.menuExport') }}</DropdownMenuSubTrigger>
-                      <DropdownMenuPortal>
-                        <DropdownMenuSubContent>
-                          <DropdownMenuItem v-if="dataInfo?.level === StructureEnum.TABLE" class="cursor-pointer" @click="handlerExportData(true)">
-                            <ArrowUpFromLine :size="18" class="mr-2"/>
-                            {{ $t('source.common.exportData') }}
-                          </DropdownMenuItem>
-                        </DropdownMenuSubContent>
-                      </DropdownMenuPortal>
-                    </DropdownMenuSub>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator/>
-                  <DropdownMenuItem v-if="dataInfo?.level === StructureEnum.TABLE" class="cursor-pointer" @click="handlerTruncateTable(true)">
-                    <Trash :size="18" class="mr-2"/>
-                    {{ $t('source.common.truncateTable') }}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem v-if="dataInfo?.level === StructureEnum.TABLE" class="cursor-pointer" @click="handlerDropTable(true)">
-                    <Delete :size="18" class="mr-2"/>
-                    {{ $t('source.common.dropTable') }}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem v-if="dataInfo?.level === StructureEnum.COLUMN" class="cursor-pointer" @click="handlerChangeColumn(true)">
-                    <Pencil :size="18" class="mr-2"/>
-                    {{ $t('source.common.changeColumn') }}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem v-if="dataInfo?.level === StructureEnum.COLUMN" class="cursor-pointer" @click="handlerDropColumn(true)">
-                    <Delete :size="18" class="mr-2"/>
-                    {{ $t('source.common.dropColumn') }}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </template>
-          </Tree>
-        </div>
-      </div>
-    </template>
-  </DataCapCard>
-  <TableCreate v-if="tableCreateVisible" :isVisible="tableCreateVisible" :info="dataInfo" @close="handlerCreateTable(false)"/>
-  <TableExport v-if="tableExportVisible" :isVisible="tableExportVisible" :info="dataInfo" @close="handlerExportData(false)"/>
-  <TableTruncate v-if="tableTruncateVisible" :isVisible="tableTruncateVisible" :info="dataInfo" @close="handlerTruncateTable(false)"/>
-  <TableDrop v-if="tableDropVisible" :isVisible="tableDropVisible" :info="dataInfo" @close="handlerDropTable(false)"/>
-  <ColumnCreate v-if="columnCreateVisible" :isVisible="columnCreateVisible" :info="dataInfo" @close="handlerCreateColumn(false)"/>
-  <ColumnChange v-if="columnChangeVisible" :isVisible="columnChangeVisible" :info="dataInfo" @close="handlerChangeColumn(false)"/>
-  <ColumnDrop v-if="columnDropVisible" :isVisible="columnDropVisible" :info="dataInfo" @close="handlerDropColumn(false)"/>
+  <ShadcnCard :border="false">
+    <ShadcnSelect v-model="selectDatabase" @on-change="onChangeDatabase">
+      <template #options>
+        <ShadcnSelectOption v-for="item in databaseArray" :label="item.title" :value="item.code"/>
+      </template>
+    </ShadcnSelect>
+
+    <div class="relative h-screen overflow-x-auto overflow-y-auto">
+      <ShadcnSpin v-if="loading" fixed/>
+
+      <ShadcnTree v-model="databaseModel"
+                  :data="dataTreeArray"
+                  :loadData="onLoadData"
+                  @on-node-click="onNodeClick">
+        <template #label="{ node }">
+          <div class="flex items-center space-x-1" @contextmenu.prevent="visibleContextMenu($event, node)">
+            <ShadcnIcon class="text-xs font-semibold text-gray-500" size="16" :icon="node.level === 2 ? 'Table' : 'Columns'"/>
+            <span class="text-xs font-normal text-gray-900">
+              {{ node.title }}
+            </span>
+            <span v-if="node.level === 3" class="text-xs font-normal text-gray-500 ml-1">
+              {{ getColumnTitle(String(node.type), String(node.extra), String(node.isKey), String(node.defaultValue)) }}
+            </span>
+          </div>
+        </template>
+      </ShadcnTree>
+
+      <ShadcnContextMenu v-if="contextmenu.visible" v-model="contextmenu.visible" :position="contextmenu.position">
+        <ShadcnContextMenuSub :label="$t('source.common.menuNew')">
+          <ShadcnContextMenuItem v-if="dataInfo?.level === StructureEnum.TABLE" @click="visibleCreateTable(true)">
+            <div class="flex items-center space-x-1">
+              <ShadcnIcon icon="Table" size="15"/>
+              <span>{{ $t('source.common.menuNewTable') }}</span>
+            </div>
+          </ShadcnContextMenuItem>
+
+          <ShadcnContextMenuItem @click="visibleCreateColumn(true)">
+            <div class="flex items-center space-x-1">
+              <ShadcnIcon icon="Columns" size="15"/>
+              <span>{{ $t('source.common.newColumn') }}</span>
+            </div>
+          </ShadcnContextMenuItem>
+        </ShadcnContextMenuSub>
+
+        <ShadcnContextMenuSub v-if="dataInfo?.level === StructureEnum.TABLE" :label="$t('source.common.menuExport')">
+          <ShadcnContextMenuItem @click="visibleExportData(true)">
+            <div class="flex items-center space-x-1">
+              <ShadcnIcon icon="ArrowUpFromLine" size="15"/>
+              <span>{{ $t('source.common.exportData') }}</span>
+            </div>
+          </ShadcnContextMenuItem>
+        </ShadcnContextMenuSub>
+
+        <ShadcnContextMenuItem v-if="dataInfo?.level === StructureEnum.TABLE" @click="visibleTruncateTable(true)">
+          <div class="flex items-center space-x-1">
+            <ShadcnIcon icon="Trash" size="15"/>
+            <span>{{ $t('source.common.truncateTable') }}</span>
+          </div>
+        </ShadcnContextMenuItem>
+
+        <ShadcnContextMenuItem v-if="dataInfo?.level === StructureEnum.TABLE" @click="visibleDropTable(true)">
+          <div class="flex items-center space-x-1">
+            <ShadcnIcon icon="Delete" size="15"/>
+            <span>{{ $t('source.common.dropTable') }}</span>
+          </div>
+        </ShadcnContextMenuItem>
+
+        <ShadcnContextMenuItem v-if="dataInfo?.level === StructureEnum.COLUMN" @click="visibleChangeColumn(true)">
+          <div class="flex items-center space-x-1">
+            <ShadcnIcon icon="Pencil" size="15"/>
+            <span>{{ $t('source.common.changeColumn') }}</span>
+          </div>
+        </ShadcnContextMenuItem>
+
+        <ShadcnContextMenuItem v-if="dataInfo?.level === StructureEnum.COLUMN" @click="visibleDropColumn(true)">
+          <div class="flex items-center space-x-1">
+            <ShadcnIcon icon="Delete" size="15"/>
+            <span>{{ $t('source.common.dropColumn') }}</span>
+          </div>
+        </ShadcnContextMenuItem>
+      </ShadcnContextMenu>
+    </div>
+  </ShadcnCard>
+
+  <TableCreate v-if="tableCreateVisible"
+               :is-visible="tableCreateVisible"
+               :info="dataInfo as any"
+               @close="visibleCreateTable(false)"/>
+
+  <ColumnCreate v-if="columnCreateVisible"
+                :is-visible="columnCreateVisible"
+                :info="dataInfo as any"
+                @close="visibleCreateColumn(false)"/>
+
+  <TableExport v-if="tableExportVisible"
+               :isVisible="tableExportVisible"
+               :info="dataInfo as any"
+               @close="visibleExportData(false)"/>
+
+  <TableTruncate v-if="tableTruncateVisible"
+                 :is-visible="tableTruncateVisible"
+                 :info="dataInfo as any"
+                 @close="visibleTruncateTable(false)"/>
+
+  <TableDrop v-if="tableDropVisible"
+             :is-visible="tableDropVisible"
+             :info="dataInfo as any"
+             @close="visibleDropTable(false)"/>
+
+  <ColumnChange v-if="columnChangeVisible"
+                :is-visible="columnChangeVisible"
+                :info="dataInfo as any"
+                @close="visibleChangeColumn(false)"/>
+
+  <ColumnDrop v-if="columnDropVisible"
+              :is-visible="columnDropVisible"
+              :info="dataInfo as any"
+              @close="visibleDropColumn(false)"/>
 </template>
 
 <script lang="ts">
-import { defineComponent, resolveComponent } from 'vue'
-import { ArrowUpFromLine, Columns, Delete, Pencil, Table, Trash } from 'lucide-vue-next'
-import CircularLoading from '@/views/components/loading/CircularLoading.vue'
+import { defineComponent } from 'vue'
 import DatabaseService from '@/services/database.ts'
 import { StructureEnum, StructureModel } from '@/model/structure.ts'
-import { Tree } from 'view-ui-plus'
-import '@/views/components/tree/style.css'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import TableService from '@/services/table.ts'
 import ColumnService from '@/services/column.ts'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
 import ColumnCreate from '@/views/pages/admin/source/components/ColumnCreate.vue'
 import ColumnDrop from '@/views/pages/admin/source/components/ColumnDrop.vue'
 import TableExport from '@/views/pages/admin/source/components/TableExport.vue'
@@ -124,48 +132,28 @@ import ColumnChange from '@/views/pages/admin/source/components/ColumnChange.vue
 import TableTruncate from '@/views/pages/admin/source/components/TableTruncate.vue'
 import TableDrop from '@/views/pages/admin/source/components/TableDrop.vue'
 import TableCreate from '@/views/pages/admin/source/components/TableCreate.vue'
-import { ToastUtils } from '@/utils/toast.ts'
-import { DataCapCard } from '@/views/ui/card'
 
 export default defineComponent({
   name: 'MetadataSidebar',
-  components: {
-    DataCapCard,
-    TableCreate, TableDrop, TableTruncate, ColumnChange, TableExport, ColumnDrop, ColumnCreate,
-    Tree,
-    CircularLoading,
-    Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue,
-    Columns, Pencil, ArrowUpFromLine, Delete, Trash, Table,
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuPortal,
-    DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuSub,
-    DropdownMenuSubContent,
-    DropdownMenuSubTrigger,
-    DropdownMenuTrigger
-  },
   computed: {
     StructureEnum()
     {
       return StructureEnum
     }
   },
+  components: { TableCreate, TableDrop, TableTruncate, ColumnChange, TableExport, ColumnDrop, ColumnCreate },
   data()
   {
     return {
       loading: false,
       selectDatabase: undefined,
+      databaseModel: '',
       originalSource: null as string | null,
       originalDatabase: null as string | null,
       originalTable: null as string | null,
       selectNode: null as StructureModel | null,
       databaseArray: Array<StructureModel>(),
-      dataTreeArray: Array<StructureModel>(),
+      dataTreeArray: [] as any[],
       dataInfo: null as StructureModel | null,
       tableCreateVisible: false,
       tableExportVisible: false,
@@ -173,15 +161,19 @@ export default defineComponent({
       tableDropVisible: false,
       columnCreateVisible: false,
       columnChangeVisible: false,
-      columnDropVisible: false
+      columnDropVisible: false,
+      contextmenu: {
+        visible: false,
+        position: { x: 0, y: 0 }
+      }
     }
   },
   created()
   {
-    this.handlerInitialize()
+    this.handleInitialize()
   },
   methods: {
-    handlerInitialize()
+    handleInitialize()
     {
       const source = this.$route.params?.source as string
       const database = this.$route.params?.database as string
@@ -203,70 +195,44 @@ export default defineComponent({
                            if (database) {
                              this.originalDatabase = database
                              this.selectDatabase = database as any
-                             this.handlerChangeDatabase()
+                             this.onChangeDatabase()
                            }
                          }
                          else {
-                           ToastUtils.error(response.message)
+                           this.$Message.error({
+                             content: response.message,
+                             showIcon: true
+                           })
                          }
                        })
                        .finally(() => this.loading = false)
       }
     },
-    handlerChangeDatabase()
+    onChangeDatabase()
     {
       this.loading = true
       this.dataTreeArray = []
       TableService.getAllByDatabase(this.selectDatabase as any)
                   .then(response => {
                     if (response.status) {
-                      response.data
-                              .forEach((item: {
-                                name: null;
-                                title: null;
-                                catalog: null;
-                                code: undefined;
-                                type: null;
-                                engine: null;
-                                comment: null;
-                                database: { name: null, id: string };
-                              }) => {
-                                const structure: StructureModel = {
-                                  title: item.name,
-                                  database: item.database.name,
-                                  databaseId: item.database.id,
-                                  catalog: item.catalog,
-                                  code: item.code,
-                                  type: item.type,
-                                  level: StructureEnum.TABLE,
-                                  engine: item.engine,
-                                  comment: item.comment,
-                                  origin: item,
-                                  loading: false,
-                                  contextmenu: true,
-                                  children: [] as StructureModel[],
-                                  render: (h: any, { data }: { data: StructureModel }) => {
-                                    return h('div', [
-                                      h('span', [
-                                        h(resolveComponent('FontAwesomeIcon'), {
-                                          icon: 'table',
-                                          style: { marginRight: '6px' }
-                                        }),
-                                        this.resolveTableComponent(h, data)
-                                      ])
-                                    ])
-                                  }
-                                }
-                                this.dataTreeArray.push(structure)
-                              })
+                      response.data.forEach((item: any) => {
+                        const structure = {
+                          title: item.name, database: item.database.name, databaseId: item.database.id, catalog: item.catalog, value: item.code, type: item.type,
+                          level: StructureEnum.TABLE, engine: item.engine, comment: item.comment, origin: item, contextmenu: true, children: [], isLeaf: false
+                        }
+                        this.dataTreeArray.push(structure)
+                      })
                     }
                     else {
-                      ToastUtils.error(response.message)
+                      this.$Message.error({
+                        content: response.message,
+                        showIcon: true
+                      })
                     }
                   })
                   .finally(() => {
                     this.loading = false
-                    const table = this.$route.params?.table as string
+                    const table = String(this.$route.params?.table)
                     if (table) {
                       const node = this.dataTreeArray.find(item => item.code === table)
                       if (node) {
@@ -279,174 +245,84 @@ export default defineComponent({
                     }
                   })
     },
-    handlerSelectNode(node: Array<StructureModel>)
+    onNodeClick(node: any)
     {
-      if (node.length === 0 && this.selectNode) {
-        // Prevent selection clearing after repeated clicks
-        this.selectNode.selected = true
-        return
-      }
-      const currentNode = node[0]
-      if (currentNode.level === StructureEnum.COLUMN) {
-        if (this.selectNode) {
-          this.selectNode.selected = true
-        }
-        currentNode.selected = false
-        return
-      }
-      this.selectNode = currentNode
-      const type = this.$route.meta.type as string
-      this.$router.push(`/admin/source/${ this.originalSource }/d/${ this.selectDatabase }/t/${ type ? type : 'info' }/${ currentNode.code }`)
+      const type = this.$route.meta.type
+      this.$router.push(`/admin/source/${ this.originalSource }/d/${ this.selectDatabase }/t/${ type ? type : 'info' }/${ node.value }`)
     },
-    handlerLoadChildData(item: StructureModel, callback: any)
+    onLoadData(item: StructureModel, callback: any)
     {
       const dataChildArray = [] as StructureModel[]
       if (item.level === StructureEnum.COLUMN) {
         callback(dataChildArray)
         return
       }
-      ColumnService.getAllByTable(item.code as string)
+      ColumnService.getAllByTable(String(item.value))
                    .then(response => {
                      if (response.status) {
-                       response.data.forEach((item: {
-                         name: null;
-                         title: null;
-                         catalog: null;
-                         code: undefined;
-                         type: null;
-                         dataType: null;
-                         extra: null;
-                         engine: null;
-                         isKey: null;
-                         defaultValue: null;
-                         table: { name: null, code: undefined, database: { name: null, id: string } };
-                       }) => {
-                         const structure: StructureModel = {
-                           title: item.name,
-                           database: item.table.database.name,
-                           databaseId: item.table.database.id,
-                           table: item.table.name,
-                           tableId: item.table.code,
-                           catalog: item.catalog,
-                           code: item.code,
-                           level: StructureEnum.COLUMN,
-                           type: item.type,
-                           extra: item.extra,
-                           dataType: item.dataType,
-                           engine: item.engine,
-                           isKey: item.isKey,
-                           defaultValue: item.defaultValue,
-                           contextmenu: true,
-                           render: (h: any, { data }: { data: StructureModel }) => {
-                             return h('div', [
-                               h('span', [
-                                 h(resolveComponent('FontAwesomeIcon'), {
-                                   icon: this.getColumnIcon(data.isKey as unknown as string),
-                                   style: { marginRight: '6px' }
-                                 }),
-                                 h('span', data.title),
-                                 h('span', {
-                                       style: {
-                                         marginLeft: '6px',
-                                         color: '#c5c8ce'
-                                       }
-                                     },
-                                     this.getColumnTitle(data.type as unknown as string,
-                                         data.extra as unknown as string,
-                                         data.isKey as unknown as string,
-                                         data.defaultValue as unknown as string))
-                               ])
-                             ])
-                           }
-                         }
-                         dataChildArray.push(structure)
+                       response.data.forEach((item: any) => {
+                         dataChildArray.push({
+                           title: item.name, database: item.table.database.name, databaseId: item.table.database.id, table: item.table.name,
+                           tableId: item.table.code, catalog: item.catalog, value: item.code, level: StructureEnum.COLUMN, type: item.type, extra: item.extra,
+                           dataType: item.dataType, engine: item.engine, isKey: item.isKey, defaultValue: item.defaultValue, children: [], isLeaf: false
+                         })
                        })
                      }
                    })
                    .finally(() => callback(dataChildArray))
     },
-    handlerContextMenu(node: StructureModel)
-    {
-      console.log(node)
-      this.dataInfo = node
-      // Simulate right-click to trigger right-click menu
-      const element = document.getElementById('contextMenu') as HTMLElement
-      if (element) {
-        element.click()
-      }
-    },
-    handlerCreateTable(opened: boolean)
+    visibleCreateTable(opened: boolean)
     {
       this.tableCreateVisible = opened
     },
-    handlerCreateColumn(opened: boolean)
+    visibleCreateColumn(opened: boolean)
     {
       this.columnCreateVisible = opened
     },
-    handlerExportData(opened: boolean)
+    visibleExportData(opened: boolean)
     {
       this.tableExportVisible = opened
     },
-    handlerTruncateTable(opened: boolean)
+    visibleTruncateTable(opened: boolean)
     {
       this.tableTruncateVisible = opened
     },
-    handlerDropTable(opened: boolean)
+    visibleDropTable(opened: boolean)
     {
       this.tableDropVisible = opened
     },
-    handlerChangeColumn(opened: boolean)
+    visibleChangeColumn(opened: boolean)
     {
       this.columnChangeVisible = opened
     },
-    handlerDropColumn(opened: boolean)
+    visibleDropColumn(opened: boolean)
     {
       this.columnDropVisible = opened
     },
-    getColumnIcon(type: string)
+    visibleContextMenu(event: any, node: any)
     {
-      if (type === 'PRI') {
-        return 'key'
+      this.contextmenu.position = {
+        x: event.clientX,
+        y: event.clientY
       }
-      else if (type === 'MUL') {
-        return 'repeat'
-      }
-      else if (type === 'UNI') {
-        return 'circle'
-      }
-      else {
-        return 'columns'
-      }
+      this.dataInfo = node
+      this.contextmenu.visible = true
     },
     getColumnTitle(dataType: string, extra: string, isKey: string, defaultValue: string)
     {
       let title = dataType
       if (isKey === 'PRI') {
         if (extra) {
-          title = `${ title } (${ extra.replace('_', ' ') })`
+          title = `${ title }\u00A0(${ extra.replace('_', '\u00A0') })`
         }
         else {
           title = `${ title }`
         }
       }
       if (defaultValue && defaultValue !== 'null') {
-        title = `${ title } = ${ defaultValue }`
+        title = `${ title }\u00A0=\u00A0${ defaultValue }`
       }
       return title
-    },
-    resolveTableComponent(h: any, data: StructureModel)
-    {
-      if (data.comment) {
-        return h(resolveComponent('Tooltip'), {
-              content: data.comment,
-              placement: 'bottom-start',
-              delay: 1000
-            },
-            h('span', data.title))
-      }
-      else {
-        return h('span', data.title)
-      }
     }
   }
 })

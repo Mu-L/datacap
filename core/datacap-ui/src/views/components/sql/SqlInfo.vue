@@ -1,39 +1,33 @@
 <template>
-  <AlertDialog :default-open="visible" @update:open="handlerCancel">
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle class="border-b -mt-4 pb-2">SQL</AlertDialogTitle>
-      </AlertDialogHeader>
-      <AceEditor :value="content as string" read-only/>
-      <AlertDialogFooter class="-mb-4 border-t pt-2">
-        <Button @click="handlerCancel">{{ $t('common.cancel') }}</Button>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
+  <ShadcnModal v-model="visible" title="Show Content" width="40%">
+    <AceEditor :value="content as string" read-only/>
+
+    <template #footer>
+      <ShadcnButton type="error" @click="onCancel">
+        {{ $t('common.cancel') }}
+      </ShadcnButton>
+    </template>
+  </ShadcnModal>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from '@/components/ui/alert-dialog'
-import { Button } from '@/components/ui/button'
 import AceEditor from '@/views/components/editor/AceEditor.vue'
 
 export default defineComponent({
   name: 'SqlInfo',
-  components: {
-    AceEditor,
-    Button,
-    AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
+  components: { AceEditor },
+  computed: {
+    visible: {
+      get(): boolean
+      {
+        return this.isVisible
+      },
+      set(value: boolean)
+      {
+        this.$emit('close', value)
+      }
+    }
   },
   props: {
     isVisible: {
@@ -45,21 +39,9 @@ export default defineComponent({
     }
   },
   methods: {
-    handlerCancel()
+    onCancel()
     {
       this.visible = false
-    }
-  },
-  computed: {
-    visible: {
-      get(): boolean
-      {
-        return this.isVisible
-      },
-      set(value: boolean)
-      {
-        this.$emit('close', value)
-      }
     }
   }
 })

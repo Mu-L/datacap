@@ -1,11 +1,11 @@
-.pointer {
-    cursor: pointer;
+.h-screen {
+    height: 100vh;
 }
 
-.bg-color-gray {
-    background-color: #e8eaec;
+.min-h-screen {
+    min-height: calc(100vh - 64px - 300px);
 }
 
-.bg-color-error {
-    background-color: #ed4014;
+.w-screen {
+    width: 100vw;
 }

@@ -1,29 +1,91 @@
 <template>
-  <div>
-    <CircularLoading v-if="loading" :show="loading"/>
-    <div v-else-if="localConfiguration">
+  <div class="relative h-full w-full" :style="{ width: width, height: height }">
+    <ShadcnSpin v-model="loading" fixed/>
+
+    <div v-if="localConfiguration && !loading">
       <div v-if="localConfiguration.message" class="p-4">
-        <Alert :type="'error' as any" class="overflow-x-auto" :title="localConfiguration.message"/>
+        <ShadcnAlert type="error" :title="localConfiguration.message"/>
       </div>
+
       <div v-else>
-        <VisualTable v-if="configuration?.type === Type.TABLE" :configuration="localConfiguration" :submitted="false" :width="width" :height="height"/>
-        <VisualLine v-else-if="configuration?.type === Type.LINE" :configuration="localConfiguration" :submitted="false" :width="width" :height="height"/>
-        <VisualBar v-else-if="configuration?.type === Type.BAR" :configuration="localConfiguration" :submitted="false" :width="width" :height="height"/>
-        <VisualArea v-else-if="configuration?.type === Type.AREA" :configuration="localConfiguration" :submitted="false" :width="width" :height="height"/>
-        <VisualPie v-else-if="configuration?.type === Type.PIE" :configuration="localConfiguration" :submitted="false" :width="width" :height="height"/>
-        <VisualHistogram v-else-if="configuration?.type === Type.HISTOGRAM" :configuration="localConfiguration" :submitted="false" :width="width" :height="height"/>
-        <VisualWordCloud v-else-if="configuration?.type === Type.WORDCLOUD" :configuration="localConfiguration" :submitted="false" :width="width" :height="height"/>
-        <VisualScatter v-else-if="configuration?.type === Type.SCATTER" :configuration="localConfiguration" :submitted="false" :width="width" :height="height"/>
-        <VisualRadar v-else-if="configuration?.type === Type.RADAR" :configuration="localConfiguration" :submitted="false" :width="width" :height="height"/>
-        <VisualFunnel v-else-if="configuration?.type === Type.FUNNEL" :configuration="localConfiguration" :submitted="false" :width="width" :height="height"/>
-        <VisualGauge v-else-if="configuration?.type === Type.GAUGE" :configuration="localConfiguration" :submitted="false" :width="width" :height="height"/>
-        <VisualRose v-else-if="configuration?.type === Type.ROSE" :configuration="localConfiguration" :submitted="false" :width="width" :height="height"/>
+        <VisualTable v-if="configuration?.type === Type.TABLE"
+                     :configuration="localConfiguration as any"
+                     :submitted="false"
+                     :width="width"
+                     :height="height"/>
+
+        <VisualLine v-else-if="configuration?.type === Type.LINE"
+                    :configuration="localConfiguration as any"
+                    :submitted="false"
+                    :width="width"
+                    :height="height"/>
+
+        <VisualBar v-else-if="configuration?.type === Type.BAR"
+                   :configuration="localConfiguration as any"
+                   :submitted="false"
+                   :width="width"
+                   :height="height"/>
+
+        <VisualArea v-else-if="configuration?.type === Type.AREA"
+                    :configuration="localConfiguration as any"
+                    :submitted="false"
+                    :width="width"
+                    :height="height"/>
+
+        <VisualPie v-else-if="configuration?.type === Type.PIE"
+                   :configuration="localConfiguration as any"
+                   :submitted="false"
+                   :width="width"
+                   :height="height"/>
+
+        <VisualHistogram v-else-if="configuration?.type === Type.HISTOGRAM"
+                         :configuration="localConfiguration as any"
+                         :submitted="false"
+                         :width="width"
+                         :height="height"/>
+
+        <VisualWordCloud v-else-if="configuration?.type === Type.WORDCLOUD"
+                         :configuration="localConfiguration as any"
+                         :submitted="false"
+                         :width="width"
+                         :height="height"/>
+
+        <VisualScatter v-else-if="configuration?.type === Type.SCATTER"
+                       :configuration="localConfiguration as any"
+                       :submitted="false"
+                       :width="width"
+                       :height="height"/>
+
+        <VisualRadar v-else-if="configuration?.type === Type.RADAR"
+                     :configuration="localConfiguration as any"
+                     :submitted="false"
+                     :width="width"
+                     :height="height"/>
+
+        <VisualFunnel v-else-if="configuration?.type === Type.FUNNEL"
+                      :configuration="localConfiguration as any"
+                      :submitted="false"
+                      :width="width"
+                      :height="height"/>
+
+        <VisualGauge v-else-if="configuration?.type === Type.GAUGE"
+                     :configuration="localConfiguration as any"
+                     :submitted="false"
+                     :width="width"
+                     :height="height"/>
+
+        <VisualRose v-else-if="configuration?.type === Type.ROSE"
+                    :configuration="localConfiguration as any"
+                    :submitted="false"
+                    :width="width"
+                    :height="height"/>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import { defineComponent } from 'vue'
 import { cloneDeep } from 'lodash'
 import { Type } from '@/views/components/visual/Type'
 import VisualWordCloud from '@/views/components/visual/components/VisualWordCloud.vue'
@@ -34,16 +96,12 @@ import { Configuration } from './Configuration'
 import VisualBar from '@/views/components/visual/components/VisualBar.vue'
 import VisualLine from '@/views/components/visual/components/VisualLine.vue'
 import VisualTable from '@/views/components/visual/components/VisualTable.vue'
-import { ToastUtils } from '@/utils/toast'
 import DatasetService from '@/services/dataset'
-import CircularLoading from '@/views/components/loading/CircularLoading.vue'
-import { defineComponent } from 'vue'
 import VisualRadar from '@/views/components/visual/components/VisualRadar.vue'
 import VisualScatter from '@/views/components/visual/components/VisualScatter.vue'
 import VisualFunnel from '@/views/components/visual/components/VisualFunnel.vue'
 import VisualGauge from '@/views/components/visual/components/VisualGauge.vue'
 import VisualRose from '@/views/components/visual/components/VisualRose.vue'
-import Alert from '@/views/ui/alert'
 import ExecuteService from '@/services/execute.ts'
 import { ExecuteModel } from '@/model/execute.ts'
 
@@ -56,13 +114,7 @@ export default defineComponent({
     }
   },
   components: {
-    Alert,
-    VisualRose,
-    VisualGauge,
-    VisualFunnel,
-    VisualScatter,
-    VisualRadar,
-    CircularLoading,
+    VisualRose, VisualGauge, VisualFunnel, VisualScatter, VisualRadar,
     VisualWordCloud, VisualHistogram, VisualPie, VisualArea, VisualBar, VisualLine, VisualTable
   },
   props: {
@@ -99,10 +151,10 @@ export default defineComponent({
   },
   created()
   {
-    this.handlerInitialize()
+    this.handleInitialize()
   },
   methods: {
-    handlerInitialize()
+    handleInitialize()
     {
       this.localConfiguration = cloneDeep(this.configuration) as Configuration
       setTimeout(() => {
@@ -115,7 +167,11 @@ export default defineComponent({
                             this.formatRaw(response)
                           }
                           else {
-                            ToastUtils.error(response.data.message)
+                            // @ts-ignore
+                            this.$Message.error({
+                              content: response.data.message,
+                              showIcon: true
+                            })
                           }
                         })
                         .finally(() => this.loading = false)
@@ -127,7 +183,10 @@ export default defineComponent({
                             this.formatRaw(response)
                           }
                           else {
-                            ToastUtils.error(response.message)
+                            this.$Message.error({
+                              content: response.message,
+                              showIcon: true
+                            })
                           }
                         })
                         .finally(() => this.loading = false)
