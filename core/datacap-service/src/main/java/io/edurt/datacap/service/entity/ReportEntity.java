@@ -54,20 +54,20 @@ public class ReportEntity
     @JoinTable(name = "datacap_report_user_relation",
             joinColumns = @JoinColumn(name = "report_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
-    @JsonIncludeProperties(value = {"name", "username", "code"})
+    @JsonIncludeProperties(value = {"id", "name", "username", "code"})
     private UserEntity user;
 
     @ManyToOne
     @JoinTable(name = "datacap_report_source_relation",
             joinColumns = @JoinColumn(name = "report_id"),
             inverseJoinColumns = @JoinColumn(name = "source_id"))
-    @JsonIncludeProperties(value = {"code", "name"})
+    @JsonIncludeProperties(value = {"id", "code", "name", "type"})
     private SourceEntity source;
 
     @ManyToOne
     @JoinTable(name = "datacap_report_dataset_relation",
             joinColumns = @JoinColumn(name = "report_id"),
             inverseJoinColumns = @JoinColumn(name = "dataset_id"))
-    @JsonIncludeProperties(value = {"code", "name", "query", "description"})
+    @JsonIncludeProperties(value = {"id", "code", "name", "query", "description"})
     private DataSetEntity dataset;
 }

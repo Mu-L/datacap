@@ -6,7 +6,7 @@
     <div class="relative">
       <ShadcnSpin v-if="loading" fixed/>
 
-      <ShadcnTable size="small" :columns="headers" :data="data">
+      <ShadcnTable size="small" :columns="historyHeaders" :data="data">
         <template #state="{ row }">
           <ShadcnHoverCard v-if="row?.state === 'FAILURE'">
             <ShadcnTag :color="Common.getColor(row?.state)">
@@ -45,11 +45,10 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { FilterModel } from '@/model/filter'
-import { useI18n } from 'vue-i18n'
-import { createHistoryHeaders } from './DatasetUtils'
+import { useDatasetHeaders } from './DatasetUtils'
 import DatasetService from '@/services/dataset'
 import { DatasetModel } from '@/model/dataset'
-import Common from '@/utils/common'
+import Common, { useUtil } from '@/utils/common'
 
 export default defineComponent({
   name: 'DatasetHistory',
@@ -80,14 +79,14 @@ export default defineComponent({
   },
   setup()
   {
-    const i18n = useI18n()
     const filter: FilterModel = new FilterModel()
-    const headers = createHistoryHeaders(i18n)
+    const { historyHeaders } = useDatasetHeaders()
+    const { getText } = useUtil()
 
     return {
-      i18n,
       filter,
-      headers
+      historyHeaders,
+      getText
     }
   },
   data()
@@ -148,7 +147,7 @@ export default defineComponent({
     },
     getStateText(origin: string): string
     {
-      return Common.getText(this.i18n, origin)
+      return this.getText(origin)
     }
   }
 })
