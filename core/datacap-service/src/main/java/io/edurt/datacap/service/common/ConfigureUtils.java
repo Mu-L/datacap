@@ -7,7 +7,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.enums.ServiceState;
 import io.edurt.datacap.common.utils.BeanToPropertiesUtils;
 import io.edurt.datacap.common.utils.JsonUtils;
-import io.edurt.datacap.executor.common.RunProtocol;
 import io.edurt.datacap.service.body.PipelineFieldBody;
 import io.edurt.datacap.service.configure.FieldType;
 import io.edurt.datacap.service.configure.IConfigure;
@@ -277,16 +276,13 @@ public class ConfigureUtils
                 originProperties.setProperty("context", query);
             }
         }
-        if (fieldBody.getProtocol().equals(RunProtocol.JDBC)) {
-            originProperties.setProperty("url", String.format("jdbc:%s://%s:%s/%s", entity.getType().toLowerCase(), entity.getHost(), entity.getPort(), entity.getDatabase()));
-        }
         return mergeProperties(entity, fields, originProperties);
     }
 
     public static PipelineFieldBody convertFieldBody(SourceEntity entity, String executor, IConfigurePipelineType pipelineType, Environment environment, Properties originProperties)
     {
         PipelineFieldBody body = new PipelineFieldBody();
-        body.setProtocol(RunProtocol.valueOf(entity.getProtocol()));
+        body.setProtocol(entity.getProtocol());
         IConfigure yamlConfigure = PluginUtils.loadYamlConfigure(entity.getProtocol(), entity.getType(), entity.getType(), environment);
         yamlConfigure.getPipelines()
                 .stream()
