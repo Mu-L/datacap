@@ -129,6 +129,11 @@ plugins:
             NavReleaseNote: 更新日志
             NavDataset: 数据集
             NavDeploy: 安装部署
+            ApiHome: 开放 API
+            ApiUser: 用户 API
+            ApiPlugin: 插件 API
+            ApiDashboard: 仪表盘 API
+            ApiMenu: 菜单 API
         - locale: en
           name: English
           build: true
@@ -148,6 +153,11 @@ plugins:
             NavReleaseNote: Release Note
             NavDataset: Dataset
             NavDeploy: Install Deploy
+            ApiHome: Open API
+            ApiUser: User API
+            ApiPlugin: Plugin API
+            ApiDashboard: Dashboard API
+            ApiMenu: Menu API
   - search
   - git-revision-date-localized:
       enable_creation_date: true
@@ -275,5 +285,28 @@ nav:
           - developer/notify/kotlin/home.md
       - Other:
           - developer/pipeline/home.md
+  - ApiHome:
+      - api/common/response.md
+      - api/common/page.md
+      - ApiUser:
+        - api/user/register.md
+        - api/user/login.md
+        - api/user/info.md
+        - api/user/menu.md
+        - api/user/list.md
+      - ApiPlugin:
+        - api/plugin/plugin.md
+        - api/plugin/install.md
+        - api/plugin/uninstall.md
+      - ApiDashboard:
+        - api/dashboard/list.md
+        - api/dashboard/save.md
+        - api/dashboard/edit.md
+        - api/dashboard/get.md
+        - api/dashboard/delete.md
+      - ApiMenu:
+        - api/menu/list.md
+        - api/menu/save.md
+        - api/menu/edit.md
   - useCases.md
   - partners.md

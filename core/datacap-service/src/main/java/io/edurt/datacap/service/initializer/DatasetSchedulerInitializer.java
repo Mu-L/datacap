@@ -1,9 +1,9 @@
 package io.edurt.datacap.service.initializer;
 
-import com.google.inject.Injector;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.edurt.datacap.common.utils.SpiUtils;
+import io.edurt.datacap.plugin.PluginManager;
 import io.edurt.datacap.scheduler.SchedulerRequest;
+import io.edurt.datacap.scheduler.SchedulerService;
 import io.edurt.datacap.service.enums.SyncMode;
 import io.edurt.datacap.service.initializer.job.DatasetJob;
 import io.edurt.datacap.service.repository.DataSetRepository;
@@ -19,14 +19,14 @@ import org.springframework.stereotype.Service;
 public class DatasetSchedulerInitializer
         implements CommandLineRunner
 {
-    private final Injector injector;
+    private final PluginManager pluginManager;
     private final DataSetRepository repository;
     private final DataSetService service;
     private final Scheduler scheduler;
 
-    public DatasetSchedulerInitializer(Injector injector, DataSetRepository repository, DataSetService service, Scheduler scheduler)
+    public DatasetSchedulerInitializer(PluginManager pluginManager, DataSetRepository repository, DataSetService service, Scheduler scheduler)
     {
-        this.injector = injector;
+        this.pluginManager = pluginManager;
         this.repository = repository;
         this.service = service;
         this.scheduler = scheduler;
@@ -40,7 +40,7 @@ public class DatasetSchedulerInitializer
         this.repository.findAllBySyncMode(SyncMode.TIMING)
                 .forEach(item -> {
                     log.info("Dataset [ {} ] will be scheduled", item.getName());
-                    SpiUtils.findSchedule(this.injector, item.getScheduler())
+                    pluginManager.getPlugin(item.getScheduler())
                             .ifPresent(scheduler -> {
                                 SchedulerRequest request = new SchedulerRequest();
                                 request.setName(item.getId().toString());
@@ -48,11 +48,13 @@ public class DatasetSchedulerInitializer
                                 request.setExpression(item.getExpression());
                                 request.setJobId(String.valueOf(item.getId()));
                                 request.setCreateBeforeDelete(true);
-                                if (scheduler.name().equals("Default")) {
+
+                                SchedulerService schedulerService = scheduler.getService(SchedulerService.class);
+                                if (schedulerService.name().equals("Default")) {
                                     request.setJob(new DatasetJob());
                                     request.setScheduler(this.scheduler);
                                 }
-                                scheduler.initialize(request);
+                                schedulerService.initialize(request);
                             });
                 });
         log.info("End dataset scheduler initializer");

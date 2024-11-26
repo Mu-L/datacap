@@ -1,30 +1,25 @@
 package io.edurt.datacap.service.service.impl;
 
-import com.google.inject.Injector;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.response.CommonResponse;
 import io.edurt.datacap.common.utils.DateUtils;
-import io.edurt.datacap.common.utils.SpiUtils;
-import io.edurt.datacap.convert.ConvertFilter;
+import io.edurt.datacap.convert.ConvertService;
 import io.edurt.datacap.convert.model.ConvertRequest;
 import io.edurt.datacap.convert.model.ConvertResponse;
 import io.edurt.datacap.fs.FsRequest;
 import io.edurt.datacap.fs.FsResponse;
+import io.edurt.datacap.fs.FsService;
+import io.edurt.datacap.plugin.PluginManager;
 import io.edurt.datacap.service.activity.HeatmapActivity;
-import io.edurt.datacap.service.adapter.PageRequestAdapter;
-import io.edurt.datacap.service.body.FilterBody;
-import io.edurt.datacap.service.entity.PageEntity;
 import io.edurt.datacap.service.entity.PluginAuditEntity;
 import io.edurt.datacap.service.entity.UserEntity;
 import io.edurt.datacap.service.initializer.InitializerConfigure;
 import io.edurt.datacap.service.itransient.ContributionRadar;
-import io.edurt.datacap.service.repository.BaseRepository;
 import io.edurt.datacap.service.repository.PluginAuditRepository;
 import io.edurt.datacap.service.security.UserDetailsService;
 import io.edurt.datacap.service.service.PluginAuditService;
 import io.edurt.datacap.spi.model.Response;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -37,26 +32,19 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@SuppressFBWarnings(value = {"DM_BOXED_PRIMITIVE_FOR_PARSING", "DM_DEFAULT_ENCODING"})
+@SuppressFBWarnings(value = {"DM_BOXED_PRIMITIVE_FOR_PARSING", "DM_DEFAULT_ENCODING", "EI_EXPOSE_REP2"})
 public class PluginAuditServiceImpl
         implements PluginAuditService
 {
     private final PluginAuditRepository pluginAuditRepository;
     private final InitializerConfigure initializer;
-    private final Injector injector;
+    private final PluginManager pluginManager;
 
-    public PluginAuditServiceImpl(PluginAuditRepository pluginAuditRepository, InitializerConfigure initializer, Injector injector)
+    public PluginAuditServiceImpl(PluginAuditRepository pluginAuditRepository, InitializerConfigure initializer, PluginManager pluginManager)
     {
         this.pluginAuditRepository = pluginAuditRepository;
         this.initializer = initializer;
-        this.injector = injector;
-    }
-
-    @Override
-    public CommonResponse<PageEntity<PluginAuditEntity>> getAll(BaseRepository repository, FilterBody filter)
-    {
-        Pageable pageable = PageRequestAdapter.of(filter);
-        return CommonResponse.success(PageEntity.build(this.pluginAuditRepository.findAllByUser(UserDetailsService.getUser(), pageable)));
+        this.pluginManager = pluginManager;
     }
 
     @Override
@@ -95,11 +83,13 @@ public class PluginAuditServiceImpl
     @Override
     public CommonResponse<PluginAuditEntity> getById(Long id)
     {
-        return CommonResponse.success(this.pluginAuditRepository.findById(id));
+        return pluginAuditRepository.findById(id)
+                .map(CommonResponse::success)
+                .orElse(CommonResponse.failure(String.format("PluginAudit [ %s ] not found", id)));
     }
 
     @Override
-    public CommonResponse<Object> getData(String code)
+    public CommonResponse<Response> getData(String code)
     {
         return this.pluginAuditRepository.findByCode(code)
                 .map(value -> {
@@ -116,22 +106,26 @@ public class PluginAuditServiceImpl
                         fsRequest.setEndpoint(initializer.getFsConfigure().getEndpoint());
                         fsRequest.setFileName(String.join(File.separator, value.getUser().getUsername(), DateUtils.formatYMD(), String.join(File.separator, "adhoc", code), "result.csv"));
                     }
-                    FsResponse fsResponse = SpiUtils.findFs(injector, initializer.getFsConfigure().getType())
-                            .map(v -> v.reader(fsRequest))
-                            .get();
-                    ConvertFilter.filter(injector, "Json")
-                            .ifPresent(it -> {
-                                ConvertRequest request = new ConvertRequest();
-                                request.setStream(fsResponse.getContext());
+                    pluginManager.getPlugin(initializer.getFsConfigure().getType())
+                            .ifPresent(plugin -> {
+                                FsService fsService = plugin.getService(FsService.class);
+                                FsResponse fsResponse = fsService.reader(fsRequest);
 
-                                ConvertResponse _response = it.formatStream(request);
-                                if (_response.getSuccessful()) {
-                                    response.setHeaders(_response.getHeaders()
-                                            .stream()
-                                            .map(String::valueOf)
-                                            .collect(Collectors.toList()));
-                                    response.setColumns(_response.getColumns());
-                                }
+                                pluginManager.getPlugin("JsonConvert")
+                                        .ifPresent(it -> {
+                                            ConvertRequest request = new ConvertRequest();
+                                            request.setStream(fsResponse.getContext());
+                                            ConvertService convertService = it.getService(ConvertService.class);
+
+                                            ConvertResponse _response = convertService.formatStream(request);
+                                            if (_response.getSuccessful()) {
+                                                response.setHeaders(_response.getHeaders()
+                                                        .stream()
+                                                        .map(String::valueOf)
+                                                        .collect(Collectors.toList()));
+                                                response.setColumns(_response.getColumns());
+                                            }
+                                        });
                             });
                     return CommonResponse.success(response);
                 })

@@ -1,5 +1,7 @@
 package io.edurt.datacap.spi.connection;
 
+import io.edurt.datacap.plugin.PluginContextManager;
+import io.edurt.datacap.plugin.loader.PluginClassLoader;
 import io.edurt.datacap.spi.model.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -7,63 +9,63 @@ import org.apache.commons.lang3.ObjectUtils;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
+import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class JdbcConnection
         extends io.edurt.datacap.spi.connection.Connection
 {
-    private JdbcConfigure jdbcConfigure;
-    private Response response;
-    private Connection connection;
+    private java.sql.Connection jdbcConnection;
 
-    public JdbcConnection(JdbcConfigure jdbcConfigure, Response response)
+    public JdbcConnection(JdbcConfigure configure, Response response)
     {
-        super(jdbcConfigure, response);
+        super(configure, response);
     }
 
     protected String formatJdbcUrl()
     {
+        JdbcConfigure jdbcConfigure = getJdbcConfigure();
         StringBuilder buffer = new StringBuilder();
         buffer.append("jdbc:");
-        buffer.append(this.jdbcConfigure.getJdbcType());
+        buffer.append(jdbcConfigure.getJdbcType());
         if (jdbcConfigure.getJdbcType().equals("influxdb")) {
             buffer.append(":");
         }
         else {
             buffer.append("://");
         }
-        buffer.append(this.jdbcConfigure.getHost());
+        buffer.append(jdbcConfigure.getHost());
         buffer.append(":");
-        buffer.append(this.jdbcConfigure.getPort());
-        if (this.jdbcConfigure.getDatabase().isPresent()) {
+        buffer.append(jdbcConfigure.getPort());
+        if (jdbcConfigure.getDatabase().isPresent()) {
             if (jdbcConfigure.getJdbcType().equals("solr")) {
                 buffer.append("/?collection=");
             }
             else {
                 buffer.append("/");
             }
-            buffer.append(this.jdbcConfigure.getDatabase().get());
+            buffer.append(jdbcConfigure.getDatabase().get());
         }
-        if (this.jdbcConfigure.getSsl().isPresent()) {
-            buffer.append(String.format("?ssl=%s", this.jdbcConfigure.getSsl().get()));
+        if (jdbcConfigure.getSsl().isPresent()) {
+            buffer.append(String.format("?ssl=%s", jdbcConfigure.getSsl().get()));
         }
-        if (this.jdbcConfigure.getEnv().isPresent()) {
-            Map<String, Object> env = this.jdbcConfigure.getEnv().get();
+        if (jdbcConfigure.getEnv().isPresent()) {
+            Map<String, Object> env = jdbcConfigure.getEnv().get();
             List<String> flatEnv = env.entrySet()
                     .stream()
                     .map(value -> String.format("%s=%s", value.getKey(), value.getValue()))
                     .collect(Collectors.toList());
-            if (this.jdbcConfigure.getSsl().isEmpty()) {
+            if (jdbcConfigure.getSsl().isEmpty()) {
                 buffer.append("?");
             }
             else {
-                if (this.jdbcConfigure.getIsAppendChar()) {
+                if (jdbcConfigure.getIsAppendChar()) {
                     buffer.append("&");
                 }
             }
@@ -72,63 +74,112 @@ public class JdbcConnection
         return buffer.toString();
     }
 
-    protected Connection openConnection()
+    protected JdbcConfigure getJdbcConfigure()
     {
+        return (JdbcConfigure) this.configure;
+    }
+
+    protected java.sql.Connection openConnection()
+    {
+        JdbcConfigure jdbcConfigure = getJdbcConfigure();
+
         try {
-            this.jdbcConfigure = (JdbcConfigure) getConfigure();
-            this.response = getResponse();
+            PluginClassLoader pluginClassLoader = jdbcConfigure.getPlugin().getPluginClassLoader();
+            PluginContextManager.runWithClassLoader(pluginClassLoader, () -> {
+                Class<?> driverClass = Class.forName(jdbcConfigure.getJdbcDriver(), true, pluginClassLoader);
+                Driver driver = (Driver) driverClass.getDeclaredConstructor().newInstance();
+                DriverManager.registerDriver(new DriverShim(driver));
 
-            // Remove org.apache.pinot.client.PinotDriver and net.suteren.jdbc.influxdb.InfluxDbDriver
-            Enumeration<Driver> drivers = DriverManager.getDrivers();
-            while (drivers.hasMoreElements()) {
-                Driver driver = drivers.nextElement();
-                if (driver instanceof org.apache.pinot.client.PinotDriver
-                        || driver instanceof net.suteren.jdbc.influxdb.InfluxDbDriver) {
-                    DriverManager.deregisterDriver(driver);
-                    log.info("Deregistered driver {}", driver);
+                String url = formatJdbcUrl();
+                log.info("Connection driver {}", jdbcConfigure.getJdbcDriver());
+                log.info("Connection url {}", url);
+                if (jdbcConfigure.getUsername().isPresent() && jdbcConfigure.getPassword().isPresent()) {
+                    log.info("Connection username with {} password with {}",
+                            jdbcConfigure.getUsername().get(), "***");
+                    this.jdbcConnection = DriverManager.getConnection(url,
+                            jdbcConfigure.getUsername().get(),
+                            jdbcConfigure.getPassword().get());
                 }
-            }
-
-            // Manually loading and registering the driver
-            Driver driver = (Driver) Class.forName(this.jdbcConfigure.getJdbcDriver())
-                    .getDeclaredConstructor()
-                    .newInstance();
-            DriverManager.registerDriver(driver);
-
-            String url = formatJdbcUrl();
-            log.info("Connection driver {}", this.jdbcConfigure.getJdbcDriver());
-            log.info("Connection url {}", url);
-            if (this.jdbcConfigure.getUsername().isPresent() && this.jdbcConfigure.getPassword().isPresent()) {
-                log.info("Connection username with {} password with {}", this.jdbcConfigure.getUsername().get(), "***");
-                this.connection = DriverManager.getConnection(url, this.jdbcConfigure.getUsername().get(), this.jdbcConfigure.getPassword().get());
-            }
-            else {
-                log.info("Connection username and password not present");
-                Properties properties = new Properties();
-                if (jdbcConfigure.getUsername().isPresent()) {
-                    properties.put("user", jdbcConfigure.getUsername().get());
+                else {
+                    log.info("Connection username and password not present");
+                    Properties properties = new Properties();
+                    if (jdbcConfigure.getUsername().isPresent()) {
+                        properties.put("user", jdbcConfigure.getUsername().get());
+                    }
+                    this.jdbcConnection = DriverManager.getConnection(url, properties);
                 }
-                this.connection = DriverManager.getConnection(url, properties);
-            }
-            response.setIsConnected(Boolean.TRUE);
+                response.setIsConnected(Boolean.TRUE);
+
+                return null;
+            });
         }
         catch (Exception ex) {
             log.error("Connection failed ", ex);
             response.setIsConnected(Boolean.FALSE);
             response.setMessage(ex.getMessage());
         }
-        return this.connection;
+        return this.jdbcConnection;
     }
 
     public void destroy()
     {
-        if (ObjectUtils.isNotEmpty(this.connection)) {
+        if (ObjectUtils.isNotEmpty(this.jdbcConnection)) {
             try {
-                this.connection.close();
+                this.jdbcConnection.close();
             }
             catch (SQLException ex) {
                 log.error("Connection close failed ", ex);
             }
+        }
+    }
+
+    private static class DriverShim
+            implements Driver
+    {
+        private final Driver driver;
+
+        DriverShim(Driver d)
+        {
+            this.driver = d;
+        }
+
+        public Connection connect(String url, Properties info)
+                throws SQLException
+        {
+            return driver.connect(url, info);
+        }
+
+        public boolean acceptsURL(String url)
+                throws SQLException
+        {
+            return driver.acceptsURL(url);
+        }
+
+        public DriverPropertyInfo[] getPropertyInfo(String url, Properties info)
+                throws SQLException
+        {
+            return driver.getPropertyInfo(url, info);
+        }
+
+        public int getMajorVersion()
+        {
+            return driver.getMajorVersion();
+        }
+
+        public int getMinorVersion()
+        {
+            return driver.getMinorVersion();
+        }
+
+        public boolean jdbcCompliant()
+        {
+            return driver.jdbcCompliant();
+        }
+
+        @Override
+        public Logger getParentLogger()
+        {
+            return null;
         }
     }
 }

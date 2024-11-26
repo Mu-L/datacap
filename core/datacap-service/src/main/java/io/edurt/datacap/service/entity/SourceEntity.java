@@ -1,11 +1,14 @@
 package io.edurt.datacap.service.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.utils.JsonUtils;
+import io.edurt.datacap.common.view.EntityView;
+import io.edurt.datacap.plugin.Plugin;
+import io.edurt.datacap.plugin.PluginManager;
 import io.edurt.datacap.service.configure.IConfigure;
 import io.edurt.datacap.service.configure.IConfigureExecutor;
 import io.edurt.datacap.spi.model.Configure;
@@ -39,7 +42,6 @@ import java.util.Optional;
 @SuperBuilder
 @Entity
 @Table(name = "datacap_source")
-@JsonIgnoreProperties(value = {"configure", "pluginAudits"})
 @EntityListeners(AuditingEntityListener.class)
 @SuppressFBWarnings(value = {"EI_EXPOSE_REP", "EQ_OVERRIDING_EQUALS_NOT_SYMMETRIC", "EQ_DOESNT_OVERRIDE_EQUALS"},
         justification = "I prefer to suppress these FindBugs warnings")
@@ -47,37 +49,47 @@ public class SourceEntity
         extends BaseEntity
 {
     @Column(name = "description")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private String description;
 
     @Column(name = "_type", nullable = false)
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private String type;
 
     @Column(name = "protocol", unique = true, nullable = false, columnDefinition = "varchar default 'HTTP'")
     @NotNull(message = "The passed protocol cannot by empty")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private String protocol;
 
     @Column(name = "host", unique = true, nullable = false)
     @NotEmpty(message = "The passed host cannot by empty")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private String host;
 
     @Column(name = "port", unique = true, nullable = false)
     @NotNull(message = "The passed port cannot by empty")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private Integer port = 0;
 
     @Column(name = "username")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private String username;
 
     @Column(name = "password")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private String password;
 
     @Column(name = "_catalog")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private String catalog;
 
     @Column(name = "_database")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private String database;
 
     // Add from 1.1.0.20221115
     @Column(name = "_ssl", columnDefinition = "boolean default false")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private Boolean ssl;
 
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
@@ -90,33 +102,45 @@ public class SourceEntity
     private Boolean publish; // Public use or not
 
     @Column(name = "configure")
-    @JsonProperty(value = "configure")
-    private String configure;
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
+    private String originalConfigure;
 
     @Column(name = "used_config")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private boolean usedConfig;
 
     @Column(name = "version")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private String version;
 
     @Column(name = "available")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private Boolean available;
 
     @Column(name = "message")
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private String message;
 
     @Transient
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private Map<String, Object> configures;
 
     @Transient
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private IConfigure schema;
 
     @Transient
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private List<IConfigureExecutor> pipelines;
+
+    @Transient
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
+    private String home;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonIncludeProperties(value = {"id", "username"})
+    @JsonIncludeProperties(value = {"id", "username", "code"})
+    @JsonView(value = {EntityView.UserView.class, EntityView.AdminView.class})
     private UserEntity user;
 
     @OneToMany(mappedBy = "source", cascade = CascadeType.REMOVE)
@@ -127,20 +151,32 @@ public class SourceEntity
     @JsonIgnore
     private List<ScheduledHistoryEntity> historys;
 
-    public void setConfigure(String configure)
+    @Transient
+    private String name;
+
+    @Transient
+    @JsonProperty(value = "configure")
+    private IConfigure configure;
+
+    public void setOriginalConfigure(String configure)
     {
-        this.configure = configure;
+        this.originalConfigure = configure;
         if (StringUtils.isNotEmpty(configure)) {
-            this.setConfigures(JsonUtils.toMap(this.configure));
+            this.setConfigures(JsonUtils.toMap(this.originalConfigure));
         }
     }
 
     public Map<String, Object> getConfigures()
     {
-        if (StringUtils.isNotEmpty(this.configure)) {
-            this.setConfigures(JsonUtils.toMap(this.configure));
+        if (StringUtils.isNotEmpty(this.originalConfigure)) {
+            this.setConfigures(JsonUtils.toMap(this.originalConfigure));
         }
         return configures;
+    }
+
+    public Configure toConfigure(PluginManager pluginManager, Plugin plugin)
+    {
+        return toConfigure("JsonConvert", pluginManager, plugin);
     }
 
     /**
@@ -148,18 +184,22 @@ public class SourceEntity
      *
      * @return The Configure object created from the current object.
      */
-    public Configure toConfigure()
+    public Configure toConfigure(String format, PluginManager pluginManager, Plugin plugin)
     {
-        Configure configure = new Configure();
-        configure.setHost(this.getHost());
-        configure.setPort(this.getPort());
-        configure.setUsername(Optional.ofNullable(this.getUsername()));
-        configure.setPassword(Optional.ofNullable(this.getPassword()));
-        Optional<String> database = StringUtils.isNotEmpty(this.getDatabase()) ? Optional.ofNullable(this.getDatabase()) : Optional.empty();
-        configure.setDatabase(database);
-        configure.setSsl(Optional.ofNullable(this.getSsl()));
-        configure.setEnv(Optional.ofNullable(this.getConfigures()));
-        configure.setFormat("Json");
-        return configure;
+        return Configure.builder()
+                .host(this.getHost())
+                .port(this.getPort())
+                .username(Optional.ofNullable(this.getUsername()))
+                .password(Optional.ofNullable(this.getPassword()))
+                .database(StringUtils.isNotEmpty(this.getDatabase()) ? Optional.ofNullable(this.getDatabase()) : Optional.empty())
+                .ssl(Optional.ofNullable(this.getSsl()))
+                .env(Optional.ofNullable(this.getConfigures()))
+                .format(format)
+                .usedConfig(this.isUsedConfig())
+                .pluginManager(pluginManager)
+                .plugin(plugin)
+                .id(String.valueOf(this.getId()))
+                .home(this.getHome())
+                .build();
     }
 }

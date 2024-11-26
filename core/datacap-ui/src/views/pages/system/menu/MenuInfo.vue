@@ -1,6 +1,7 @@
 <template>
   <ShadcnDrawer v-model="visible" :title="title" width="40%">
     <ShadcnSpin v-if="loading" fixed/>
+
     <ShadcnForm v-model="formState" v-if="formState" @on-submit="onSubmit">
       <ShadcnRow class="space-x-2">
         <ShadcnCol span="6">
@@ -14,12 +15,8 @@
         </ShadcnCol>
 
         <ShadcnCol span="6">
-          <ShadcnFormItem name="code"
-                          :label="$t('common.code')"
-                          :rules="[
-                          { required: true, message: $t('common.code') }
-                      ]">
-            <ShadcnInput v-model="formState.code" name="code"/>
+          <ShadcnFormItem name="icon" :label="$t('menu.common.icon')">
+            <ShadcnInput v-model="formState.icon" name="icon"/>
           </ShadcnFormItem>
         </ShadcnCol>
       </ShadcnRow>
@@ -44,11 +41,7 @@
 
       <ShadcnRow class="space-x-2">
         <ShadcnCol span="6">
-          <ShadcnFormItem name="sorted"
-                          :label="$t('common.sorted')"
-                          :rules="[
-                              { required: true, message: $t('common.sorted') }
-                          ]">
+          <ShadcnFormItem name="sorted" :label="$t('common.sorted')" :rules="[ { required: true, message: $t('common.sorted') } ]">
             <ShadcnNumber v-model="formState.sorted" name="sorted"/>
           </ShadcnFormItem>
         </ShadcnCol>
@@ -73,7 +66,10 @@
 
       <ShadcnRow class="space-x-2">
         <ShadcnCol span="6">
-          <ShadcnSelect v-model="formState.parent" :placeholder="$t('menu.tip.selectParent')" name="parent" :label="$t('common.parent')">
+          <ShadcnSelect v-model="formState.parent"
+                        name="parent"
+                        :placeholder="$t('menu.tip.selectParent')"
+                        :label="$t('common.parent')">
             <template #options>
               <ShadcnSelectOption v-for="menu in fullMenus" :label="menu.name as string" :value="menu.id as string"/>
             </template>
@@ -86,7 +82,7 @@
                         :placeholder="$t('menu.tip.selectRedirect')"
                         :label="$t('menu.common.redirect')">
             <template #options>
-              <ShadcnSelectOption v-for="menu in fullMenus" :label="menu.name as string" :value="menu.id as string"/>
+              <ShadcnSelectOption v-for="menu in fullMenus" :label="menu.name as string" :value="menu.id as string "/>
             </template>
           </ShadcnSelect>
         </ShadcnCol>
@@ -100,16 +96,8 @@
         </ShadcnCol>
 
         <ShadcnCol span="6">
-          <ShadcnFormItem name="i18nKey" :label="$t('menu.common.i18nKey')">
+          <ShadcnFormItem name="i18nKey" :label="$t('menu.common.i18nKey')" :rules="[ { required: true, message: $t('menu.common.i18nKey') } ]">
             <ShadcnInput v-model="formState.i18nKey" name="i18nKey"/>
-          </ShadcnFormItem>
-        </ShadcnCol>
-      </ShadcnRow>
-
-      <ShadcnRow class="space-x-2">
-        <ShadcnCol span="6">
-          <ShadcnFormItem name="icon" :label="$t('menu.common.icon')">
-            <ShadcnInput v-model="formState.icon" name="icon"/>
           </ShadcnFormItem>
         </ShadcnCol>
       </ShadcnRow>

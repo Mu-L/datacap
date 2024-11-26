@@ -49,7 +49,7 @@ export abstract class BaseService
      */
     saveOrUpdate(configure: any): Promise<ResponseModel>
     {
-        if (configure['id'] > 0) {
+        if (configure['id'] > 0 || configure['code']) {
             return new HttpUtils().put(this.baseUrl, configure)
         }
         else {
@@ -57,8 +57,8 @@ export abstract class BaseService
         }
     }
 
-    deleteById(id: number): Promise<ResponseModel>
+    deleteByCode(code: string): Promise<ResponseModel>
     {
-        return new HttpUtils().delete(`${ this.baseUrl }/${ id }`)
+        return new HttpUtils().delete(`${ this.baseUrl }/${ code }`)
     }
 }

@@ -7,7 +7,17 @@ class PluginService
 {
     getPlugins(): Promise<ResponseModel>
     {
-        return new HttpUtils().get(`${DEFAULT_PATH}`)
+        return new HttpUtils().get(`${ DEFAULT_PATH }`)
+    }
+
+    install(configure: { name: string, url: string }): Promise<ResponseModel>
+    {
+        return new HttpUtils().post(`${ DEFAULT_PATH }/install`, configure)
+    }
+
+    uninstall(name: string): Promise<ResponseModel>
+    {
+        return new HttpUtils().delete(`${ DEFAULT_PATH }/uninstall/${ name }`)
     }
 }
 

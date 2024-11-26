@@ -3,6 +3,8 @@ package io.edurt.datacap.server.controller.user;
 import com.google.common.collect.Sets;
 import io.edurt.datacap.common.response.CommonResponse;
 import io.edurt.datacap.fs.FsResponse;
+import io.edurt.datacap.server.controller.BaseController;
+import io.edurt.datacap.service.annotation.DynamicJsonView;
 import io.edurt.datacap.service.body.FilterBody;
 import io.edurt.datacap.service.body.UserNameBody;
 import io.edurt.datacap.service.body.UserPasswordBody;
@@ -15,6 +17,7 @@ import io.edurt.datacap.service.entity.itransient.user.UserEditorEntity;
 import io.edurt.datacap.service.model.AiModel;
 import io.edurt.datacap.service.record.TreeRecord;
 import io.edurt.datacap.service.repository.RoleRepository;
+import io.edurt.datacap.service.repository.UserRepository;
 import io.edurt.datacap.service.service.UserLogService;
 import io.edurt.datacap.service.service.UserService;
 import lombok.SneakyThrows;
@@ -37,40 +40,45 @@ import java.util.Set;
 @RestController
 @RequestMapping(value = "/api/v1/user")
 public class UserController
+        extends BaseController<UserEntity>
 {
-    private final UserService userService;
+    private final UserRepository repository;
+    private final UserService service;
     private final UserLogService userLogService;
     private final RoleRepository roleRepository;
 
-    public UserController(UserService userService, UserLogService userLogService, RoleRepository roleRepository)
+    public UserController(UserRepository repository, UserService service, UserLogService userLogService, RoleRepository roleRepository)
     {
-        this.userService = userService;
+        super(repository, service);
+        this.repository = repository;
+        this.service = service;
         this.userLogService = userLogService;
         this.roleRepository = roleRepository;
     }
 
-    @GetMapping(value = {"{id}", ""})
-    public CommonResponse<UserEntity> info(@PathVariable(required = false) Long id)
+    @GetMapping(value = {"{code}", ""})
+    @DynamicJsonView
+    public CommonResponse<UserEntity> info(@PathVariable(required = false) String code)
     {
-        return this.userService.info(id);
+        return this.service.info(code);
     }
 
     @PutMapping(value = "changePassword")
     public CommonResponse<Long> changePassword(@Validated @RequestBody UserPasswordBody configure)
     {
-        return this.userService.changePassword(configure);
+        return this.service.changePassword(configure);
     }
 
     @PutMapping(value = "changeUsername")
     public CommonResponse<Long> changeUsername(@Validated @RequestBody UserNameBody configure)
     {
-        return this.userService.changeUsername(configure);
+        return this.service.changeUsername(configure);
     }
 
     @PutMapping(value = "changeThirdConfigure")
     public CommonResponse<Long> changeThirdConfigure(@Validated @RequestBody AiModel configure)
     {
-        return this.userService.changeThirdConfigure(configure);
+        return this.service.changeThirdConfigure(configure);
     }
 
     @PostMapping(value = "log")
@@ -79,22 +87,11 @@ public class UserController
         return this.userLogService.getAllByFilter(filter);
     }
 
-    @GetMapping(value = "sugs/{id}")
-    public CommonResponse<List<Object>> getSugs(@PathVariable Long id)
-    {
-        return this.userService.getSugs(id);
-    }
-
     @GetMapping(value = "menus")
+    @DynamicJsonView
     public CommonResponse<List<TreeRecord>> getMenus()
     {
-        return this.userService.getMenus();
-    }
-
-    @PostMapping(value = "list")
-    public CommonResponse<PageEntity<UserEntity>> getAllByFilter(@RequestBody FilterBody filter)
-    {
-        return this.userService.getAll(filter);
+        return this.service.getMenus();
     }
 
     @PutMapping(value = "allocationRole")
@@ -104,28 +101,22 @@ public class UserController
         user.setId(configure.getUserId());
         Set<RoleEntity> roles = Sets.newHashSet();
         configure.getRoles()
-                .forEach(id -> roleRepository.findById(id)
+                .forEach(code -> roleRepository.findByCode(code)
                         .ifPresent(roles::add));
         user.setRoles(roles);
-        return this.userService.saveOrUpdate(user);
-    }
-
-    @PostMapping
-    public CommonResponse<UserEntity> saveAndUpdate(@RequestBody UserEntity configure)
-    {
-        return this.userService.saveOrUpdate(configure);
+        return this.service.saveOrUpdate(user);
     }
 
     @PutMapping(value = "changeEditorConfigure")
     public CommonResponse<Long> changeEditorConfigure(@Validated @RequestBody UserEditorEntity configure)
     {
-        return this.userService.changeEditorConfigure(configure);
+        return this.service.changeEditorConfigure(configure);
     }
 
     @SneakyThrows
     @PostMapping("uploadAvatar")
     public CommonResponse<FsResponse> uploadAvatar(@RequestParam("file") MultipartFile file)
     {
-        return this.userService.uploadAvatar(file);
+        return this.service.uploadAvatar(file);
     }
 }

@@ -48,6 +48,7 @@ mongo_*.xml
 shaded/*/dependency-reduced-pom.xml
 
 # datacap #
+core/datacap-server/src/main/resources/logback.xml
 cache/
 config/
 docs/site/
@@ -75,3 +76,6 @@ core/datacap-ui/yarn.lock
 
 # Qshell #
 .qshell/*
+
+# Test #
+test/datacap-test-convert/*convertservice

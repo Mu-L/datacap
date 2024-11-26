@@ -1,0 +1,114 @@
+{
+  "key": "plugin",
+  "label": "common.plugin.list.name",
+  "description": "common.plugin.list.description",
+  "i18nFormat": true,
+  "children": [
+    {
+      "key": "datacap-plugin-mysql",
+      "label": "MySQL",
+      "description": "A powerful MySQL integration plugin that provides comprehensive database connectivity. Features include table/view management, data import/export, SQL query execution, stored procedure support, and real-time data synchronization. Optimized for high-performance data operations with connection pooling and batch processing capabilities.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "https://www.vectorlogo.zone/logos/mysql/mysql-icon.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "8.0",
+        "5.7"
+      ],
+      "url": "https://cdn.north.devlive.org/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-mysql-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-clickhouse",
+      "label": "ClickHouse",
+      "description": "ClickHouse is a distributed column-oriented database. It is a distributed database with a focus on performance, scalability, and ease of use.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "https://vectorwiki.com/images/D9eMt__clickhouse.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "https://cdn.north.devlive.org/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-clickhouse-bin.tar.gz"
+    },
+    {
+      "key": "datacap-convert-csv",
+      "label": "CsvConvert",
+      "description": "A CSV file conversion plugin for DataCap.",
+      "i18nFormat": true,
+      "type": "Converter",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "https://cdn.north.devlive.org/applications/datacap/resources/logo/convert/csv.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "https://cdn.north.devlive.org/applications/datacap/plugins/2024.4.0-SNAPSHOT/convert/datacap-convert-csv-bin.tar.gz"
+    },
+    {
+      "key": "datacap-convert-txt",
+      "label": "TxtConvert",
+      "description": "A TXT file conversion plugin for DataCap.",
+      "i18nFormat": true,
+      "type": "Converter",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "https://cdn.north.devlive.org/applications/datacap/resources/logo/convert/txt.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "https://cdn.north.devlive.org/applications/datacap/plugins/2024.4.0-SNAPSHOT/convert/datacap-convert-txt-bin.tar.gz"
+    },
+    {
+      "key": "datacap-convert-json",
+      "label": "JsonConvert",
+      "description": "A JSON file conversion plugin for DataCap.",
+      "i18nFormat": true,
+      "type": "Converter",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "https://cdn.north.devlive.org/applications/datacap/resources/logo/convert/json.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "https://cdn.north.devlive.org/applications/datacap/plugins/2024.4.0-SNAPSHOT/convert/datacap-convert-json-bin.tar.gz"
+    },
+    {
+      "key": "datacap-convert-xml",
+      "label": "XmlConvert",
+      "description": "A XML file conversion plugin for DataCap.",
+      "i18nFormat": true,
+      "type": "Converter",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "https://cdn.north.devlive.org/applications/datacap/resources/logo/convert/xml.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "https://cdn.north.devlive.org/applications/datacap/plugins/2024.4.0-SNAPSHOT/convert/datacap-convert-xml-bin.tar.gz"
+    },
+    {
+      "key": "datacap-convert-none",
+      "label": "NoneConvert",
+      "description": "A multidimensional arrays file conversion plugin for DataCap.",
+      "i18nFormat": true,
+      "type": "Converter",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "https://cdn.north.devlive.org/applications/datacap/resources/logo/convert/none.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "https://cdn.north.devlive.org/applications/datacap/plugins/2024.4.0-SNAPSHOT/convert/datacap-convert-none-bin.tar.gz"
+    }
+  ]
+}

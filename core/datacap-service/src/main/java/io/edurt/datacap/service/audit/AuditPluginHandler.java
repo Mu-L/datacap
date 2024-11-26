@@ -1,15 +1,16 @@
 package io.edurt.datacap.service.audit;
 
-import com.google.inject.Injector;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.enums.State;
 import io.edurt.datacap.common.response.CommonResponse;
 import io.edurt.datacap.common.utils.CodeUtils;
 import io.edurt.datacap.common.utils.DateUtils;
-import io.edurt.datacap.common.utils.SpiUtils;
 import io.edurt.datacap.convert.ConvertFilter;
 import io.edurt.datacap.convert.model.ConvertRequest;
 import io.edurt.datacap.convert.model.ConvertResponse;
 import io.edurt.datacap.fs.FsRequest;
+import io.edurt.datacap.fs.FsService;
+import io.edurt.datacap.plugin.PluginManager;
 import io.edurt.datacap.service.common.FolderUtils;
 import io.edurt.datacap.service.entity.ExecuteEntity;
 import io.edurt.datacap.service.entity.PluginAuditEntity;
@@ -42,6 +43,7 @@ import static java.util.Objects.requireNonNull;
 @Aspect
 @Component
 @Slf4j
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP2"})
 public class AuditPluginHandler
 {
     private final ThreadLocal<PluginAuditEntity> threadLocalPluginAudit = new ThreadLocal<>();
@@ -49,14 +51,14 @@ public class AuditPluginHandler
     private final PluginAuditRepository pluginAuditRepository;
     private final SourceRepository sourceRepository;
     private final InitializerConfigure initializer;
-    private final Injector injector;
+    private final PluginManager pluginManager;
 
-    public AuditPluginHandler(PluginAuditRepository pluginAuditRepository, SourceRepository sourceRepository, InitializerConfigure initializer, Injector injector)
+    public AuditPluginHandler(PluginAuditRepository pluginAuditRepository, SourceRepository sourceRepository, InitializerConfigure initializer, PluginManager pluginManager)
     {
         this.pluginAuditRepository = pluginAuditRepository;
         this.sourceRepository = sourceRepository;
         this.initializer = initializer;
-        this.injector = injector;
+        this.pluginManager = pluginManager;
     }
 
     @Pointcut("@annotation(auditPlugin)")
@@ -95,7 +97,7 @@ public class AuditPluginHandler
                 pluginAudit.setContent(executeEntity.getContent());
                 pluginAudit.setMode(executeEntity.getMode());
                 pluginAudit.setFormat(executeEntity.getFormat());
-                this.sourceRepository.findById(Long.valueOf(executeEntity.getName()))
+                this.sourceRepository.findByCode(executeEntity.getName())
                         .ifPresent(pluginAudit::setSource);
             }
             UserEntity user = UserDetailsService.getUser();
@@ -111,7 +113,7 @@ public class AuditPluginHandler
                 String workHome = FolderUtils.getWorkHome(initializer.getDataHome(), user.getUsername(), String.join(File.separator, "adhoc", uniqueId));
                 log.info("Writer file to folder [ {} ] on [ {} ]", workHome, pluginAudit.getId());
                 try {
-                    ConvertFilter.filter(injector, "Json")
+                    ConvertFilter.filter(pluginManager, "JsonConvert")
                             .ifPresent(it -> {
                                 try {
                                     FileUtils.forceMkdir(new File(workHome));
@@ -139,8 +141,12 @@ public class AuditPluginHandler
                                                 fsRequest.setEndpoint(initializer.getFsConfigure().getEndpoint());
                                                 fsRequest.setFileName(String.join(File.separator, user.getUsername(), DateUtils.formatYMD(), String.join(File.separator, "adhoc", uniqueId), "result.csv"));
                                             }
-                                            SpiUtils.findFs(injector, initializer.getFsConfigure().getType())
-                                                    .map(v -> v.writer(fsRequest));
+
+                                            pluginManager.getPlugin(initializer.getFsConfigure().getType())
+                                                    .map(v -> {
+                                                        FsService fsService = v.getService(FsService.class);
+                                                        return fsService.writer(fsRequest);
+                                                    });
                                             log.info("Delete temp file [ {} ] on [ {} ] state [ {} ]", tempFile, pluginAudit.getId(), Files.deleteIfExists(tempFile.toPath()));
                                             log.info("Writer file to folder [ {} ] on [ {} ] completed", workHome, pluginAudit.getId());
                                             pluginAudit.setHome(workHome);

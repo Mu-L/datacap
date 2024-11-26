@@ -49,7 +49,7 @@
                         :configuration="JSON.parse(item.node.configure)"
                         :type="item.original?.type"
                         :query="item.original.type === 'DATASET' ? JSON.parse(item.original.query as string) : item.original.query"
-                        :original="item?.original?.source?.id"/>
+                        :original="item?.original?.source?.code"/>
 
             <VisualView v-else
                         :width="calculateWidth(item)"
@@ -102,13 +102,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, PropType } from 'vue'
 import { GridItem, GridLayout } from 'vue3-grid-layout-next'
 import DashboardService from '@/services/dashboard'
 import { ReportModel } from '@/model/report.ts'
 import VisualView from '@/views/components/visual/VisualView.vue'
 import { DashboardModel, DashboardRequest } from '@/model/dashboard.ts'
-import { cloneDeep } from 'lodash'
 import CropperHome from '@/views/components/cropper/CropperHome.vue'
 import UploadService from '@/services/upload'
 import ChartContainer from '@/views/pages/admin/dashboard/components/ChartContainer.vue'
@@ -120,7 +119,8 @@ export default defineComponent({
   },
   props: {
     info: {
-      type: Object as () => DashboardModel | null
+      type: Object as PropType<DashboardModel | null>,
+      default: null
     }
   },
   data()
@@ -146,14 +146,21 @@ export default defineComponent({
     handleInitialize()
     {
       setTimeout(() => {
-        this.title = this.$t('dashboard.common.create')
-        if (this.info) {
-          this.title = this.$t('dashboard.common.modifyInfo').replace('$VALUE', String(this.info.name))
-          this.formState = cloneDeep(this.info)
-          this.layouts = JSON.parse(String(this.info?.configure))
+        if (!this.info) {
+          this.title = this.$t('dashboard.common.create')
+          this.formState = DashboardRequest.of()
         }
         else {
-          this.formState = DashboardRequest.of()
+          this.title = this.$t('dashboard.common.modifyInfo').replace('$VALUE', String(this.info.name))
+          this.formState = {
+            code: this.info.code,
+            name: this.info.name,
+            configure: this.info.configure,
+            version: this.info.version,
+            description: this.info.description,
+            reports: this.info.reports?.map(report => ({ code: report.code })) || []
+          }
+          this.layouts = JSON.parse(String(this.info.configure))
         }
       }, 300)
     },
@@ -219,7 +226,7 @@ export default defineComponent({
           i: 'new-' + Date.now(),
           title: node.name,
           node: {
-            id: node.id,
+            id: node.code,
             configure: node.configure,
             code: node.dataset?.code,
             query: node?.query
@@ -233,9 +240,10 @@ export default defineComponent({
     {
       if (this.formState) {
         this.formState.configure = JSON.stringify(this.layouts)
-        this.layouts.forEach((item: { node: { id: any; }; }) => {
-          this.formState?.reports?.push({ id: item.node.id })
+        this.layouts.forEach((item: { original: { code: any; }; }) => {
+          this.formState?.reports?.push({ code: item.original.code })
         })
+        this.formState.version = '1.0'
         this.loading = true
         DashboardService.saveOrUpdate(this.formState)
                         .then(response => {

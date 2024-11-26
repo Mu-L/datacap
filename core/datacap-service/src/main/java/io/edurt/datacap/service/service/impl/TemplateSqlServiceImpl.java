@@ -122,14 +122,16 @@ public class TemplateSqlServiceImpl
     @Override
     public CommonResponse<TemplateEntity> getById(Long id)
     {
-        return CommonResponse.success(this.templateSqlRepository.findById(id));
+        return templateSqlRepository.findById(id)
+                .map(CommonResponse::success)
+                .orElse(CommonResponse.failure(String.format("Template [ %s ] not found", id)));
     }
 
     @Override
     public CommonResponse<Object> execute(TemplateSqlBody configure)
     {
         Optional<SourceEntity> sourceEntity = this.sourceRepository.findById(configure.getSourceId());
-        if (!sourceEntity.isPresent()) {
+        if (sourceEntity.isEmpty()) {
             return CommonResponse.failure(ServiceState.SOURCE_NOT_FOUND);
         }
 
@@ -163,7 +165,7 @@ public class TemplateSqlServiceImpl
                 });
             }
             executeConfigure.setContent(content[0]);
-            executeConfigure.setFormat("Json");
+            executeConfigure.setFormat("JsonConvert");
             executeConfigure.setName(String.valueOf(configure.getSourceId()));
         }
         catch (JsonProcessingException e) {

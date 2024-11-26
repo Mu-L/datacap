@@ -10,7 +10,7 @@ import com.google.inject.TypeLiteral;
 import io.edurt.datacap.common.utils.JsonUtils;
 import io.edurt.datacap.common.utils.ResourceUtils;
 import io.edurt.datacap.service.configure.IConfigure;
-import io.edurt.datacap.spi.Plugin;
+import io.edurt.datacap.spi.PluginService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.Environment;
@@ -26,15 +26,15 @@ public class PluginUtils
 
     private PluginUtils() {}
 
-    public static Optional<Plugin> getPluginByName(Injector injector, String pluginName)
+    public static Optional<PluginService> getPluginByName(Injector injector, String pluginName)
     {
-        Optional<Plugin> pluginOptional = injector.getInstance(Key.get(new TypeLiteral<Set<Plugin>>() {})).stream().filter(plugin -> plugin.name().equalsIgnoreCase(pluginName)).findFirst();
+        Optional<PluginService> pluginOptional = injector.getInstance(Key.get(new TypeLiteral<Set<PluginService>>() {})).stream().filter(plugin -> plugin.name().equalsIgnoreCase(pluginName)).findFirst();
         return pluginOptional;
     }
 
-    public static Optional<Plugin> getPluginByNameAndType(Injector injector, String pluginName, String pluginType)
+    public static Optional<PluginService> getPluginByNameAndType(Injector injector, String pluginName, String pluginType)
     {
-        Optional<Plugin> pluginOptional = injector.getInstance(Key.get(new TypeLiteral<Set<Plugin>>() {})).stream().filter(plugin -> plugin.name().equalsIgnoreCase(pluginName) && plugin.type().name().equalsIgnoreCase(pluginType)).findFirst();
+        Optional<PluginService> pluginOptional = injector.getInstance(Key.get(new TypeLiteral<Set<PluginService>>() {})).stream().filter(plugin -> plugin.name().equalsIgnoreCase(pluginName) && plugin.type().name().equalsIgnoreCase(pluginType)).findFirst();
         return pluginOptional;
     }
 
@@ -73,7 +73,7 @@ public class PluginUtils
         if (!resource.endsWith(".yaml")) {
             resource = resource + ".yaml";
         }
-        String path = root + String.format("plugins/%s/%s", type.toLowerCase(), resource.toLowerCase());
+        String path = root + String.format("plugins/%s/%s", "jdbc", resource.toLowerCase());
         log.info("Load plugin {} type {} resource {} configure file path {}", plugin, type, resource, path);
         File file = new File(path);
         if (!file.exists()) {

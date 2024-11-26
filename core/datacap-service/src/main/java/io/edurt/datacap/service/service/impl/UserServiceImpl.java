@@ -2,7 +2,6 @@ package io.edurt.datacap.service.service.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.inject.Injector;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.enums.ServiceState;
 import io.edurt.datacap.common.response.CommonResponse;
@@ -10,9 +9,11 @@ import io.edurt.datacap.common.response.JwtResponse;
 import io.edurt.datacap.common.utils.CodeUtils;
 import io.edurt.datacap.common.utils.JsonUtils;
 import io.edurt.datacap.common.utils.NullAwareBeanUtils;
-import io.edurt.datacap.common.utils.SpiUtils;
 import io.edurt.datacap.fs.FsRequest;
 import io.edurt.datacap.fs.FsResponse;
+import io.edurt.datacap.fs.FsService;
+import io.edurt.datacap.plugin.Plugin;
+import io.edurt.datacap.plugin.PluginManager;
 import io.edurt.datacap.service.adapter.PageRequestAdapter;
 import io.edurt.datacap.service.audit.AuditUserLog;
 import io.edurt.datacap.service.body.FilterBody;
@@ -80,9 +81,9 @@ public class UserServiceImpl
     private final RedisTemplate redisTemplate;
     private final Environment environment;
     private final InitializerConfigure initializerConfigure;
-    private final Injector injector;
+    private final PluginManager pluginManager;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, SourceRepository sourceRepository, MenuRepository menuRepository, PasswordEncoder encoder, AuthenticationManager authenticationManager, JwtService jwtService, RedisTemplate redisTemplate, Environment environment, InitializerConfigure initializerConfigure, Injector injector)
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, SourceRepository sourceRepository, MenuRepository menuRepository, PasswordEncoder encoder, AuthenticationManager authenticationManager, JwtService jwtService, RedisTemplate redisTemplate, Environment environment, InitializerConfigure initializerConfigure, PluginManager pluginManager)
     {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -94,7 +95,7 @@ public class UserServiceImpl
         this.redisTemplate = redisTemplate;
         this.environment = environment;
         this.initializerConfigure = initializerConfigure;
-        this.injector = injector;
+        this.pluginManager = pluginManager;
     }
 
     @Override
@@ -146,16 +147,15 @@ public class UserServiceImpl
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-        return CommonResponse.success(new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), roles, userDetails.getAvatar()));
+        return CommonResponse.success(new JwtResponse(jwt, userDetails.getCode(), userDetails.getUsername(), roles, userDetails.getAvatar()));
     }
 
     @Override
-    public CommonResponse<UserEntity> info(Long userId)
+    public CommonResponse<UserEntity> info(String code)
     {
-        if (ObjectUtils.isEmpty(userId)) {
-            userId = UserDetailsService.getUser().getId();
-        }
-        return CommonResponse.success(this.userRepository.findById(userId).get());
+        return userRepository.findByCode(UserDetailsService.getUser().getCode())
+                .map(CommonResponse::success)
+                .orElseGet(() -> CommonResponse.failure(ServiceState.USER_NOT_FOUND));
     }
 
     @Override
@@ -232,7 +232,7 @@ public class UserServiceImpl
     public CommonResponse<List<TreeRecord>> getMenus()
     {
         Map<Long, TreeRecord> treeMap = new ConcurrentHashMap<>();
-        Optional<UserEntity> optionalUser = userRepository.findById(UserDetailsService.getUser().getId());
+        Optional<UserEntity> optionalUser = userRepository.findByCode(UserDetailsService.getUser().getCode());
         UserEntity user = optionalUser.get();
         List<TreeRecord> tree = new ArrayList<>();
         user.getRoles().forEach(role -> {
@@ -304,42 +304,83 @@ public class UserServiceImpl
     @Override
     public CommonResponse<FsResponse> uploadAvatar(MultipartFile file)
     {
-        return SpiUtils.findFs(injector, initializerConfigure.getFsConfigure().getType())
-                .map(fs -> {
-                    UserEntity user = UserDetailsService.getUser();
-                    try {
-                        String avatarPath = initializerConfigure.getAvatarPath();
-                        log.info("Upload avatar user [ {} ] home [ {} ]", user.getUsername(), avatarPath);
+        if (file == null || file.isEmpty()) {
+            return CommonResponse.failure("Upload file cannot be empty");
+        }
 
-                        FsRequest fsRequest = FsRequest.builder()
-                                .access(initializerConfigure.getFsConfigure().getAccess())
-                                .secret(initializerConfigure.getFsConfigure().getSecret())
-                                .endpoint(avatarPath)
-                                .bucket(initializerConfigure.getFsConfigure().getBucket())
-                                .stream(file.getInputStream())
-                                .fileName(String.format("%s.png", user.getId()))
-                                .build();
-                        FsResponse response = fs.writer(fsRequest);
-                        UserEntity entity = userRepository.findById(user.getId()).get();
-                        Map<String, String> avatar = Maps.newConcurrentMap();
-                        avatar.put("fsType", initializerConfigure.getFsConfigure().getType());
-                        avatar.put("local", response.getRemote());
-                        if (initializerConfigure.getFsConfigure().getType().equals("Local")) {
-                            avatar.put("path", encodeImageToBase64(file.getInputStream()));
-                        }
-                        else {
-                            avatar.put("path", response.getRemote());
-                        }
-                        entity.setAvatarConfigure(avatar);
-                        userRepository.save(entity);
-                        return CommonResponse.success(response);
-                    }
-                    catch (IOException e) {
-                        log.warn("File upload exception on user [ {} ]", user.getUsername(), e);
-                        return CommonResponse.failure(e.getMessage());
-                    }
-                })
-                .orElseGet(() -> CommonResponse.failure(String.format("Not found Fs [ %s ]", initializerConfigure.getFsConfigure().getType())));
+        return pluginManager.getPlugin(initializerConfigure.getFsConfigure().getType())
+                .map(plugin -> processAvatarUpload(plugin, file))
+                .map(response -> processUploadResult(response, file))
+                .orElse(CommonResponse.failure(String.format("Not found Fs [%s]",
+                        initializerConfigure.getFsConfigure().getType())));
+    }
+
+    private FsResponse processAvatarUpload(Plugin plugin, MultipartFile file)
+    {
+        UserEntity user = UserDetailsService.getUser();
+        try {
+            String avatarPath = initializerConfigure.getAvatarPath();
+            log.info("Upload avatar user [{}] home [{}]", user.getUsername(), avatarPath);
+
+            FsRequest fsRequest = buildFsRequest(user, avatarPath, file);
+            FsService fsService = plugin.getService(FsService.class);
+            return fsService.writer(fsRequest);
+        }
+        catch (IOException e) {
+            log.error("Failed to process avatar upload for user [{}]", user.getUsername(), e);
+            throw new IllegalStateException("Failed to process avatar upload", e);
+        }
+    }
+
+    private FsRequest buildFsRequest(UserEntity user, String avatarPath, MultipartFile file)
+            throws IOException
+    {
+        return FsRequest.builder()
+                .access(initializerConfigure.getFsConfigure().getAccess())
+                .secret(initializerConfigure.getFsConfigure().getSecret())
+                .endpoint(avatarPath)
+                .bucket(initializerConfigure.getFsConfigure().getBucket())
+                .stream(file.getInputStream())
+                .fileName(String.format("%s.png", user.getId()))
+                .build();
+    }
+
+    private CommonResponse<FsResponse> processUploadResult(FsResponse response, MultipartFile file)
+    {
+        try {
+            UserEntity user = UserDetailsService.getUser();
+            UserEntity entity = userRepository.findById(user.getId())
+                    .orElseThrow(() -> new IllegalStateException("User not found: " + user.getId()));
+
+            Map<String, String> avatar = createAvatarConfig(response, file);
+            entity.setAvatarConfigure(avatar);
+            userRepository.save(entity);
+
+            return CommonResponse.success(response);
+        }
+        catch (Exception e) {
+            log.error("Failed to process upload result", e);
+            return CommonResponse.failure("Failed to process upload result: " + e.getMessage());
+        }
+    }
+
+    private Map<String, String> createAvatarConfig(FsResponse response, MultipartFile file)
+            throws IOException
+    {
+        Map<String, String> avatar = Maps.newConcurrentMap();
+        String fsType = initializerConfigure.getFsConfigure().getType();
+
+        avatar.put("fsType", fsType);
+        avatar.put("local", response.getRemote());
+
+        if ("Local".equals(fsType)) {
+            avatar.put("path", encodeImageToBase64(file.getInputStream()));
+        }
+        else {
+            avatar.put("path", response.getRemote());
+        }
+
+        return avatar;
     }
 
     private String encodeImageToBase64(InputStream inputStream)

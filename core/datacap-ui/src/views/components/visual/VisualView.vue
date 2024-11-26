@@ -7,6 +7,10 @@
         <ShadcnAlert type="error" :title="localConfiguration.message"/>
       </div>
 
+      <div v-else-if="hasError && message" class="flex items-center justify-center absolute inset-0">
+        <ShadcnAlert type="error" show-icon :title="message"/>
+      </div>
+
       <div v-else>
         <VisualTable v-if="configuration?.type === Type.TABLE"
                      :configuration="localConfiguration as any"
@@ -139,13 +143,15 @@ export default defineComponent({
       default: () => '400px'
     },
     original: {
-      type: Number
+      type: String
     }
   },
   data()
   {
     return {
       loading: false,
+      hasError: false,
+      message: null as string | null,
       localConfiguration: null as Configuration | null
     }
   },
@@ -160,18 +166,16 @@ export default defineComponent({
       setTimeout(() => {
         this.loading = true
         if (this.type === 'QUERY') {
-          const configure: ExecuteModel = { name: this.original as any, content: this.query as any, mode: 'REPORT', format: 'Json' }
+          const configure: ExecuteModel = { name: this.original as any, content: this.query as any, mode: 'REPORT', format: 'JsonConvert' }
           ExecuteService.execute(configure, null)
                         .then(response => {
-                          if (response.data.isSuccessful) {
+                          if (response.status && response.data.isSuccessful) {
                             this.formatRaw(response)
+                            this.message = null
                           }
                           else {
-                            // @ts-ignore
-                            this.$Message.error({
-                              content: response.data.message,
-                              showIcon: true
-                            })
+                            this.hasError = response.message
+                            this.message = response.message
                           }
                         })
                         .finally(() => this.loading = false)
