@@ -1,5 +1,6 @@
 package io.edurt.datacap.plugin.loader;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -7,12 +8,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
+import java.util.Set;
 
 /**
  * 插件专用类加载器
  * Plugin-specific ClassLoader
  */
 @Slf4j
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP2"})
 public class PluginClassLoader
         extends URLClassLoader
         implements AutoCloseable
@@ -27,13 +30,15 @@ public class PluginClassLoader
     private final String pluginVersion;
 
     private final boolean parentFirst;
+    private final Set<String> parentClassLoaders;
 
-    public PluginClassLoader(URL[] urls, ClassLoader parent, String pluginName, String pluginVersion, boolean parentFirst)
+    public PluginClassLoader(URL[] urls, ClassLoader parent, String pluginName, String pluginVersion, boolean parentFirst, Set<String> parentClassLoaders)
     {
         super(urls, parent);
         this.pluginName = pluginName;
         this.pluginVersion = pluginVersion;
         this.parentFirst = parentFirst;
+        this.parentClassLoaders = parentClassLoaders;
         this.name = String.join("-", "loader", pluginName.toLowerCase(), pluginVersion.toLowerCase());
         log.debug("Created PluginClassLoader for {} with URLs: {}", pluginName, Arrays.toString(urls));
     }
@@ -57,13 +62,11 @@ public class PluginClassLoader
             try {
                 // 系统类和框架类使用父加载器
                 // Use parent loader for system classes and framework classes
-                if (name.startsWith("java.") ||
-                        name.startsWith("javax.") ||
-                        name.startsWith("com.google.") ||
-                        name.startsWith("org.") ||
+                if (parentClassLoaders.stream().anyMatch(name::startsWith)
                         // 添加 Plugin 相关的包到父优先加载列表
                         // Add Plugin related packages to parent-first list
-                        (parentFirst && name.startsWith("io.edurt.datacap.plugin"))) {
+                        || (parentFirst && name.startsWith("io.edurt.datacap.plugin"))
+                ) {
                     return super.loadClass(name, resolve);
                 }
 
