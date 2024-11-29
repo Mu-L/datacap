@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>datacap-test-plugin</artifactId>
-    <description>DataCap - Test plugin</description>
+    <description>DataCap - Test - Plugin</description>
 
     <dependencies>
         <dependency>
@@ -27,6 +27,12 @@
         <dependency>
             <groupId>io.edurt.datacap</groupId>
             <artifactId>datacap-spi</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.edurt.datacap</groupId>
+            <artifactId>datacap-convert-json</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

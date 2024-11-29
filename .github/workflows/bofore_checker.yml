@@ -71,13 +71,50 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Maven Checker Style
         uses: actions/setup-java@v3
         with:
           java-version: '11'
           distribution: 'temurin'
+
       - run: chmod 755 ./mvnw
-      - run: ./mvnw clean test -Dspotbugs.skip -Dgpg.skip -Dcheckstyle.skip -Dskip.pnpm -DskipAssembly=true
+
+      - name: Debug Environment Variables
+        env:
+          QINIU_ACCESS: ${{ secrets.QINIU_ACCESS }}
+          QINIU_SECRET: ${{ secrets.QINIU_SECRET }}
+          QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
+          QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
+        run: |
+          echo "QINIU_ENDPOINT is set: ${{ secrets.QINIU_ENDPOINT != '' }}"
+          echo "QINIU_ENDPOINT length: ${#QINIU_ENDPOINT}"
+
+      - name: Run Tests
+        if: ${{ env.QINIU_ENDPOINT != '' }}
+        env:
+          QINIU_ACCESS: ${{ secrets.QINIU_ACCESS }}
+          QINIU_SECRET: ${{ secrets.QINIU_SECRET }}
+          QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
+          QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
+          ALIOSS_ACCESS: ${{ secrets.ALIOSS_ACCESS }}
+          ALIOSS_SECRET: ${{ secrets.ALIOSS_SECRET }}
+          ALIOSS_BUCKET: ${{ secrets.ALIOSS_BUCKET }}
+          ALIOSS_ENDPOINT: ${{ secrets.ALIOSS_ENDPOINT }}
+          COS_ACCESS: ${{ secrets.COS_ACCESS }}
+          COS_SECRET: ${{ secrets.COS_SECRET }}
+          COS_BUCKET: ${{ secrets.COS_BUCKET }}
+          COS_ENDPOINT: ${{ secrets.COS_ENDPOINT }}
+          S3_ACCESS: ${{ secrets.S3_ACCESS }}
+          S3_SECRET: ${{ secrets.S3_SECRET }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
+        run: |
+          ./mvnw clean test -Dspotbugs.skip -Dgpg.skip -Dcheckstyle.skip -Dskip.pnpm \
+            -Dqiniu.access="$QINIU_ACCESS" -Dqiniu.secret="$QINIU_SECRET" -Dqiniu.bucket="$QINIU_BUCKET" -Dqiniu.endpoint="$QINIU_ENDPOINT" \
+            -Dalioss.access="$ALIOSS_ACCESS" -Dalioss.secret="$ALIOSS_SECRET" -Dalioss.bucket="$ALIOSS_BUCKET" -Dalioss.endpoint="$ALIOSS_ENDPOINT" \
+            -Dcos.access="$COS_ACCESS" -Dcos.secret="$COS_SECRET" -Dcos.bucket="$COS_BUCKET" -Dcos.endpoint="$COS_ENDPOINT" \
+            -Ds3.access="$S3_ACCESS" -Ds3.secret="$S3_SECRET" -Ds3.bucket="$S3_BUCKET" -Ds3.endpoint="$S3_ENDPOINT"
 
   before_checker_package:
     runs-on: ubuntu-latest

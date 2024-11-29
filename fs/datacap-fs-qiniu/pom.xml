@@ -9,13 +9,9 @@
     </parent>
 
     <artifactId>datacap-fs-qiniu</artifactId>
-    <description>DataCap - File system for qiniu</description>
+    <description>DataCap - File System - Qiniu</description>
 
     <dependencies>
-        <dependency>
-            <groupId>io.edurt.datacap</groupId>
-            <artifactId>datacap-common</artifactId>
-        </dependency>
         <dependency>
             <groupId>io.edurt.datacap</groupId>
             <artifactId>datacap-fs-spi</artifactId>
@@ -62,5 +58,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
