@@ -12,13 +12,13 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/mysql.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/mysql.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "8.0",
         "5.7"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-mysql-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-mysql-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-clickhouse",
@@ -28,12 +28,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/clickhouse.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/clickhouse.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-clickhouse-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-clickhouse-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-influxdb",
@@ -43,12 +43,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/influxdb.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/influxdb.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-influxdb-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-influxdb-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-solr",
@@ -58,12 +58,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/solr.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/solr.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-solr-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-solr-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-cratedb",
@@ -73,12 +73,27 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/cratedb.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/cratedb.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-cratedb-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-cratedb-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-cratedb-http",
+      "label": "CrateDB HTTP",
+      "description": "Use HTTP to access the remote CrateDB database",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/cratedbhttp.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-cratedbhttp-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-zookeeper",
@@ -88,12 +103,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/zookeeper.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/zookeeper.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-zookeeper-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-zookeeper-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-kafka",
@@ -103,12 +118,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/kafka.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/kafka.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-kafka-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-kafka-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-redis",
@@ -118,12 +133,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/redis.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/redis.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-redis-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-redis-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-h2",
@@ -133,12 +148,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/h2.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/h2.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-h2-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-h2-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-db2",
@@ -148,12 +163,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/db2.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/db2.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-db2-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-db2-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-dm",
@@ -163,12 +178,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/dm.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/dm.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-dm-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-dm-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-hdfs",
@@ -178,12 +193,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/hdfs.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/hdfs.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-hdfs-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-hdfs-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-alioss",
@@ -193,12 +208,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/alioss.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/alioss.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-alioss-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-alioss-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-dremio",
@@ -208,12 +223,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/dremio.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/dremio.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-dremio-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-dremio-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-druid",
@@ -223,12 +238,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/druid.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/druid.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-druid-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-druid-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-duckdb",
@@ -238,12 +253,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/duckdb.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/duckdb.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-duckdb-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-duckdb-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-pinot",
@@ -253,12 +268,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/pinot.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/pinot.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-pinot-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-pinot-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-cassandra",
@@ -268,12 +283,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/cassandra.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/cassandra.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-cassandra-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-cassandra-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-matrixone",
@@ -283,12 +298,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/matrixone.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/matrixone.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-matrixone-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-matrixone-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-scylladb",
@@ -298,12 +313,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/scylladb.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/scylladb.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-scylladb-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-scylladb-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-paradedb",
@@ -313,12 +328,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/paradedb.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/paradedb.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-paradedb-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-paradedb-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-hive-2x",
@@ -328,12 +343,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/hive2x.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/hive2x.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "2.x"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-hive-2x-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-hive-2x-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-kyuubi",
@@ -343,12 +358,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/kyuubi.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/kyuubi.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-kyuubi-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-kyuubi-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-ignite",
@@ -358,12 +373,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/ignite.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/ignite.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-ignite-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-ignite-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-impala",
@@ -373,12 +388,12 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/impala.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/impala.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-impala-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-impala-bin.tar.gz"
     },
     {
       "key": "datacap-plugin-kylin",
@@ -388,12 +403,402 @@
       "type": "Connector",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/kylin.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/kylin.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-kylin-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-kylin-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-timescale",
+      "label": "Timescale",
+      "description": "TimescaleDB is an open-source database designed to make SQL scalable for time-series data. It is engineered up from PostgreSQL and packaged as a PostgreSQL extension, providing automatic partitioning across time and space (partitioning key), as well as full SQL support.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/timescale.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-timescale-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-iotdb",
+      "label": "Apache IoTDB",
+      "description": "Apache IoTDB (Database for Internet of Things) is an IoT native database with high performance for data management and analysis, deployable on the edge and the cloud. ",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/iotdb.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-iotdb-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-monetdb",
+      "label": "MonetDB",
+      "description": "MonetDB is a high performance relational database system for analytics.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/monetdb.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-monetdb-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-ydb",
+      "label": "YDB",
+      "description": "YDB is a versatile open source Distributed SQL Database that combines high availability and scalability with strong consistency and ACID transactions. It accommodates transactional (OLTP), analytical (OLAP), and streaming workloads simultaneously.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/ydb.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-ydb-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-neo4j",
+      "label": "Neo4j",
+      "description": "Neo4j is a graph database for knowledge management and analysis.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/neo4j.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-neo4j-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-oceanbase",
+      "label": "OceanBase",
+      "description": "OceanBase is an enterprise distributed relational database with high availability, high performance, horizontal scalability, and compatibility with SQL standards.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/oceanbase.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-oceanbase-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-oracle",
+      "label": "Oracle",
+      "description": "Oracle is an advanced, enterprise-class relational database management system.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/oracle.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-oracle-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-phoenix",
+      "label": "Apache Phoenix",
+      "description": "Apache Phoenix is a SQL skin over HBase delivered as a client-embedded JDBC driver targeting low latency queries over HBase data. ",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/phoenix.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-phoenix-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-postgresql",
+      "label": "PostgreSQL",
+      "description": "PostgreSQL is a powerful, open source object-relational database system.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/postgresql.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-postgresql-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-presto",
+      "label": "Presto",
+      "description": "Presto is a distributed SQL query engine for big data.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/presto.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-presto-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-snowflake",
+      "label": "Snowflake",
+      "description": "Snowflake is a database for analytics.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/snowflake.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-snowflake-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-sqlserver",
+      "label": "Microsoft SQL Server",
+      "description": "Microsoft SQL Server is a relational database management system.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/sqlserver.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-sqlserver-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-tdengine",
+      "label": "TDengine",
+      "description": "TDengine is an open source, high-performance, cloud native time-series database optimized for Internet of Things (IoT), Connected Cars, and Industrial IoT.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/tdengine.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-tdengine-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-trino",
+      "label": "Trino",
+      "description": "Trino is a distributed SQL query engine for big data.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/trino.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-trino-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-doris",
+      "label": "Apache Doris",
+      "description": "Apache Doris is a distributed OLAP database.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/doris.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-doris-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-starrocks",
+      "label": "StarRocks",
+      "description": "StarRocks is a distributed OLAP database.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/starrocks.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-starrocks-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-hologres",
+      "label": "Hologres",
+      "description": "Hologres is a unified real-time data warehousing service developed by Alibaba Cloud. You can use Hologres to write, update, process, and analyze large amounts of data in real time.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/hologres.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-hologres-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-greptimedb",
+      "label": "GreptimeDB",
+      "description": "GreptimeDB is an open-source unified & cost-effective time-series database for Metrics, Logs, and Events (also Traces in plan). You can gain real-time insights from Edge to Cloud at Any Scale.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/greptimedb.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-greptimedb-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-questdb",
+      "label": "QuestDB",
+      "description": "QuestDB is the world's fastest growing open-source time-series database. It offers massive ingestion throughput, millisecond queries, powerful time-series SQL extensions, and scales well with minimal and maximal hardware. Save costs with better performance and efficiency.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/questdb.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-questdb-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-h2-tcp",
+      "label": "H2 TCP",
+      "description": "Use TCP to access the remote H2 database",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/h2tcp.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-h2-tcp-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-clickhouse-http",
+      "label": "ClickHouse HTTP",
+      "description": "Use HTTP to access the remote ClickHouse database",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/clickhousehttp.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-clickhouse-http-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-ceresdb",
+      "label": "CeresDB",
+      "description": "CeresDB is a database system designed to allow for the storage and retrieval of semi-structured data, i.e. data that conforms to a “top-level schema” where columns types are known, but those columns can in-turn contain dictionaries or lists.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/ceresdb.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-ceresdb-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-redis-jdbc",
+      "label": "Redis JDBC",
+      "description": "Use JDBC to access Redis",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/redisjdbc.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-redis-jdbc-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-elasticsearch-8x",
+      "label": "Elasticsearch 8.x",
+      "description": "Use Elasticsearch 8.x",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/elasticsearch8x.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "8.x"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-elasticsearch-8x-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-mongo-atlas",
+      "label": "MongoDB Atlas",
+      "description": "The MongoDB Atlas SQL JDBC Driver provides SQL connectivity to MongoDB Atlas for client applications developed in Java.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/mongoatlas.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-mongo-atlas-bin.tar.gz"
+    },
+    {
+      "key": "datacap-plugin-mongo-community",
+      "label": "MongoDB Community",
+      "description": "The MongoDB Community SQL JDBC Driver provides SQL connectivity to MongoDB Community for client applications developed in Java.",
+      "i18nFormat": true,
+      "type": "Connector",
+      "version": "2024.4.0-SNAPSHOT",
+      "author": "datacap-community",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/plugin/mongocommunity.svg",
+      "released": "2024-11-21 23:11:15",
+      "supportVersion": [
+        "ALL"
+      ],
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/plugin/datacap-plugin-mongo-community-bin.tar.gz"
     },
     {
       "key": "datacap-convert-csv",
@@ -403,12 +808,12 @@
       "type": "Converter",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/convert/csv.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/convert/csv.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/convert/datacap-convert-csv-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/convert/datacap-convert-csv-bin.tar.gz"
     },
     {
       "key": "datacap-convert-txt",
@@ -418,12 +823,12 @@
       "type": "Converter",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/convert/txt.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/convert/txt.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/convert/datacap-convert-txt-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/convert/datacap-convert-txt-bin.tar.gz"
     },
     {
       "key": "datacap-convert-json",
@@ -433,12 +838,12 @@
       "type": "Converter",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/convert/json.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/convert/json.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/convert/datacap-convert-json-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/convert/datacap-convert-json-bin.tar.gz"
     },
     {
       "key": "datacap-convert-xml",
@@ -448,12 +853,12 @@
       "type": "Converter",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/convert/xml.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/convert/xml.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/convert/datacap-convert-xml-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/convert/datacap-convert-xml-bin.tar.gz"
     },
     {
       "key": "datacap-convert-none",
@@ -463,12 +868,12 @@
       "type": "Converter",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/convert/none.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/convert/none.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/convert/datacap-convert-none-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/convert/datacap-convert-none-bin.tar.gz"
     },
     {
       "key": "datacap-executor-local",
@@ -478,12 +883,12 @@
       "type": "Executor",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/executor/local.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/executor/local.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/executor/datacap-executor-local-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/executor/datacap-executor-local-bin.tar.gz"
     },
     {
       "key": "datacap-executor-seatunnel",
@@ -493,12 +898,12 @@
       "type": "Executor",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/executor/seatunnel.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/executor/seatunnel.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/executor/datacap-executor-seatunnel-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/executor/datacap-executor-seatunnel-bin.tar.gz"
     },
     {
       "key": "datacap-scheduler-local",
@@ -508,12 +913,12 @@
       "type": "Scheduler",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/scheduler/local.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/scheduler/local.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/scheduler/datacap-scheduler-local-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/scheduler/datacap-scheduler-local-bin.tar.gz"
     },
     {
       "key": "datacap-fs-local",
@@ -523,12 +928,12 @@
       "type": "FileSystem",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/local.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/local.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/fs/datacap-fs-local-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/fs/datacap-fs-local-bin.tar.gz"
     },
     {
       "key": "datacap-fs-qiniu",
@@ -538,12 +943,12 @@
       "type": "FileSystem",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/qiniu.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/qiniu.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/fs/datacap-fs-qiniu-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/fs/datacap-fs-qiniu-bin.tar.gz"
     },
     {
       "key": "datacap-fs-alioss",
@@ -553,12 +958,12 @@
       "type": "FileSystem",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/alioss.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/alioss.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/fs/datacap-fs-alioss-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/fs/datacap-fs-alioss-bin.tar.gz"
     },
     {
       "key": "datacap-fs-tencent-cos",
@@ -568,12 +973,12 @@
       "type": "FileSystem",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/tencent-cos.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/tencent-cos.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/fs/datacap-fs-tencent-cos-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/fs/datacap-fs-tencent-cos-bin.tar.gz"
     },
     {
       "key": "datacap-fs-amazon-s3",
@@ -583,12 +988,12 @@
       "type": "FileSystem",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/amazon-s3.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/amazon-s3.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/fs/datacap-fs-amazon-s3-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/fs/datacap-fs-amazon-s3-bin.tar.gz"
     },
     {
       "key": "datacap-fs-minio",
@@ -598,12 +1003,12 @@
       "type": "FileSystem",
       "version": "2024.4.0-SNAPSHOT",
       "author": "datacap-community",
-      "logo": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/minio.svg",
+      "logo": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/resources/logo/fs/minio.svg",
       "released": "2024-11-21 23:11:15",
       "supportVersion": [
         "ALL"
       ],
-      "url": "https://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/fs/datacap-fs-minio-bin.tar.gz"
+      "url": "http://devlive-cdn.oss-cn-beijing.aliyuncs.com/applications/datacap/plugins/2024.4.0-SNAPSHOT/fs/datacap-fs-minio-bin.tar.gz"
     }
   ]
 }

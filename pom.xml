@@ -25,15 +25,20 @@
         <module>driver/datacap-driver-mongo</module>
         <module>shaded/datacap-shaded-ydb</module>
         <module>shaded/datacap-shaded-pinot</module>
+        <module>shaded/datacap-shaded-neo4j</module>
         <module>plugin/datacap-plugin-mysql</module>
         <module>plugin/datacap-plugin-clickhouse</module>
+        <module>plugin/datacap-plugin-clickhouse-http</module>
         <module>plugin/datacap-plugin-solr</module>
         <module>plugin/datacap-plugin-cratedb</module>
+        <module>plugin/datacap-plugin-cratedb-http</module>
         <module>plugin/datacap-plugin-alioss</module>
         <module>plugin/datacap-plugin-zookeeper</module>
         <module>plugin/datacap-plugin-kafka</module>
         <module>plugin/datacap-plugin-redis</module>
+        <module>plugin/datacap-plugin-redis-jdbc</module>
         <module>plugin/datacap-plugin-h2</module>
+        <module>plugin/datacap-plugin-h2-tcp</module>
         <module>plugin/datacap-plugin-hdfs</module>
         <module>plugin/datacap-plugin-db2</module>
         <module>plugin/datacap-plugin-dm</module>
@@ -51,33 +56,29 @@
         <module>plugin/datacap-plugin-ignite</module>
         <module>plugin/datacap-plugin-impala</module>
         <module>plugin/datacap-plugin-kylin</module>
-        <!--        <module>plugin/datacap-plugin-timescale</module>-->
-        <!--        <module>plugin/datacap-plugin-mongo-community</module>-->
-        <!--        <module>plugin/datacap-jdbc-elasticsearch</module>-->
-        <!--        <module>plugin/datacap-jdbc-h2</module>-->
-        <!--        <module>plugin/datacap-jdbc-iotdb</module>-->
-        <!--        <module>plugin/datacap-jdbc-monetdb</module>-->
-        <!--        <module>plugin/datacap-jdbc-mongo</module>-->
-        <!--        <module>plugin/datacap-jdbc-ydb</module>-->
-        <!--        <module>plugin/datacap-jdbc-neo4j</module>-->
-        <!--        <module>plugin/datacap-jdbc-oceanbase</module>-->
-        <!--        <module>plugin/datacap-jdbc-oracle</module>-->
-        <!--        <module>plugin/datacap-jdbc-phoenix</module>-->
-        <!--        <module>plugin/datacap-jdbc-postgresql</module>-->
-        <!--        <module>plugin/datacap-jdbc-presto</module>-->
-        <!--        <module>plugin/datacap-jdbc-redis</module>-->
-        <!--        <module>plugin/datacap-jdbc-snowflake</module>-->
-        <!--        <module>plugin/datacap-jdbc-sqlserver</module>-->
-        <!--        <module>plugin/datacap-jdbc-tdengine</module>-->
-        <!--        <module>plugin/datacap-jdbc-trino</module>-->
-        <!--        <module>plugin/datacap-jdbc-doris</module>-->
-        <!--        <module>plugin/datacap-jdbc-starrocks</module>-->
-        <!--        <module>plugin/datacap-jdbc-hologres</module>-->
-        <!--        <module>plugin/datacap-http-cratedb</module>-->
-        <!--        <module>plugin/datacap-http-clickhouse</module>-->
-        <!--        <module>plugin/datacap-http-ceresdb</module>-->
-        <!--        <module>plugin/datacap-http-greptime</module>-->
-        <!--        <module>plugin/datacap-http-questdb</module>-->
+        <module>plugin/datacap-plugin-timescale</module>
+        <module>plugin/datacap-plugin-iotdb</module>
+        <module>plugin/datacap-plugin-monetdb</module>
+        <module>plugin/datacap-plugin-ydb</module>
+        <module>plugin/datacap-plugin-neo4j</module>
+        <module>plugin/datacap-plugin-oceanbase</module>
+        <module>plugin/datacap-plugin-oracle</module>
+        <module>plugin/datacap-plugin-phoenix</module>
+        <module>plugin/datacap-plugin-postgresql</module>
+        <module>plugin/datacap-plugin-presto</module>
+        <module>plugin/datacap-plugin-snowflake</module>
+        <module>plugin/datacap-plugin-sqlserver</module>
+        <module>plugin/datacap-plugin-tdengine</module>
+        <module>plugin/datacap-plugin-trino</module>
+        <module>plugin/datacap-plugin-doris</module>
+        <module>plugin/datacap-plugin-starrocks</module>
+        <module>plugin/datacap-plugin-hologres</module>
+        <module>plugin/datacap-plugin-greptimedb</module>
+        <module>plugin/datacap-plugin-questdb</module>
+        <module>plugin/datacap-plugin-ceresdb</module>
+        <module>plugin/datacap-plugin-elasticsearch-8x</module>
+        <module>plugin/datacap-plugin-mongo-atlas</module>
+        <module>plugin/datacap-plugin-mongo-community</module>
         <module>executor/datacap-executor-spi</module>
         <module>executor/datacap-executor-local</module>
         <module>executor/datacap-executor-seatunnel</module>
@@ -197,6 +198,7 @@
         <openai.version>2024.01.3</openai.version>
         <testcontainers.version>1.20.1</testcontainers.version>
         <quartz.version>2.3.2</quartz.version>
+        <h2.version>2.1.214</h2.version>
         <assembly-plugin.version>3.6.0</assembly-plugin.version>
         <dep.reflections.version>0.10.2</dep.reflections.version>
         <!-- datacap plugin dependency -->
@@ -752,6 +754,31 @@
                             </manifest>
                         </archive>
                     </configuration>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.3.1</version>
+                    <executions>
+                        <execution>
+                            <id>copy-assembly</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>../../dist/plugins</outputDirectory>
+                                <resources>
+                                    <resource>
+                                        <directory>${project.build.directory}</directory>
+                                        <includes>
+                                            <include>${project.artifactId}*.tar.gz</include>
+                                        </includes>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
