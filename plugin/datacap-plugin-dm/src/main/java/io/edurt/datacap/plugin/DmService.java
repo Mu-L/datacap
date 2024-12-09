@@ -15,6 +15,13 @@ public class DmService
         implements PluginService
 {
     @Override
+    public String validator()
+    {
+        return "SELECT DB_VERSION AS version\n" +
+                "FROM V$INSTANCE";
+    }
+
+    @Override
     public String driver()
     {
         return "dm.jdbc.driver.DmDriver";
@@ -41,7 +48,7 @@ public class DmService
             buffer.append(configure.getDatabase().get());
         }
         if (configure.getSsl().isPresent()) {
-            if (!configure.getDatabase().isPresent()) {
+            if (configure.getDatabase().isEmpty()) {
                 buffer.append(String.format("?ssl=%s", configure.getSsl().get()));
             }
             else {
@@ -54,7 +61,7 @@ public class DmService
                     .stream()
                     .map(value -> String.format("%s=%s", value.getKey(), value.getValue()))
                     .collect(Collectors.toList());
-            if (!configure.getDatabase().isPresent()) {
+            if (configure.getDatabase().isEmpty()) {
                 buffer.append("?");
             }
             else {
