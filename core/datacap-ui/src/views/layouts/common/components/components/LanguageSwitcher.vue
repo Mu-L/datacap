@@ -21,6 +21,8 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+// @ts-ignore
+import { setLocale } from 'view-shadcn-ui'
 import { useI18nHandler } from '@/i18n/I18n'
 
 // @ts-ignore
@@ -34,6 +36,7 @@ const changeLanguage = async (event: any) => {
   if (lang.startsWith(prefix)) {
     const locale = lang.substring(prefix.length)
     await loadLocale(locale)
+    await setLocale(locale)
     language.value = lang
   }
 }
