@@ -2,10 +2,10 @@ package io.edurt.datacap.convert.json
 
 import com.fasterxml.jackson.core.JsonEncoding
 import com.fasterxml.jackson.core.JsonFactory
-import com.fasterxml.jackson.core.JsonGenerationException
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings
 import io.edurt.datacap.common.utils.DateUtils
 import io.edurt.datacap.convert.ConvertService
 import io.edurt.datacap.convert.FileConvert.formatFile
@@ -15,8 +15,12 @@ import org.slf4j.LoggerFactory.getLogger
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.util.Objects.requireNonNull
 
+@SuppressFBWarnings(value = ["REC_CATCH_EXCEPTION"])
 class JsonConvertService : ConvertService
 {
     private val log = getLogger(this::class.java)
@@ -124,47 +128,82 @@ class JsonConvertService : ConvertService
             log.info("${name()} writer file absolute path [ ${file.absolutePath} ]")
 
             val factory = JsonFactory()
-            factory.createGenerator(file, JsonEncoding.UTF8)
-                .use { generator ->
-                    generator.writeStartArray()
-                    request.columns
-                        .forEach { column ->
-                            generator.writeStartObject()
-                            for (headerIndex in request.headers.indices)
+            factory.createGenerator(file, JsonEncoding.UTF8).use { generator ->
+                generator.codec = ObjectMapper()
+                generator.writeStartArray()
+                request.columns.forEach { column ->
+                    generator.writeStartObject()
+                    for (headerIndex in request.headers.indices)
+                    {
+                        val header = request.headers[headerIndex] as String
+                        when (column)
+                        {
+                            is List<*> ->
                             {
-                                when (column)
+                                val value = column[headerIndex]
+                                if (value is LocalDateTime)
                                 {
-                                    is List<*> -> generator.writeObjectField(request.headers[headerIndex] as String, column[headerIndex])
-                                    is ObjectNode ->
-                                    {
-                                        generator.codec = ObjectMapper()
-                                        val header = request.headers[headerIndex] as String
-                                        generator.writeObjectField(header, column.get(header))
-                                    }
-
-                                    else -> generator.writeObjectField(request.headers[headerIndex] as String, column)
+                                    generator.writeStringField(header, value.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                                }
+                                else
+                                {
+                                    generator.writeObjectField(header, value)
                                 }
                             }
-                            generator.writeEndObject()
+
+                            is ObjectNode ->
+                            {
+                                val value = column.get(header)
+                                if (value != null && isDateTime(value.asText()))
+                                {
+                                    generator.writeStringField(header, value.asText())
+                                }
+                                else
+                                {
+                                    generator.writeObjectField(header, value)
+                                }
+                            }
+
+                            is LocalDateTime ->
+                            {
+                                generator.writeStringField(header, column.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                            }
+
+                            else ->
+                            {
+                                generator.writeObjectField(header, column)
+                            }
                         }
-                    generator.writeEndArray()
+                    }
+                    generator.writeEndObject()
                 }
+                generator.writeEndArray()
+            }
 
             log.info("${name()} writer end time [ ${DateUtils.now()} ]")
             response.path = file.absolutePath
             response.successful = true
         }
-        catch (e: IOException)
+        catch (e: Exception)
         {
-            response.successful = false
-            response.message = e.message
-        }
-        catch (e: JsonGenerationException)
-        {
+            log.error("Write JSON file failed", e)
             response.successful = false
             response.message = e.message
         }
         return response
+    }
+
+    private fun isDateTime(text: String): Boolean
+    {
+        return try
+        {
+            LocalDateTime.parse(text)
+            true
+        }
+        catch (e: DateTimeParseException)
+        {
+            false
+        }
     }
 
     override fun reader(request: ConvertRequest): ConvertResponse
