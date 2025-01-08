@@ -121,10 +121,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import DatabaseService from '@/services/database.ts'
+import MetadataService from '@/services/metadata.ts'
 import { StructureEnum, StructureModel } from '@/model/structure.ts'
-import TableService from '@/services/table.ts'
-import ColumnService from '@/services/column.ts'
 import ColumnCreate from '@/views/pages/admin/source/components/ColumnCreate.vue'
 import ColumnDrop from '@/views/pages/admin/source/components/ColumnDrop.vue'
 import TableExport from '@/views/pages/admin/source/components/TableExport.vue'
@@ -180,15 +178,14 @@ export default defineComponent({
       if (source) {
         this.originalSource = source
         this.loading = true
-        DatabaseService.getAllBySource(source)
+        MetadataService.getDatabaseBySource(source)
                        .then(response => {
                          if (response.status) {
-                           response.data
-                                   .forEach((item: { name: null; catalog: null; code: undefined }) => {
+                           response.data.columns.forEach(item => {
                                      const structure: StructureModel = {
-                                       title: item.name,
-                                       catalog: item.catalog,
-                                       code: item.code
+                                       title: item.object_name,
+                                       catalog: item.object_name,
+                                       code: item.object_name
                                      }
                                      this.databaseArray.push(structure)
                                    })

@@ -138,7 +138,6 @@
 import { defineComponent } from 'vue'
 import { StructureModel } from '@/model/structure'
 import { TableModel, TableRequest } from '@/model/table'
-import TableService from '@/services/table'
 import { ColumnRequest } from '@/model/column'
 
 export default defineComponent({

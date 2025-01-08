@@ -35,7 +35,7 @@
 
 <script lang="ts">
 import { defineComponent, watch } from 'vue'
-import DatabaseService from '@/services/database.ts'
+import DatabaseService from '@/services/metadata.ts'
 import { DatabaseModel } from '@/model/database.ts'
 
 export default defineComponent({

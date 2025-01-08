@@ -108,7 +108,6 @@ import { defineComponent } from 'vue'
 import { StructureModel } from '@/model/structure'
 import { SqlType, TableModel, TableRequest } from '@/model/table'
 import { ColumnRequest } from '@/model/column'
-import TableService from '@/services/table'
 
 export default defineComponent({
   name: 'ColumnCreate',

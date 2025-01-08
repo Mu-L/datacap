@@ -12,6 +12,7 @@ import io.edurt.datacap.spi.model.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -144,6 +145,88 @@ public interface PluginService
     {
         this.connect(configure);
         return this.execute(content);
+    }
+
+    default Response getDatabases(Configure configure)
+    {
+        String sql = "SELECT\n" +
+                "    SCHEMA_NAME AS object_name,\n" +
+                "    'DATABASE' AS object_type,\n" +
+                "    '' AS object_comment\n" +
+                "FROM information_schema.SCHEMATA;";
+        return this.execute(configure, sql);
+    }
+
+    /**
+     * 根据数据库获取数据表结构
+     * Get table structure by database
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param database 数据库 | Database
+     * @return 数据表结构 | Table structure
+     */
+    default Response getTablesForTable(Configure configure, String database)
+    {
+        String sql = MessageFormat.format(
+                "SELECT\n" +
+                        "    CASE\n" +
+                        "        WHEN type = 'BASE TABLE' THEN '表'\n" +
+                        "        WHEN type = 'VIEW' THEN '视图'\n" +
+                        "        WHEN type = 'FUNCTION' THEN '函数'\n" +
+                        "        WHEN type = 'PROCEDURE' THEN '存储过程'\n" +
+                        "    END AS type_name,\n" +
+                        "    object_name,\n" +
+                        "    object_comment\n" +
+                        "FROM (\n" +
+                        "    -- 表\n" +
+                        "    SELECT\n" +
+                        "        'BASE TABLE' as type,\n" +
+                        "        TABLE_NAME as object_name,\n" +
+                        "        TABLE_COMMENT as object_comment\n" +
+                        "    FROM information_schema.TABLES\n" +
+                        "    WHERE TABLE_SCHEMA = '{0}'\n" +
+                        "        AND TABLE_TYPE = 'BASE TABLE'\n" +
+                        "\n" +
+                        "    UNION ALL\n" +
+                        "\n" +
+                        "    -- 视图\n" +
+                        "    SELECT\n" +
+                        "        'VIEW' as type,\n" +
+                        "        TABLE_NAME as object_name,\n" +
+                        "        TABLE_COMMENT as object_comment\n" +
+                        "    FROM information_schema.TABLES\n" +
+                        "    WHERE TABLE_SCHEMA = '{0}'\n" +
+                        "        AND TABLE_TYPE = 'VIEW'\n" +
+                        "\n" +
+                        "    UNION ALL\n" +
+                        "\n" +
+                        "    -- 函数\n" +
+                        "    SELECT\n" +
+                        "        'FUNCTION' as type,\n" +
+                        "        ROUTINE_NAME as object_name,\n" +
+                        "        ROUTINE_COMMENT as object_comment\n" +
+                        "    FROM information_schema.ROUTINES\n" +
+                        "    WHERE ROUTINE_SCHEMA = '{0}'\n" +
+                        "        AND ROUTINE_TYPE = 'FUNCTION'\n" +
+                        "\n" +
+                        "    UNION ALL\n" +
+                        "\n" +
+                        "    -- 存储过程（查询）\n" +
+                        "    SELECT\n" +
+                        "        'PROCEDURE' as type,\n" +
+                        "        ROUTINE_NAME as object_name,\n" +
+                        "        ROUTINE_COMMENT as object_comment\n" +
+                        "    FROM information_schema.ROUTINES\n" +
+                        "    WHERE ROUTINE_SCHEMA = '{0}'\n" +
+                        "        AND ROUTINE_TYPE = 'PROCEDURE'\n" +
+                        ") AS combined_objects\n" +
+                        "ORDER BY\n" +
+                        "    FIELD(type, 'BASE TABLE', 'VIEW', 'FUNCTION', 'PROCEDURE'),\n" +
+                        "    object_name;",
+                database
+        );
+
+        return this.execute(configure, sql);
     }
 
     default void destroy()

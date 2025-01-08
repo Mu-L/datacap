@@ -96,8 +96,6 @@ import { defineComponent } from 'vue'
 import { StructureModel } from '@/model/structure'
 import { SqlType, TableModel, TableRequest } from '@/model/table'
 import { ColumnModel } from '@/model/column'
-import TableService from '@/services/table'
-import ColumnService from '@/services/column'
 
 export default defineComponent({
   name: 'ColumnChange',
