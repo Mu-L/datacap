@@ -19,9 +19,15 @@ public class MetadataController
         this.service = service;
     }
 
-    @PostMapping(value = "database/{code}")
-    public CommonResponse<Response> fetchByDatabase(@PathVariable String code)
+    @PostMapping(value = "databases/{code}")
+    public CommonResponse<Response> fetchDatabases(@PathVariable String code)
     {
-        return this.service.getDatabaseSchema(code);
+        return this.service.getDatabases(code);
+    }
+
+    @PostMapping(value = "{code}/tables/{database}")
+    public CommonResponse<Response> fetchTables(@PathVariable String code, @PathVariable String database)
+    {
+        return this.service.getTables(code, database);
     }
 }

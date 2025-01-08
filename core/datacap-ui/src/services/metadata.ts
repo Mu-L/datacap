@@ -14,7 +14,12 @@ class MetadataService
 
     getDatabaseBySource(code: string): Promise<ResponseModel>
     {
-        return HttpUtils.post(`${ DEFAULT_PATH }/database/${ code }`)
+        return HttpUtils.post(`${ DEFAULT_PATH }/databases/${ code }`)
+    }
+
+    getTablesByDatabase(code: string, database: string): Promise<ResponseModel>
+    {
+        return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/tables/${ database }`)
     }
 }
 
