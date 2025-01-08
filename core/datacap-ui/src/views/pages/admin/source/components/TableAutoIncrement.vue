@@ -29,7 +29,6 @@
 <script setup lang="ts">
 import { getCurrentInstance, ref } from 'vue'
 import { SqlType, TableFilter } from '@/model/table.ts'
-import TableService from '@/services/table.ts'
 
 const emit = defineEmits(['close'])
 const { proxy } = getCurrentInstance()!

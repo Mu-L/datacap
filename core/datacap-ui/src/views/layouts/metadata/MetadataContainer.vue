@@ -3,7 +3,7 @@
     <ShadcnLayout>
       <div class="container my-2 min-h-screen">
         <ShadcnLayoutWrapper>
-          <ShadcnLayoutSider class="mr-4">
+          <ShadcnLayoutSider class="mr-4" width="300">
             <MetadataSidebar/>
           </ShadcnLayoutSider>
           <ShadcnLayoutMain class="ml-2">

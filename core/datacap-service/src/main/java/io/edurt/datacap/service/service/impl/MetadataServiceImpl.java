@@ -45,7 +45,20 @@ public class MetadataServiceImpl
                 .map(entity -> pluginManager.getPlugin(entity.getType())
                         .map(plugin -> {
                             PluginService service = plugin.getService(PluginService.class);
-                            return CommonResponse.success(service.getTablesForTable(entity.toConfigure(pluginManager, plugin), database));
+                            return CommonResponse.success(service.getTablesForDatabase(entity.toConfigure(pluginManager, plugin), database));
+                        })
+                        .orElseGet(() -> CommonResponse.failure(String.format("Plugin [ %s ] not found", entity.getType()))))
+                .orElseGet(() -> CommonResponse.failure(String.format("Resource [ %s ] not found", code)));
+    }
+
+    @Override
+    public CommonResponse<Response> getColumns(String code, String database, String table)
+    {
+        return repository.findByCode(code)
+                .map(entity -> pluginManager.getPlugin(entity.getType())
+                        .map(plugin -> {
+                            PluginService service = plugin.getService(PluginService.class);
+                            return CommonResponse.success(service.getColumnsForTable(entity.toConfigure(pluginManager, plugin), database, table));
                         })
                         .orElseGet(() -> CommonResponse.failure(String.format("Plugin [ %s ] not found", entity.getType()))))
                 .orElseGet(() -> CommonResponse.failure(String.format("Resource [ %s ] not found", code)));

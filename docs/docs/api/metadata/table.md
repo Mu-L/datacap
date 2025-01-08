@@ -1,8 +1,8 @@
 ---
-title: 数据库列表
+title: 数据表列表
 ---
 
-请求地址: `/api/v1/metadata/database/{code}`
+请求地址: `/api/v1/metadata/{code}/tables/{db}`
 
 请求方式: `POST`
 
@@ -11,7 +11,7 @@ title: 数据库列表
 === "示例"
 
     ```
-    /api/v1/metadata/database/8ee2171b5d014779a45901fb9c2428c9
+    /api/v1/metadata/e98ef92476a94ce5ae28115d2eb7ff40/tables/infosphere
     ```
 
 === "参数"
@@ -19,6 +19,7 @@ title: 数据库列表
     |参数|类型|描述|
     |---|---|---|
     |`code`|String|数据源编码|
+    |`db`|String|数据库名称|
 
 ## Response
 
@@ -27,7 +28,7 @@ title: 数据库列表
     ```json
     {
       "object_name": "authx",
-      "object_type": "DATABASE",
+      "object_type": "VIEW",
       "object_comment": ""
     }
     ```

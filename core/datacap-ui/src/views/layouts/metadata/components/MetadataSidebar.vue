@@ -37,7 +37,7 @@
             </span>
 
             <span v-if="node.level === StructureEnum.COLUMN" class="text-xs font-normal text-gray-500 ml-1">
-              {{ getColumnTitle(String(node.type), String(node.extra), String(node.isKey), String(node.defaultValue)) }}
+              {{ node.type === 'column' ? node.title : node.definition }}
             </span>
           </div>
         </template>
@@ -157,6 +157,12 @@ interface MenuItem
   level?: StructureEnum;
   code?: string;
   children?: MenuItem[]; // 子节点
+  value?: string
+  dataType?: string;
+  nullable?: string;
+  defaultValue?: string;
+  position?: number;
+  definition?: string;
 }
 
 interface SourceData
@@ -164,6 +170,11 @@ interface SourceData
   type_name: string;
   object_name: string;
   object_comment: string;
+  object_data_type: string;
+  object_nullable: string;
+  object_default_value: string;
+  object_position: number;
+  object_definition: string;
 }
 
 export default defineComponent({
@@ -283,24 +294,31 @@ export default defineComponent({
     },
     onLoadData(item: StructureModel, callback: any)
     {
-      const dataChildArray = [] as StructureModel[]
+      let dataChildArray = [] as StructureModel[]
       if (item.level === StructureEnum.COLUMN) {
         callback(dataChildArray)
         return
       }
-      ColumnService.getAllByTable(String(item.value))
-                   .then(response => {
-                     if (response.status) {
-                       response.data.forEach((item: any) => {
-                         dataChildArray.push({
-                           title: item.name, database: item.table.database.name, databaseId: item.table.database.id, table: item.table.name,
-                           tableId: item.table.code, catalog: item.catalog, value: item.code, level: StructureEnum.COLUMN, type: item.type, extra: item.extra,
-                           dataType: item.dataType, engine: item.engine, isKey: item.isKey, defaultValue: item.defaultValue, children: [], isLeaf: false
+
+      MetadataService.getColumnsByTable(this.originalSource, this.selectDatabase as string, item.code as string)
+                     .then(response => {
+                       if (response.status) {
+                         dataChildArray = [...this.convertToTreeData(response.data.columns, StructureEnum.COLUMN)]
+
+                         // dataChildArray.push({
+                         //   title: item.name, database: item.table.database.name, databaseId: item.table.database.id, table: item.table.name,
+                         //   tableId: item.table.code, catalog: item.catalog, value: item.code, level: StructureEnum.COLUMN, type: item.type, extra: item.extra,
+                         //   dataType: item.dataType, engine: item.engine, isKey: item.isKey, defaultValue: item.defaultValue, children: [], isLeaf: false
+                         // })
+                       }
+                       else {
+                         this.$Message.error({
+                           content: response.message,
+                           showIcon: true
                          })
-                       })
-                     }
-                   })
-                   .finally(() => callback(dataChildArray))
+                       }
+                     })
+                     .finally(() => callback(dataChildArray))
     },
     visibleCreateTable(opened: boolean)
     {
@@ -339,22 +357,6 @@ export default defineComponent({
       this.dataInfo = node
       this.contextmenu.visible = true
     },
-    getColumnTitle(dataType: string, extra: string, isKey: string, defaultValue: string)
-    {
-      let title = dataType
-      if (isKey === 'PRI') {
-        if (extra) {
-          title = `${ title }\u00A0(${ extra.replace('_', '\u00A0') })`
-        }
-        else {
-          title = `${ title }`
-        }
-      }
-      if (defaultValue && defaultValue !== 'null') {
-        title = `${ title }\u00A0=\u00A0${ defaultValue }`
-      }
-      return title
-    },
     convertToTreeData(flatData: SourceData[], level: StructureEnum = StructureEnum.DATABASE): MenuItem[]
     {
       // 按type_name分组
@@ -369,15 +371,22 @@ export default defineComponent({
       // 转换为树形结构
       return Object.entries(groupedData).map(([type, items]) => ({
         type,
-        title: `${ type } (${ items.length })`,
+        title: `${ this.$t('common.' + type) } (${ items.length })`,
         level: StructureEnum.TYPE,
+        value: type,
         children: items.map(item => ({
-          type: 'item',
+          type: item.object_data_type || '',
           title: item.object_name,
           level: level,
           isLeaf: false,
           code: item.object_name,
-          comment: item.object_comment
+          value: `${ item.object_name }_${ item.type_name }`,
+          comment: item.object_comment,
+          dataType: item.object_data_type,
+          nullable: item.object_nullable,
+          defaultValue: item.object_default_value,
+          position: item.object_position,
+          definition: item.object_definition
         }))
       }))
     }

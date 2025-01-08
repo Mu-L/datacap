@@ -8,4 +8,6 @@ public interface MetadataService
     CommonResponse<Response> getDatabases(String code);
 
     CommonResponse<Response> getTables(String code, String database);
+
+    CommonResponse<Response> getColumns(String code, String database, String table);
 }

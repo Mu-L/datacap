@@ -164,14 +164,14 @@ public interface PluginService
      * @param database 数据库 | Database
      * @return 数据表结构 | Table structure
      */
-    default Response getTablesForTable(Configure configure, String database)
+    default Response getTablesForDatabase(Configure configure, String database)
     {
         String sql = "SELECT\n" +
                 "    CASE\n" +
-                "        WHEN type = 'BASE TABLE' THEN '表'\n" +
-                "        WHEN type = 'VIEW' THEN '视图'\n" +
-                "        WHEN type = 'FUNCTION' THEN '函数'\n" +
-                "        WHEN type = 'PROCEDURE' THEN '存储过程'\n" +
+                "        WHEN type = 'BASE TABLE' THEN 'table'\n" +
+                "        WHEN type = 'VIEW' THEN 'view'\n" +
+                "        WHEN type = 'FUNCTION' THEN 'function'\n" +
+                "        WHEN type = 'PROCEDURE' THEN 'procedure'\n" +
                 "    END AS type_name,\n" +
                 "    object_name,\n" +
                 "    object_comment\n" +
@@ -223,6 +223,112 @@ public interface PluginService
                 "    object_name;";
 
         return this.execute(configure, sql.replace("{0}", database));
+    }
+
+    default Response getColumnsForTable(Configure configure, String database, String table)
+    {
+        String sql = "SELECT detail.*\n" +
+                "FROM (\n" +
+                "    -- 列信息\n" +
+                "    SELECT\n" +
+                "        'column' as type_name,\n" +
+                "        COLUMN_NAME as object_name,\n" +
+                "        COLUMN_TYPE as object_data_type,\n" +
+                "        IS_NULLABLE as object_nullable,\n" +
+                "        COLUMN_DEFAULT as object_default_value,\n" +
+                "        COLUMN_COMMENT as object_comment,\n" +
+                "        ORDINAL_POSITION as object_position,\n" +
+                "        '' as object_definition\n" +
+                "    FROM\n" +
+                "        information_schema.COLUMNS\n" +
+                "    WHERE\n" +
+                "        TABLE_SCHEMA = '{0}' -- 数据库名参数\n" +
+                "        AND TABLE_NAME = '{1}' -- 表名参数\n" +
+                "\n" +
+                "    UNION ALL\n" +
+                "\n" +
+                "    -- 主键信息\n" +
+                "    SELECT\n" +
+                "        'primary' as type_name,\n" +
+                "        COLUMN_NAME as object_name,\n" +
+                "        '' as object_data_type,\n" +
+                "        '' as object_nullable,\n" +
+                "        '' as object_default_value,\n" +
+                "        '' as object_comment,\n" +
+                "        0 as object_position,\n" +
+                "        CONCAT('PRIMARY KEY on (',\n" +
+                "            GROUP_CONCAT(COLUMN_NAME ORDER BY ORDINAL_POSITION),\n" +
+                "            ')'\n" +
+                "        ) as object_definition\n" +
+                "    FROM\n" +
+                "        information_schema.KEY_COLUMN_USAGE\n" +
+                "    WHERE\n" +
+                "        TABLE_SCHEMA = '{0}'\n" +
+                "        AND TABLE_NAME = '{1}'\n" +
+                "        AND CONSTRAINT_NAME = 'PRIMARY'\n" +
+                "    GROUP BY\n" +
+                "        TABLE_SCHEMA, TABLE_NAME, CONSTRAINT_NAME, COLUMN_NAME\n" +
+                "\n" +
+                "    UNION ALL\n" +
+                "\n" +
+                "    -- 索引信息\n" +
+                "    SELECT DISTINCT\n" +
+                "        'index' as type_name,\n" +
+                "        COLUMN_NAME as object_name,\n" +
+                "        '' as object_data_type,\n" +
+                "        '' as object_nullable,\n" +
+                "        '' as object_default_value,\n" +
+                "        '' as object_comment,\n" +
+                "        0 as object_position,\n" +
+                "        CONCAT(\n" +
+                "            CASE NON_UNIQUE\n" +
+                "                WHEN 1 THEN 'Non-unique'\n" +
+                "                ELSE 'Unique'\n" +
+                "            END,\n" +
+                "            ' index on (',\n" +
+                "            GROUP_CONCAT(COLUMN_NAME ORDER BY SEQ_IN_INDEX),\n" +
+                "            ')'\n" +
+                "        ) as object_definition\n" +
+                "    FROM\n" +
+                "        information_schema.STATISTICS\n" +
+                "    WHERE\n" +
+                "        TABLE_SCHEMA = '{0}'\n" +
+                "        AND TABLE_NAME = '{1}'\n" +
+                "    GROUP BY\n" +
+                "        TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NON_UNIQUE\n" +
+                "\n" +
+                "    UNION ALL\n" +
+                "\n" +
+                "    -- 触发器信息\n" +
+                "    SELECT\n" +
+                "        'trigger' as type_name,\n" +
+                "        TRIGGER_NAME as object_name,\n" +
+                "        '' as object_data_type,\n" +
+                "        '' as object_nullable,\n" +
+                "        '' as object_default_value,\n" +
+                "        '' as object_comment,\n" +
+                "        0 as object_position,\n" +
+                "        CONCAT(\n" +
+                "            'TRIGGER ',\n" +
+                "            ACTION_TIMING, ' ',\n" +
+                "            EVENT_MANIPULATION\n" +
+                "        ) as object_definition\n" +
+                "    FROM\n" +
+                "        information_schema.TRIGGERS\n" +
+                "    WHERE\n" +
+                "        EVENT_OBJECT_SCHEMA = '{0}'\n" +
+                "        AND EVENT_OBJECT_TABLE = '{1}'\n" +
+                ") detail\n" +
+                "ORDER BY\n" +
+                "    FIELD(type_name, 'column', 'primary', 'index', 'trigger'),\n" +
+                "    object_position,\n" +
+                "    object_name;";
+
+        return this.execute(
+                configure,
+                sql.replace("{0}", database)
+                        .replace("{1}", table)
+        );
     }
 
     default void destroy()

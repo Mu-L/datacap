@@ -30,4 +30,10 @@ public class MetadataController
     {
         return this.service.getTables(code, database);
     }
+
+    @PostMapping(value = "{code}/db/{database}/columns/{table}")
+    public CommonResponse<Response> fetchColumns(@PathVariable String code, @PathVariable String database, @PathVariable String table)
+    {
+        return this.service.getColumns(code, database, table);
+    }
 }

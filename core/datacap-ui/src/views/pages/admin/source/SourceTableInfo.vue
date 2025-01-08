@@ -137,8 +137,7 @@
 </template>
 <script lang="ts">
 import { defineComponent, watch } from 'vue'
-import TableService from '@/services/table'
-import { TableModel } from '@/model/table'
+import MetadataService from '@/services/metadata.ts'
 import TableAutoIncrement from '@/views/pages/admin/source/components/TableAutoIncrement.vue'
 
 export default defineComponent({
@@ -155,7 +154,7 @@ export default defineComponent({
       loading: false,
       submitting: false,
       autoIncrement: false,
-      dataInfo: null as TableModel | null
+      dataInfo: null as any | null
     }
   },
   methods: {
@@ -164,7 +163,7 @@ export default defineComponent({
       const code = String(this.$route?.params.table)
       if (code) {
         this.loading = true
-        TableService.getByCode(code)
+        MetadataService.getByCode(code)
                     .then(response => {
                       if (response.status) {
                         this.dataInfo = response.data
