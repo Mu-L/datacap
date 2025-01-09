@@ -338,6 +338,7 @@ nav:
         - api/workflow/restart.md
       - ApiMetadata:
           - api/metadata/database.md
+          - api/metadata/databaseInfo.md
           - api/metadata/table.md
           - api/metadata/column.md
   - NavDriver:

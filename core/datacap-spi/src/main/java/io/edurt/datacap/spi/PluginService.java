@@ -146,6 +146,13 @@ public interface PluginService
         return this.execute(content);
     }
 
+    /**
+     * 获取数据库列表
+     * Get database list
+     *
+     * @param configure 配置信息 | Configuration information
+     * @return 数据库列表 | Database list
+     */
     default Response getDatabases(Configure configure)
     {
         String sql = "SELECT\n" +
@@ -225,6 +232,15 @@ public interface PluginService
         return this.execute(configure, sql.replace("{0}", database));
     }
 
+    /**
+     * 根据数据库，数据表获取列结构
+     * Get column structure by database, table
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param database 数据库 | Database
+     * @param table 数据表 | Table
+     * @return 数据列结构 | Column structure
+     */
     default Response getColumnsForTable(Configure configure, String database, String table)
     {
         String sql = "SELECT detail.*\n" +
@@ -328,6 +344,68 @@ public interface PluginService
                 configure,
                 sql.replace("{0}", database)
                         .replace("{1}", table)
+        );
+    }
+
+    /**
+     * 根据数据库获取数据库信息
+     * Get database information by database
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param database 数据库 | Database
+     * @return 数据库信息 | Database information
+     */
+    default Response getDatabaseInfo(Configure configure, String database)
+    {
+        String sql = "SELECT \n" +
+                "    s.SCHEMA_NAME as object_name,\n" +
+                "    s.DEFAULT_CHARACTER_SET_NAME as object_charset,\n" +
+                "    s.DEFAULT_COLLATION_NAME as object_collation,\n" +
+                "    db_stats.object_create_time,\n" +
+                "    db_stats.object_update_time,\n" +
+                "    db_stats.object_data_size,\n" +
+                "    db_stats.object_index_size,\n" +
+                "    db_stats.object_total_size,\n" +
+                "    db_stats.object_table_count,\n" +
+                "    db_stats.object_column_count,\n" +
+                "    db_stats.object_index_count,\n" +
+                "    db_stats.object_view_count,\n" +
+                "    db_stats.object_procedure_count,\n" +
+                "    db_stats.object_trigger_count,\n" +
+                "    db_stats.object_foreign_key_count,\n" +
+                "    db_stats.object_total_rows\n" +
+                "FROM\n" +
+                "    information_schema.SCHEMATA s,\n" +
+                "    (\n" +
+                "        SELECT\n" +
+                "            TABLE_SCHEMA,\n" +
+                "            MIN(CREATE_TIME) as object_create_time,\n" +
+                "            MAX(UPDATE_TIME) as object_update_time,\n" +
+                "            ROUND(SUM(DATA_LENGTH)/1024/1024, 2) as object_data_size,\n" +
+                "            ROUND(SUM(INDEX_LENGTH)/1024/1024, 2) as object_index_size,\n" +
+                "            ROUND(SUM(DATA_LENGTH + INDEX_LENGTH)/1024/1024, 2) as object_total_size,\n" +
+                "            COUNT(*) as object_table_count,\n" +
+                "            SUM(TABLE_ROWS) as object_total_rows,\n" +
+                "            (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = '{0}') as object_column_count,\n" +
+                "            (SELECT COUNT(DISTINCT INDEX_NAME) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = '{0}') as object_index_count,\n" +
+                "            (SELECT COUNT(*) FROM information_schema.VIEWS WHERE TABLE_SCHEMA = '{0}') as object_view_count,\n" +
+                "            (SELECT COUNT(*) FROM information_schema.ROUTINES WHERE ROUTINE_SCHEMA = '{0}' AND ROUTINE_TYPE = 'PROCEDURE') as object_procedure_count,\n" +
+                "            (SELECT COUNT(*) FROM information_schema.TRIGGERS WHERE TRIGGER_SCHEMA = '{0}') as object_trigger_count,\n" +
+                "            (SELECT COUNT(DISTINCT CONSTRAINT_NAME) FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_SCHEMA = '{0}') as object_foreign_key_count\n" +
+                "        FROM\n" +
+                "            information_schema.TABLES\n" +
+                "        WHERE\n" +
+                "            TABLE_SCHEMA = '{0}'\n" +
+                "            AND TABLE_TYPE = 'BASE TABLE'\n" +
+                "        GROUP BY\n" +
+                "            TABLE_SCHEMA\n" +
+                "    ) as db_stats\n" +
+                "WHERE\n" +
+                "    s.SCHEMA_NAME = '{0}';";
+
+        return this.execute(
+                configure,
+                sql.replace("{0}", database)
         );
     }
 

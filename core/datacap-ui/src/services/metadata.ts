@@ -26,6 +26,11 @@ class MetadataService
     {
         return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/db/${ database }/columns/${ table }`)
     }
+
+    getDatabase(code: string, database: string): Promise<ResponseModel>
+    {
+        return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/db/${ database }`)
+    }
 }
 
 export default new MetadataService()

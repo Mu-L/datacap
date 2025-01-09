@@ -15,29 +15,45 @@
                   @on-node-click="onNodeClick">
         <template #label="{ node }">
           <div class="flex items-center space-x-1" @contextmenu.prevent="visibleContextMenu($event, node)">
-            <ShadcnIcon v-if="node.level === StructureEnum.TYPE && node.type === '表'"
+            <ShadcnIcon v-if="node.level === StructureEnum.TYPE && node.type === 'table'"
                         class="text-xs font-semibold text-gray-500"
                         size="16"
                         icon="Table"/>
-            <ShadcnIcon v-else-if="node.level === StructureEnum.TYPE && node.type === '视图'"
+            <ShadcnIcon v-else-if="node.level === StructureEnum.TYPE && node.type === 'view'"
                         class="text-xs font-semibold text-gray-500"
                         size="16"
                         icon="View"/>
-            <ShadcnIcon v-else-if="node.level === StructureEnum.TYPE && node.type === '函数'"
+            <ShadcnIcon v-else-if="node.level === StructureEnum.TYPE && node.type === 'function'"
                         class="text-xs font-semibold text-gray-500"
                         size="16"
                         icon="SquareFunction"/>
-            <ShadcnIcon v-else-if="node.level === StructureEnum.TYPE && node.type === '存储过程'"
+            <ShadcnIcon v-else-if="node.level === StructureEnum.TYPE && node.type === 'procedure'"
                         class="text-xs font-semibold text-gray-500"
                         size="16"
                         icon="Cpu"/>
+            <ShadcnIcon v-else-if="node.level === StructureEnum.TYPE && node.type === 'column'"
+                        class="text-xs font-semibold text-gray-500"
+                        size="16"
+                        icon="Columns"/>
+            <ShadcnIcon v-else-if="node.level === StructureEnum.TYPE && node.type === 'index'"
+                        class="text-xs font-semibold text-gray-500"
+                        size="16"
+                        icon="Blinds"/>
+            <ShadcnIcon v-else-if="node.level === StructureEnum.TYPE && node.type === 'trigger'"
+                        class="text-xs font-semibold text-gray-500"
+                        size="16"
+                        icon="Tangent"/>
+            <ShadcnIcon v-else-if="node.level === StructureEnum.TYPE && node.type === 'primary'"
+                        class="text-xs font-semibold text-gray-500"
+                        size="16"
+                        icon="Key"/>
 
             <span class="text-xs font-normal text-gray-900">
               {{ node.title }}
             </span>
 
             <span v-if="node.level === StructureEnum.COLUMN" class="text-xs font-normal text-gray-500 ml-1">
-              {{ node.type === 'column' ? node.title : node.definition }}
+              {{ node.typeName === 'column' ? node.type : node.definition }}
             </span>
           </div>
         </template>
@@ -163,6 +179,7 @@ interface MenuItem
   defaultValue?: string;
   position?: number;
   definition?: string;
+  typeName?: string
 }
 
 interface SourceData
@@ -304,12 +321,6 @@ export default defineComponent({
                      .then(response => {
                        if (response.status) {
                          dataChildArray = [...this.convertToTreeData(response.data.columns, StructureEnum.COLUMN)]
-
-                         // dataChildArray.push({
-                         //   title: item.name, database: item.table.database.name, databaseId: item.table.database.id, table: item.table.name,
-                         //   tableId: item.table.code, catalog: item.catalog, value: item.code, level: StructureEnum.COLUMN, type: item.type, extra: item.extra,
-                         //   dataType: item.dataType, engine: item.engine, isKey: item.isKey, defaultValue: item.defaultValue, children: [], isLeaf: false
-                         // })
                        }
                        else {
                          this.$Message.error({
@@ -386,7 +397,8 @@ export default defineComponent({
           nullable: item.object_nullable,
           defaultValue: item.object_default_value,
           position: item.object_position,
-          definition: item.object_definition
+          definition: item.object_definition,
+          typeName: item.type_name
         }))
       }))
     }
