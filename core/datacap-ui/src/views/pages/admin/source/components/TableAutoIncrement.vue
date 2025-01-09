@@ -55,7 +55,7 @@ const onSubmit = () => {
   if (props.info && code && database && table) {
     loading.value = true
     const configure = {
-      value: formState.value.autoIncrement
+      autoIncrement: formState.value.autoIncrement
     }
     MetadataService.updateAutoIncrement(code as string, database as string, table as string, configure)
                    .then(response => {

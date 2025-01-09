@@ -2,12 +2,11 @@ package io.edurt.datacap.service.service.impl;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.response.CommonResponse;
-import io.edurt.datacap.common.sql.configure.SqlBody;
-import io.edurt.datacap.common.sql.configure.SqlType;
 import io.edurt.datacap.plugin.PluginManager;
 import io.edurt.datacap.service.repository.SourceRepository;
 import io.edurt.datacap.service.service.MetadataService;
 import io.edurt.datacap.spi.PluginService;
+import io.edurt.datacap.spi.generator.definition.TableDefinition;
 import io.edurt.datacap.spi.model.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -99,28 +98,26 @@ public class MetadataServiceImpl
                 .map(entity -> pluginManager.getPlugin(entity.getType())
                         .map(plugin -> {
                             PluginService service = plugin.getService(PluginService.class);
-                            SqlBody configure = SqlBody.builder()
-                                    .type(SqlType.SHOW)
+                            TableDefinition definition = TableDefinition.builder()
                                     .database(database)
                                     .table(table)
                                     .build();
-                            return CommonResponse.success(service.getTableStatement(entity.toConfigure(pluginManager, plugin), configure));
+                            return CommonResponse.success(service.getTableStatement(entity.toConfigure(pluginManager, plugin), definition));
                         })
                         .orElseGet(() -> CommonResponse.failure(String.format("Plugin [ %s ] not found", entity.getType()))))
                 .orElseGet(() -> CommonResponse.failure(String.format("Resource [ %s ] not found", code)));
     }
 
     @Override
-    public CommonResponse<Response> updateAutoIncrement(String code, SqlBody configure, String database, String table)
+    public CommonResponse<Response> updateAutoIncrement(String code, TableDefinition definition, String database, String table)
     {
         return repository.findByCode(code)
                 .map(entity -> pluginManager.getPlugin(entity.getType())
                         .map(plugin -> {
                             PluginService service = plugin.getService(PluginService.class);
-                            configure.setDatabase(database);
-                            configure.setTable(table);
-                            configure.setType(SqlType.ALTER);
-                            return CommonResponse.success(service.updateAutoIncrement(entity.toConfigure(pluginManager, plugin), configure));
+                            definition.setDatabase(database);
+                            definition.setTable(table);
+                            return CommonResponse.success(service.updateAutoIncrement(entity.toConfigure(pluginManager, plugin), definition));
                         })
                         .orElseGet(() -> CommonResponse.failure(String.format("Plugin [ %s ] not found", entity.getType()))))
                 .orElseGet(() -> CommonResponse.failure(String.format("Resource [ %s ] not found", code)));

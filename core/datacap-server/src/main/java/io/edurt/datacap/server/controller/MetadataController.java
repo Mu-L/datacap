@@ -1,8 +1,8 @@
 package io.edurt.datacap.server.controller;
 
 import io.edurt.datacap.common.response.CommonResponse;
-import io.edurt.datacap.common.sql.configure.SqlBody;
 import io.edurt.datacap.service.service.MetadataService;
+import io.edurt.datacap.spi.generator.definition.TableDefinition;
 import io.edurt.datacap.spi.model.Response;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -81,9 +81,9 @@ public class MetadataController
             @PathVariable String code,
             @PathVariable String database,
             @PathVariable String table,
-            @RequestBody SqlBody configure
+            @RequestBody TableDefinition definition
     )
     {
-        return this.service.updateAutoIncrement(code, configure, database, table);
+        return this.service.updateAutoIncrement(code, definition, database, table);
     }
 }

@@ -1,7 +1,7 @@
 package io.edurt.datacap.service.service;
 
 import io.edurt.datacap.common.response.CommonResponse;
-import io.edurt.datacap.common.sql.configure.SqlBody;
+import io.edurt.datacap.spi.generator.definition.TableDefinition;
 import io.edurt.datacap.spi.model.Response;
 
 public interface MetadataService
@@ -18,5 +18,5 @@ public interface MetadataService
 
     CommonResponse<Response> getTableStatement(String code, String database, String table);
 
-    CommonResponse<Response> updateAutoIncrement(String code, SqlBody configure, String database, String table);
+    CommonResponse<Response> updateAutoIncrement(String code, TableDefinition definition, String database, String table);
 }

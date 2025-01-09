@@ -1,10 +1,13 @@
 <template>
-  <ShadcnModal v-model="visible"
-               height="80%"
-               width="40%"
-               :title="$t('source.common.menuNewTable')"
-               @on-close="onCancel">
-    <ShadcnForm v-model="formState" v-if="formState" @on-submit="onSubmit">
+  <ShadcnDrawer v-model="visible"
+                height="80%"
+                width="40%"
+                :title="$t('source.common.menuNewTable')"
+                @on-close="onCancel">
+    <ShadcnForm v-if="formState"
+                v-model="formState"
+                style="padding-bottom: 40px;"
+                @on-submit="onSubmit">
       <ShadcnRow gutter="16">
         <ShadcnCol span="6">
           <ShadcnFormItem name="name"
@@ -123,7 +126,7 @@
         </ShadcnCol>
       </ShadcnRow>
 
-      <ShadcnSpace>
+      <ShadcnSpace class="fixed bottom-0 left-0 right-0 border-t bg-white p-2 flex justify-end gap-4 shadow-lg">
         <ShadcnButton type="default" @click="onCancel">{{ $t('common.cancel') }}</ShadcnButton>
 
         <ShadcnButton submit :loading="loading" :disabled="loading">
@@ -131,7 +134,7 @@
         </ShadcnButton>
       </ShadcnSpace>
     </ShadcnForm>
-  </ShadcnModal>
+  </ShadcnDrawer>
 </template>
 
 <script lang="ts">
@@ -164,12 +167,15 @@ export default defineComponent({
   {
     return {
       loading: false,
-      formState: null as unknown as TableModel
+      formState: null as any
     }
   },
   created()
   {
-    this.formState = TableRequest.of()
+    this.formState = {
+      columns: []
+    }
+
     this.onAdd()
   },
   methods: {
@@ -177,43 +183,41 @@ export default defineComponent({
     {
       if (this.info) {
         this.loading = true
-        TableService.createTable(Number(this.info.databaseId), this.formState)
-                    .then(response => {
-                      if (response.status) {
-                        if (response.data.isSuccessful) {
-                          this.$Message.success({
-                            content: this.$t('source.tip.createTableSuccess').replace('$VALUE', String(this.formState.name)),
-                            showIcon: true
-                          })
-
-                          this.onCancel()
-                        }
-                        else {
-                          this.$Message.error({
-                            content: response.data.message,
-                            showIcon: true
-                          })
-                        }
-                      }
-                      else {
-                        this.$Message.error({
-                          content: response.message,
-                          showIcon: true
-                        })
-                      }
-                    })
-                    .finally(() => this.loading = false)
+        // TableService.createTable(Number(this.info.databaseId), this.formState)
+        //             .then(response => {
+        //               if (response.status) {
+        //                 if (response.data.isSuccessful) {
+        //                   this.$Message.success({
+        //                     content: this.$t('source.tip.createTableSuccess').replace('$VALUE', String(this.formState.name)),
+        //                     showIcon: true
+        //                   })
+        //
+        //                   this.onCancel()
+        //                 }
+        //                 else {
+        //                   this.$Message.error({
+        //                     content: response.data.message,
+        //                     showIcon: true
+        //                   })
+        //                 }
+        //               }
+        //               else {
+        //                 this.$Message.error({
+        //                   content: response.message,
+        //                   showIcon: true
+        //                 })
+        //               }
+        //             })
+        //             .finally(() => this.loading = false)
       }
     },
     onAdd()
     {
-      if (this.formState.columns) {
-        const newColumn = ColumnRequest.of()
-        if (this.formState.columns.length === 0) {
-          newColumn.removed = true
-        }
-        this.formState.columns.push(newColumn)
+      const newColumn = {}
+      if (this.formState.columns.length === 0) {
+        newColumn.removed = true
       }
+      this.formState.columns.push(newColumn)
     },
     onRemove(index: number)
     {

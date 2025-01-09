@@ -1,8 +1,6 @@
 package io.edurt.datacap.spi;
 
 import com.google.common.collect.Lists;
-import io.edurt.datacap.common.sql.SqlBuilder;
-import io.edurt.datacap.common.sql.configure.SqlBody;
 import io.edurt.datacap.plugin.Service;
 import io.edurt.datacap.spi.adapter.Adapter;
 import io.edurt.datacap.spi.adapter.HttpAdapter;
@@ -10,6 +8,9 @@ import io.edurt.datacap.spi.adapter.JdbcAdapter;
 import io.edurt.datacap.spi.adapter.NativeAdapter;
 import io.edurt.datacap.spi.connection.Connection;
 import io.edurt.datacap.spi.connection.JdbcConnection;
+import io.edurt.datacap.spi.generator.definition.BaseDefinition;
+import io.edurt.datacap.spi.generator.definition.TableDefinition;
+import io.edurt.datacap.spi.generator.table.AlterTable;
 import io.edurt.datacap.spi.model.Configure;
 import io.edurt.datacap.spi.model.Response;
 import org.slf4j.Logger;
@@ -526,7 +527,7 @@ public interface PluginService
         );
     }
 
-    default Response getTableStatement(Configure configure, SqlBody body)
+    default Response getTableStatement(Configure configure, TableDefinition definition)
     {
         String sql = "WITH index_list AS (\n" +
                 "    SELECT\n" +
@@ -634,10 +635,10 @@ public interface PluginService
                 "    t.TABLE_COMMENT;";
 
         return this.getResponse(
-                sql.replace("{0}", body.getDatabase())
-                        .replace("{1}", body.getTable()),
+                sql.replace("{0}", definition.getDatabase())
+                        .replace("{1}", definition.getTable()),
                 configure,
-                body
+                definition
         );
     }
 
@@ -646,21 +647,22 @@ public interface PluginService
      * Update table auto increment value
      *
      * @param configure 配置信息 | Configuration information
-     * @param body SQL 语句 | SQL statement
+     * @param definition 表配置定义 | Table configuration definition
      * @return 执行结果 | Execution result
      */
-    default Response updateAutoIncrement(Configure configure, SqlBody body)
+    default Response updateAutoIncrement(Configure configure, TableDefinition definition)
     {
-        String sql = new SqlBuilder(body)
-                .getSql();
+        String sql = AlterTable.create(definition.getTable())
+                .autoIncrement(definition.getAutoIncrement())
+                .build();
 
-        return this.getResponse(sql, configure, body);
+        return this.getResponse(sql, configure, definition);
     }
 
-    private Response getResponse(String sql, Configure configure, SqlBody value)
+    private Response getResponse(String sql, Configure configure, BaseDefinition definition)
     {
         Response response;
-        if (value.isPreview()) {
+        if (definition.isPreview()) {
             response = Response.builder()
                     .isSuccessful(true)
                     .isConnected(true)

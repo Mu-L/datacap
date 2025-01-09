@@ -60,9 +60,9 @@
       </ShadcnTree>
 
       <ShadcnContextMenu v-if="contextmenu.visible && dataInfo" v-model="contextmenu.visible" :position="contextmenu.position">
-        <ShadcnContextMenuSub v-if="dataInfo.level === StructureEnum.TABLE || dataInfo.level === StructureEnum.COLUMN"
+        <ShadcnContextMenuSub v-if="dataInfo.level === StructureEnum.TABLE || dataInfo.level === StructureEnum.COLUMN || dataInfo.type === 'table'"
                               :label="$t('source.common.menuNew')">
-          <ShadcnContextMenuItem v-if="dataInfo.level === StructureEnum.TABLE"
+          <ShadcnContextMenuItem v-if="dataInfo.level === StructureEnum.TABLE || dataInfo.type === 'table'"
                                  @click="visibleCreateTable(true)">
             <div class="flex items-center space-x-1">
               <ShadcnIcon icon="Table" size="15"/>
@@ -365,10 +365,6 @@ export default defineComponent({
     },
     visibleContextMenu(event: any, node: any)
     {
-      if (node.level === StructureEnum.TYPE) {
-        return
-      }
-
       this.contextmenu.position = {
         x: event.clientX,
         y: event.clientY
