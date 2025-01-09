@@ -1,5 +1,9 @@
 package io.edurt.datacap.spi;
 
+import com.google.common.collect.Lists;
+import io.edurt.datacap.common.sql.SqlBuilder;
+import io.edurt.datacap.common.sql.configure.SqlBody;
+import io.edurt.datacap.common.sql.configure.SqlType;
 import io.edurt.datacap.plugin.Service;
 import io.edurt.datacap.spi.adapter.Adapter;
 import io.edurt.datacap.spi.adapter.HttpAdapter;
@@ -521,6 +525,43 @@ public interface PluginService
                 sql.replace("{0}", database)
                         .replace("{1}", table)
         );
+    }
+
+    /**
+     * 更新表的自增值
+     * Update table auto increment value
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param body SQL 语句 | SQL statement
+     * @return 执行结果 | Execution result
+     */
+    default Response updateAutoIncrement(Configure configure, SqlBody body)
+    {
+        body.setType(SqlType.ALTER);
+        String sql = new SqlBuilder(body)
+                .getSql();
+
+        return this.getResponse(sql, configure, body);
+    }
+
+    private Response getResponse(String sql, Configure configure, SqlBody value)
+    {
+        Response response;
+        if (value.isPreview()) {
+            response = Response.builder()
+                    .isSuccessful(true)
+                    .isConnected(true)
+                    .headers(Lists.newArrayList())
+                    .columns(Lists.newArrayList())
+                    .types(Lists.newArrayList())
+                    .content(sql)
+                    .build();
+        }
+        else {
+            response = this.execute(configure, sql);
+            response.setContent(sql);
+        }
+        return response;
     }
 
     default void destroy()

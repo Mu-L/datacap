@@ -2,7 +2,7 @@
 title: 数据表列表
 ---
 
-请求地址: `/api/v1/metadata/{code}/tables/{db}`
+请求地址: `/api/v1/metadata/{code}/{database}/tables`
 
 请求方式: `POST`
 
@@ -11,7 +11,7 @@ title: 数据表列表
 === "示例"
 
     ```
-    /api/v1/metadata/e98ef92476a94ce5ae28115d2eb7ff40/tables/infosphere
+    /api/v1/metadata/e98ef92476a94ce5ae28115d2eb7ff40/infosphere/tables
     ```
 
 === "参数"
@@ -19,7 +19,7 @@ title: 数据表列表
     |参数|类型|描述|
     |---|---|---|
     |`code`|String|数据源编码|
-    |`db`|String|数据库名称|
+    |`database`|String|数据库名称|
 
 ## Response
 

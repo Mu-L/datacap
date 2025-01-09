@@ -2,7 +2,7 @@
 title: 数据表详情
 ---
 
-请求地址: `/api/v1/metadata/{code}/db/{database}/tb/{table}`
+请求地址: `/api/v1/metadata/{code}/{database}/{table}`
 
 请求方式: `POST`
 
@@ -11,7 +11,7 @@ title: 数据表详情
 === "示例"
 
     ```
-    /api/v1/metadata/e98ef92476a94ce5ae28115d2eb7ff40/db/datacap/tb/datacap_chat
+    /api/v1/metadata/e98ef92476a94ce5ae28115d2eb7ff40/datacap/datacap_chat
     ```
 
 === "参数"

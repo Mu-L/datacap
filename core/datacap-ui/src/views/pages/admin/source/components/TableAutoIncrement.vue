@@ -28,6 +28,7 @@
 
 <script setup lang="ts">
 import { getCurrentInstance, ref } from 'vue'
+import MetadataService from '@/services/metadata.ts'
 
 const emit = defineEmits(['close'])
 const { proxy } = getCurrentInstance()!
@@ -41,37 +42,41 @@ const props = withDefaults(defineProps<{
 
 const localVisible = ref(props.visible)
 const loading = ref(false)
-const formState = ref({ autoIncrement: props.info?.autoIncrement })
+const formState = ref({ autoIncrement: props.info?.object_auto_increment ?? 1 })
 
 const onCancel = () => emit('close')
 
 const onSubmit = () => {
-  if (props.info) {
+
+  const code = proxy.$route?.params.source
+  const database = proxy.$route?.params.database
+  const table = proxy.$route?.params.table
+
+  if (props.info && code && database && table) {
     loading.value = true
-    const configure: TableFilter = {
-      type: SqlType.ALTER,
+    const configure = {
       value: formState.value.autoIncrement
     }
-    TableService.getData(props.info.code, configure)
-                .then(response => {
-                  if (response.status) {
-                    // @ts-ignore
-                    proxy.$Message.success({
-                      content: proxy.$t('source.tip.resetAutoIncrementSuccess').replace('$VALUE', String(formState.value.autoIncrement)),
-                      showIcon: true
-                    })
+    MetadataService.updateAutoIncrement(code as string, database as string, table as string, configure)
+                   .then(response => {
+                     if (response.status && response.data && response.data.isSuccessful) {
+                       // @ts-ignore
+                       proxy.$Message.success({
+                         content: proxy.$t('source.tip.resetAutoIncrementSuccess').replace('$VALUE', String(formState.value.autoIncrement)),
+                         showIcon: true
+                       })
 
-                    onCancel()
-                  }
-                  else {
-                    // @ts-ignore
-                    proxy.$Message.error({
-                      content: response.message,
-                      showIcon: true
-                    })
-                  }
-                })
-                .finally(() => loading.value = false)
+                       onCancel()
+                     }
+                     else {
+                       // @ts-ignore
+                       proxy.$Message.error({
+                         content: response.message,
+                         showIcon: true
+                       })
+                     }
+                   })
+                   .finally(() => loading.value = false)
   }
 }
 </script>

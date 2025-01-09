@@ -2,7 +2,7 @@
 title: 数据库详情
 ---
 
-请求地址: `/api/v1/metadata/{code}/db/{database}`
+请求地址: `/api/v1/metadata/{code}/{database}`
 
 请求方式: `POST`
 
@@ -11,7 +11,7 @@ title: 数据库详情
 === "示例"
 
     ```
-    /api/v1/metadata/e98ef92476a94ce5ae28115d2eb7ff40/db/sys
+    /api/v1/metadata/e98ef92476a94ce5ae28115d2eb7ff40/sys
     ```
 
 === "参数"
