@@ -65,4 +65,4 @@ title: 数据库详情
     |`object_procedure_count`|Number|存储过程数量|
     |`object_trigger_count`|Number|触发器数量|
     |`object_foreign_key_count`|Number|外键数量|
-    |`object_total_rows`|Number|总行数
+    |`object_total_rows`|Number|总行数|

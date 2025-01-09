@@ -59,16 +59,19 @@
         </template>
       </ShadcnTree>
 
-      <ShadcnContextMenu v-if="contextmenu.visible" v-model="contextmenu.visible" :position="contextmenu.position">
-        <ShadcnContextMenuSub :label="$t('source.common.menuNew')">
-          <ShadcnContextMenuItem v-if="dataInfo?.level === StructureEnum.TABLE" @click="visibleCreateTable(true)">
+      <ShadcnContextMenu v-if="contextmenu.visible && dataInfo" v-model="contextmenu.visible" :position="contextmenu.position">
+        <ShadcnContextMenuSub v-if="dataInfo.level === StructureEnum.TABLE || dataInfo.level === StructureEnum.COLUMN"
+                              :label="$t('source.common.menuNew')">
+          <ShadcnContextMenuItem v-if="dataInfo.level === StructureEnum.TABLE"
+                                 @click="visibleCreateTable(true)">
             <div class="flex items-center space-x-1">
               <ShadcnIcon icon="Table" size="15"/>
               <span>{{ $t('source.common.menuNewTable') }}</span>
             </div>
           </ShadcnContextMenuItem>
 
-          <ShadcnContextMenuItem @click="visibleCreateColumn(true)">
+          <ShadcnContextMenuItem v-else-if="dataInfo.level === StructureEnum.COLUMN"
+                                 @click="visibleCreateColumn(true)">
             <div class="flex items-center space-x-1">
               <ShadcnIcon icon="Columns" size="15"/>
               <span>{{ $t('source.common.newColumn') }}</span>
@@ -76,7 +79,7 @@
           </ShadcnContextMenuItem>
         </ShadcnContextMenuSub>
 
-        <ShadcnContextMenuSub v-if="dataInfo?.level === StructureEnum.TABLE" :label="$t('source.common.menuExport')">
+        <ShadcnContextMenuSub v-if="dataInfo.level === StructureEnum.TABLE" :label="$t('source.common.menuExport')">
           <ShadcnContextMenuItem @click="visibleExportData(true)">
             <div class="flex items-center space-x-1">
               <ShadcnIcon icon="ArrowUpFromLine" size="15"/>
@@ -179,7 +182,8 @@ interface MenuItem
   defaultValue?: string;
   position?: number;
   definition?: string;
-  typeName?: string
+  typeName?: string;
+  disabled?: boolean
 }
 
 interface SourceData
@@ -307,7 +311,7 @@ export default defineComponent({
       }
 
       const type = this.$route.meta.type
-      this.$router.push(`/admin/source/${ this.originalSource }/d/${ this.selectDatabase }/t/${ type ? type : 'info' }/${ node.value }`)
+      this.$router.push(`/admin/source/${ this.originalSource }/d/${ this.selectDatabase }/t/${ type ? type : 'info' }/${ node.code }`)
     },
     onLoadData(item: StructureModel, callback: any)
     {
@@ -361,6 +365,10 @@ export default defineComponent({
     },
     visibleContextMenu(event: any, node: any)
     {
+      if (node.level === StructureEnum.TYPE) {
+        return
+      }
+
       this.contextmenu.position = {
         x: event.clientX,
         y: event.clientY
@@ -385,6 +393,7 @@ export default defineComponent({
         title: `${ this.$t('common.' + type) } (${ items.length })`,
         level: StructureEnum.TYPE,
         value: type,
+        disabled: true,
         children: items.map(item => ({
           type: item.object_data_type || '',
           title: item.object_name,

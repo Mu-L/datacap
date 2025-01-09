@@ -32,7 +32,11 @@ public class MetadataController
     }
 
     @PostMapping(value = "{code}/db/{database}/columns/{table}")
-    public CommonResponse<Response> fetchColumns(@PathVariable String code, @PathVariable String database, @PathVariable String table)
+    public CommonResponse<Response> fetchColumns(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table
+    )
     {
         return this.service.getColumns(code, database, table);
     }
@@ -41,5 +45,15 @@ public class MetadataController
     public CommonResponse<Response> fetchDatabase(@PathVariable String code, @PathVariable String database)
     {
         return this.service.getDatabase(code, database);
+    }
+
+    @PostMapping(value = "{code}/db/{database}/tb/{table}")
+    public CommonResponse<Response> fetchTable(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table
+    )
+    {
+        return this.service.getTable(code, database, table);
     }
 }

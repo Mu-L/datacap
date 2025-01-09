@@ -409,6 +409,120 @@ public interface PluginService
         );
     }
 
+    /**
+     * 根据表获取表信息
+     * Get table information by table data
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param database 数据库 | Database
+     * @param table 表 | Table
+     * @return 表信息 | Table information
+     */
+    default Response getTableInfo(Configure configure, String database, String table)
+    {
+        String sql = "WITH object_info AS (\n" +
+                "    -- 获取表和视图类型\n" +
+                "    SELECT\n" +
+                "        TABLE_NAME as name,\n" +
+                "        CASE\n" +
+                "            WHEN TABLE_TYPE = 'BASE TABLE' THEN 'table'\n" +
+                "            WHEN TABLE_TYPE = 'VIEW' THEN 'view'  \n" +
+                "        END as type\n" +
+                "    FROM information_schema.TABLES\n" +
+                "    WHERE TABLE_SCHEMA = '{0}'\n" +
+                "        AND TABLE_NAME = '{1}'\n" +
+                "\n" +
+                "    UNION ALL\n" +
+                "\n" +
+                "    -- 获取函数和存储过程类型\n" +
+                "    SELECT\n" +
+                "        ROUTINE_NAME as name,\n" +
+                "        LOWER(ROUTINE_TYPE) as type\n" +
+                "    FROM information_schema.ROUTINES\n" +
+                "    WHERE ROUTINE_SCHEMA = '{0}'\n" +
+                "        AND ROUTINE_NAME = '{1}'\n" +
+                ")\n" +
+                "SELECT d.*\n" +
+                "FROM object_info i\n" +
+                "LEFT JOIN (\n" +
+                "    -- 表的详细信息\n" +
+                "    SELECT\n" +
+                "        'table' as object_type,\n" +
+                "        t.TABLE_NAME as object_name,\n" +
+                "        t.ENGINE as object_engine,\n" +
+                "        t.TABLE_COLLATION as object_collation,\n" +
+                "        t.TABLE_COMMENT as object_comment,\n" +
+                "        t.CREATE_TIME as object_create_time,\n" +
+                "        t.UPDATE_TIME as object_update_time,\n" +
+                "        ROUND(t.DATA_LENGTH/1024/1024, 2) as object_data_size,\n" +
+                "        ROUND(t.INDEX_LENGTH/1024/1024, 2) as object_index_size,\n" +
+                "        t.TABLE_ROWS as object_rows,\n" +
+                "        (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = t.TABLE_SCHEMA AND TABLE_NAME = t.TABLE_NAME) as object_column_count,\n" +
+                "        (SELECT COUNT(DISTINCT INDEX_NAME) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = t.TABLE_SCHEMA AND TABLE_NAME = t.TABLE_NAME) as object_index_count,\n" +
+                "        'table' as type_name,\n" +
+                "        t.ROW_FORMAT as object_format,\n" +
+                "        t.AVG_ROW_LENGTH as object_avg_row_length,\n" +
+                "        t.AUTO_INCREMENT as object_auto_increment\n" +
+                "    FROM information_schema.TABLES t\n" +
+                "    WHERE t.TABLE_SCHEMA = '{0}'\n" +
+                "        AND t.TABLE_NAME = '{1}'\n" +
+                "\n" +
+                "    UNION ALL\n" +
+                "\n" +
+                "    -- 视图的详细信息\n" +
+                "    SELECT\n" +
+                "        'view' as object_type,\n" +
+                "        TABLE_NAME as object_name,\n" +
+                "        'view' as object_engine,\n" +
+                "        '' as object_collation,\n" +
+                "        '' as object_comment,\n" +
+                "        NULL as object_create_time,\n" +
+                "        NULL as object_update_time,\n" +
+                "        0 as object_data_size,\n" +
+                "        0 as object_index_size,\n" +
+                "        0 as object_rows,\n" +
+                "        (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = v.TABLE_SCHEMA AND TABLE_NAME = v.TABLE_NAME) as object_column_count,\n" +
+                "        0 as object_index_count,\n" +
+                "        'view' as type_name,\n" +
+                "        NULL as object_format,\n" +
+                "        0 as object_avg_row_length,\n" +
+                "        NULL as object_auto_increment\n" +
+                "    FROM information_schema.VIEWS v\n" +
+                "    WHERE v.TABLE_SCHEMA = '{0}'\n" +
+                "        AND v.TABLE_NAME = '{1}'\n" +
+                "\n" +
+                "    UNION ALL\n" +
+                "\n" +
+                "    -- 函数或存储过程的详细信息\n" +
+                "    SELECT\n" +
+                "        LOWER(r.ROUTINE_TYPE) as object_type,\n" +
+                "        r.ROUTINE_NAME as object_name,\n" +
+                "        LOWER(r.ROUTINE_TYPE) as object_engine,\n" +
+                "        '' as object_collation,\n" +
+                "        '' as object_comment,\n" +
+                "        r.CREATED as object_create_time,\n" +
+                "        r.LAST_ALTERED as object_update_time,\n" +
+                "        0 as object_data_size,\n" +
+                "        0 as object_index_size,\n" +
+                "        0 as object_rows,\n" +
+                "        0 as object_column_count,\n" +
+                "        0 as object_index_count,\n" +
+                "        LOWER(r.ROUTINE_TYPE) as type_name,\n" +
+                "        NULL as object_format,\n" +
+                "        0 as object_avg_row_length,\n" +
+                "        NULL as object_auto_increment\n" +
+                "    FROM information_schema.ROUTINES r\n" +
+                "    WHERE r.ROUTINE_SCHEMA = '{0}'\n" +
+                "        AND r.ROUTINE_NAME = '{1}'\n" +
+                ") d ON i.type = d.type_name;";
+
+        return this.execute(
+                configure,
+                sql.replace("{0}", database)
+                        .replace("{1}", table)
+        );
+    }
+
     default void destroy()
     {
         Connection connection = local.get();

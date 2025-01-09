@@ -340,6 +340,7 @@ nav:
           - api/metadata/database.md
           - api/metadata/databaseInfo.md
           - api/metadata/table.md
+          - api/metadata/tableInfo.md
           - api/metadata/column.md
   - NavDriver:
       - driver/mongodb.md

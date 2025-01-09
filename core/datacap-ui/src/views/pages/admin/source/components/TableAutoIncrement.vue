@@ -28,7 +28,6 @@
 
 <script setup lang="ts">
 import { getCurrentInstance, ref } from 'vue'
-import { SqlType, TableFilter } from '@/model/table.ts'
 
 const emit = defineEmits(['close'])
 const { proxy } = getCurrentInstance()!

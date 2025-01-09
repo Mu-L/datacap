@@ -12,4 +12,6 @@ public interface MetadataService
     CommonResponse<Response> getColumns(String code, String database, String table);
 
     CommonResponse<Response> getDatabase(String code, String database);
+
+    CommonResponse<Response> getTable(String code, String database, String table);
 }
