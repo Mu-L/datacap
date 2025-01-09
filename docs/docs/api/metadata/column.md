@@ -4,7 +4,7 @@ title: 数据列列表
 
 请求地址: `/api/v1/metadata/{code}/{database}/{table}/columns`
 
-请求方式: `POST`
+请求方式: `GET`
 
 ## Path
 

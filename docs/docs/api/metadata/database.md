@@ -4,7 +4,7 @@ title: 数据库列表
 
 请求地址: `/api/v1/metadata/{code}/databases`
 
-请求方式: `POST`
+请求方式: `GET`
 
 ## Path
 

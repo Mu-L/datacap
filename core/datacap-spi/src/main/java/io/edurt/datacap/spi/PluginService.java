@@ -3,7 +3,6 @@ package io.edurt.datacap.spi;
 import com.google.common.collect.Lists;
 import io.edurt.datacap.common.sql.SqlBuilder;
 import io.edurt.datacap.common.sql.configure.SqlBody;
-import io.edurt.datacap.common.sql.configure.SqlType;
 import io.edurt.datacap.plugin.Service;
 import io.edurt.datacap.spi.adapter.Adapter;
 import io.edurt.datacap.spi.adapter.HttpAdapter;
@@ -527,6 +526,121 @@ public interface PluginService
         );
     }
 
+    default Response getTableStatement(Configure configure, SqlBody body)
+    {
+        String sql = "WITH index_list AS (\n" +
+                "    SELECT\n" +
+                "        INDEX_NAME,\n" +
+                "        GROUP_CONCAT(\n" +
+                "            CONCAT('`', COLUMN_NAME, '`',\n" +
+                "                # 处理索引长度前缀\n" +
+                "                CASE WHEN SUB_PART IS NOT NULL\n" +
+                "                    THEN CONCAT('(', SUB_PART, ')')\n" +
+                "                    ELSE ''\n" +
+                "                END\n" +
+                "            )\n" +
+                "            ORDER BY SEQ_IN_INDEX\n" +
+                "            SEPARATOR ', '\n" +
+                "        ) as index_columns,\n" +
+                "        NON_UNIQUE,\n" +
+                "        INDEX_TYPE,  # 添加索引类型(BTREE, HASH等)\n" +
+                "        INDEX_COMMENT # 添加索引注释\n" +
+                "    FROM information_schema.STATISTICS\n" +
+                "    WHERE TABLE_SCHEMA = '{0}'\n" +
+                "    AND TABLE_NAME = '{1}'\n" +
+                "    GROUP BY INDEX_NAME, NON_UNIQUE, INDEX_TYPE, INDEX_COMMENT\n" +
+                ")\n" +
+                "SELECT CONCAT(\n" +
+                "    'CREATE TABLE `',\n" +
+                "    t.TABLE_NAME,\n" +
+                "    '` (\\n',\n" +
+                "    # 列定义\n" +
+                "    GROUP_CONCAT(\n" +
+                "        CONCAT('  `', c.COLUMN_NAME, '` ',\n" +
+                "            c.COLUMN_TYPE,\n" +
+                "            # 字符集\n" +
+                "            CASE WHEN c.CHARACTER_SET_NAME IS NOT NULL\n" +
+                "                THEN CONCAT(' CHARACTER SET ', c.CHARACTER_SET_NAME)\n" +
+                "                ELSE ''\n" +
+                "            END,\n" +
+                "            # 排序规则\n" +
+                "            CASE WHEN c.COLLATION_NAME IS NOT NULL\n" +
+                "                THEN CONCAT(' COLLATE ', c.COLLATION_NAME)\n" +
+                "                ELSE ''\n" +
+                "            END,\n" +
+                "            CASE WHEN c.IS_NULLABLE = 'NO' THEN ' NOT NULL' ELSE '' END,\n" +
+                "            CASE\n" +
+                "                WHEN c.COLUMN_DEFAULT IS NOT NULL THEN\n" +
+                "                    CASE\n" +
+                "                        # 特殊处理 CURRENT_TIMESTAMP\n" +
+                "                        WHEN c.COLUMN_DEFAULT = 'CURRENT_TIMESTAMP' THEN ' DEFAULT CURRENT_TIMESTAMP'\n" +
+                "                        # 处理函数和表达式默认值\n" +
+                "                        WHEN c.COLUMN_DEFAULT REGEXP '^[A-Za-z]' THEN CONCAT(' DEFAULT ', c.COLUMN_DEFAULT)\n" +
+                "                        ELSE CONCAT(' DEFAULT \\'', c.COLUMN_DEFAULT, '\\'')\n" +
+                "                    END\n" +
+                "                ELSE ''\n" +
+                "            END,\n" +
+                "            CASE WHEN c.EXTRA != '' THEN CONCAT(' ', c.EXTRA) ELSE '' END,\n" +
+                "            CASE WHEN c.COLUMN_COMMENT != '' THEN CONCAT(' COMMENT \\'', REPLACE(c.COLUMN_COMMENT, '\\'', '\\\\\\''), '\\'') ELSE '' END\n" +
+                "        )\n" +
+                "        ORDER BY c.ORDINAL_POSITION\n" +
+                "        SEPARATOR ',\\n'\n" +
+                "    ),\n" +
+                "    # 索引定义\n" +
+                "    IFNULL(CONCAT(',\\n', (\n" +
+                "        SELECT GROUP_CONCAT(\n" +
+                "            CASE\n" +
+                "                WHEN INDEX_NAME = 'PRIMARY' THEN\n" +
+                "                    CONCAT('  PRIMARY KEY ', index_columns)\n" +
+                "                ELSE\n" +
+                "                    CONCAT(\n" +
+                "                        CASE WHEN NON_UNIQUE = 0 THEN '  UNIQUE ' ELSE '  ' END,\n" +
+                "                        'KEY `', INDEX_NAME, '` ',\n" +
+                "                        # 添加索引类型\n" +
+                "                        CASE WHEN INDEX_TYPE != 'BTREE' THEN CONCAT('USING ', INDEX_TYPE, ' ') ELSE '' END,\n" +
+                "                        '(', index_columns, ')',\n" +
+                "                        # 添加索引注释\n" +
+                "                        CASE WHEN INDEX_COMMENT != ''\n" +
+                "                            THEN CONCAT(' COMMENT \\'', REPLACE(INDEX_COMMENT, '\\'', '\\\\\\''), '\\'')\n" +
+                "                            ELSE ''\n" +
+                "                        END\n" +
+                "                    )\n" +
+                "            END\n" +
+                "            SEPARATOR ',\\n'\n" +
+                "        )\n" +
+                "        FROM index_list\n" +
+                "    )), ''),\n" +
+                "    '\\n) ENGINE=', t.ENGINE,\n" +
+                "    CASE WHEN t.ROW_FORMAT IS NOT NULL THEN CONCAT(' ROW_FORMAT=', t.ROW_FORMAT) ELSE '' END,\n" +
+                "    ' DEFAULT CHARSET=', t.TABLE_COLLATION,\n" +
+                "    CASE WHEN t.TABLE_COMMENT != ''\n" +
+                "        THEN CONCAT(' COMMENT=\\'', REPLACE(t.TABLE_COMMENT, '\\'', '\\\\\\''), '\\'')\n" +
+                "        ELSE ''\n" +
+                "    END,\n" +
+                "    ';'\n" +
+                ") as create_table_sql\n" +
+                "FROM\n" +
+                "    information_schema.TABLES t\n" +
+                "    JOIN information_schema.COLUMNS c ON c.TABLE_SCHEMA = t.TABLE_SCHEMA AND c.TABLE_NAME = t.TABLE_NAME\n" +
+                "WHERE\n" +
+                "    t.TABLE_SCHEMA = '{0}'\n" +
+                "    AND t.TABLE_NAME = '{1}'\n" +
+                "GROUP BY\n" +
+                "    t.TABLE_SCHEMA,\n" +
+                "    t.TABLE_NAME,\n" +
+                "    t.ENGINE,\n" +
+                "    t.ROW_FORMAT,\n" +
+                "    t.TABLE_COLLATION,\n" +
+                "    t.TABLE_COMMENT;";
+
+        return this.getResponse(
+                sql.replace("{0}", body.getDatabase())
+                        .replace("{1}", body.getTable()),
+                configure,
+                body
+        );
+    }
+
     /**
      * 更新表的自增值
      * Update table auto increment value
@@ -537,7 +651,6 @@ public interface PluginService
      */
     default Response updateAutoIncrement(Configure configure, SqlBody body)
     {
-        body.setType(SqlType.ALTER);
         String sql = new SqlBuilder(body)
                 .getSql();
 

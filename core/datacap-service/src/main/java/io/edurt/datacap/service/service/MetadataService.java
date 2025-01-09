@@ -16,5 +16,7 @@ public interface MetadataService
 
     CommonResponse<Response> getTable(String code, String database, String table);
 
+    CommonResponse<Response> getTableStatement(String code, String database, String table);
+
     CommonResponse<Response> updateAutoIncrement(String code, SqlBody configure, String database, String table);
 }

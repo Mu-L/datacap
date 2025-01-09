@@ -14,27 +14,32 @@ class MetadataService
 
     getDatabaseBySource(code: string): Promise<ResponseModel>
     {
-        return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/databases`)
+        return HttpUtils.get(`${ DEFAULT_PATH }/${ code }/databases`)
     }
 
     getTablesByDatabase(code: string, database: string): Promise<ResponseModel>
     {
-        return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }/tables`)
+        return HttpUtils.get(`${ DEFAULT_PATH }/${ code }/${ database }/tables`)
     }
 
     getColumnsByTable(code: string, database: string, table: string): Promise<ResponseModel>
     {
-        return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/columns`)
+        return HttpUtils.get(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/columns`)
     }
 
     getDatabase(code: string, database: string): Promise<ResponseModel>
     {
-        return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }`)
+        return HttpUtils.get(`${ DEFAULT_PATH }/${ code }/${ database }`)
     }
 
     getTable(code: string, database: string, table: string): Promise<ResponseModel>
     {
-        return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }`)
+        return HttpUtils.get(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }`)
+    }
+
+    getTableStatement(code: string, database: string, table: string): Promise<ResponseModel>
+    {
+        return HttpUtils.get(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/statement`)
     }
 
     updateAutoIncrement(code: string, database: string, table: string, configure: any): Promise<ResponseModel>

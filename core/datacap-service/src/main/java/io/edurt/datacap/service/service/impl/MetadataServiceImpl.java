@@ -3,6 +3,7 @@ package io.edurt.datacap.service.service.impl;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.response.CommonResponse;
 import io.edurt.datacap.common.sql.configure.SqlBody;
+import io.edurt.datacap.common.sql.configure.SqlType;
 import io.edurt.datacap.plugin.PluginManager;
 import io.edurt.datacap.service.repository.SourceRepository;
 import io.edurt.datacap.service.service.MetadataService;
@@ -92,6 +93,24 @@ public class MetadataServiceImpl
     }
 
     @Override
+    public CommonResponse<Response> getTableStatement(String code, String database, String table)
+    {
+        return repository.findByCode(code)
+                .map(entity -> pluginManager.getPlugin(entity.getType())
+                        .map(plugin -> {
+                            PluginService service = plugin.getService(PluginService.class);
+                            SqlBody configure = SqlBody.builder()
+                                    .type(SqlType.SHOW)
+                                    .database(database)
+                                    .table(table)
+                                    .build();
+                            return CommonResponse.success(service.getTableStatement(entity.toConfigure(pluginManager, plugin), configure));
+                        })
+                        .orElseGet(() -> CommonResponse.failure(String.format("Plugin [ %s ] not found", entity.getType()))))
+                .orElseGet(() -> CommonResponse.failure(String.format("Resource [ %s ] not found", code)));
+    }
+
+    @Override
     public CommonResponse<Response> updateAutoIncrement(String code, SqlBody configure, String database, String table)
     {
         return repository.findByCode(code)
@@ -100,6 +119,7 @@ public class MetadataServiceImpl
                             PluginService service = plugin.getService(PluginService.class);
                             configure.setDatabase(database);
                             configure.setTable(table);
+                            configure.setType(SqlType.ALTER);
                             return CommonResponse.success(service.updateAutoIncrement(entity.toConfigure(pluginManager, plugin), configure));
                         })
                         .orElseGet(() -> CommonResponse.failure(String.format("Plugin [ %s ] not found", entity.getType()))))

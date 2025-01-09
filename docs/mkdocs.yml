@@ -341,6 +341,7 @@ nav:
           - api/metadata/databaseInfo.md
           - api/metadata/table.md
           - api/metadata/tableInfo.md
+          - api/metadata/tableStatement.md
           - api/metadata/tableAutoIncrement.md
           - api/metadata/column.md
   - NavDriver:
