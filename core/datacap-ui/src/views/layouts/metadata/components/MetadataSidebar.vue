@@ -131,10 +131,7 @@
                :info="dataInfo as any"
                @close="visibleExportData(false)"/>
 
-  <TableTruncate v-if="tableTruncateVisible"
-                 :is-visible="tableTruncateVisible"
-                 :info="dataInfo as any"
-                 @close="visibleTruncateTable(false)"/>
+  <TableTruncate v-if="tableTruncateVisible" :is-visible="tableTruncateVisible" @close="visibleTruncateTable(false)"/>
 
   <TableDrop v-if="tableDropVisible" :is-visible="tableDropVisible" @close="visibleDropTable(false)"/>
 

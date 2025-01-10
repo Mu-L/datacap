@@ -89,7 +89,6 @@ export default defineComponent({
       const table = this.$route.params?.table
 
       if (code && database && table) {
-        this.formState.preview = preview
         if (preview) {
           this.loading = true
         }

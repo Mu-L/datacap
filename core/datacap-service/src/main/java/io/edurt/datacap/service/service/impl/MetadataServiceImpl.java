@@ -174,4 +174,19 @@ public class MetadataServiceImpl
                         .orElseGet(() -> CommonResponse.failure(String.format("Plugin [ %s ] not found", entity.getType()))))
                 .orElseGet(() -> CommonResponse.failure(String.format("Resource [ %s ] not found", code)));
     }
+
+    @Override
+    public CommonResponse<Response> truncateTable(String code, String database, String table, TableDefinition configure)
+    {
+        return repository.findByCode(code)
+                .map(entity -> pluginManager.getPlugin(entity.getType())
+                        .map(plugin -> {
+                            PluginService service = plugin.getService(PluginService.class);
+                            TableDefinition definition = TableDefinition.create(database, table);
+                            definition.setPreview(configure.isPreview());
+                            return CommonResponse.success(service.truncateTable(entity.toConfigure(pluginManager, plugin), definition));
+                        })
+                        .orElseGet(() -> CommonResponse.failure(String.format("Plugin [ %s ] not found", entity.getType()))))
+                .orElseGet(() -> CommonResponse.failure(String.format("Resource [ %s ] not found", code)));
+    }
 }

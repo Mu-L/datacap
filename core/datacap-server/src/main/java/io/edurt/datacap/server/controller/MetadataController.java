@@ -121,4 +121,15 @@ public class MetadataController
     {
         return this.service.dropTable(code, database, table, configure);
     }
+
+    @DeleteMapping(value = "{code}/{database}/{table}/truncate-table")
+    public CommonResponse<Response> truncateTable(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.truncateTable(code, database, table, configure);
+    }
 }
