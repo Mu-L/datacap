@@ -1,7 +1,7 @@
 package io.edurt.datacap.spi.generator.table;
 
-import io.edurt.datacap.spi.generator.Column;
 import io.edurt.datacap.spi.generator.Index;
+import io.edurt.datacap.spi.generator.column.CreateColumn;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,28 +35,28 @@ public class AlterTable
     }
 
     // 添加列
-    public AlterTable addColumn(Column column)
+    public AlterTable addColumn(CreateColumn column)
     {
         addColumns.add("ADD COLUMN " + column.build());
         return this;
     }
 
     // 添加列（指定位置）
-    public AlterTable addColumn(Column column, String afterColumn)
+    public AlterTable addColumn(CreateColumn column, String afterColumn)
     {
         addColumns.add("ADD COLUMN " + column.build() + " AFTER `" + afterColumn + "`");
         return this;
     }
 
     // 添加列（作为第一列）
-    public AlterTable addColumnFirst(Column column)
+    public AlterTable addColumnFirst(CreateColumn column)
     {
         addColumns.add("ADD COLUMN " + column.build() + " FIRST");
         return this;
     }
 
     // 修改列
-    public AlterTable modifyColumn(Column column)
+    public AlterTable modifyColumn(CreateColumn column)
     {
         modifyColumns.add("MODIFY COLUMN " + column.build());
         return this;

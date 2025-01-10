@@ -124,10 +124,7 @@ public class MetadataServiceImpl
                 .map(entity -> pluginManager.getPlugin(entity.getType())
                         .map(plugin -> {
                             PluginService service = plugin.getService(PluginService.class);
-                            TableDefinition definition = TableDefinition.builder()
-                                    .database(database)
-                                    .table(table)
-                                    .build();
+                            TableDefinition definition = TableDefinition.create(database, table);
                             return CommonResponse.success(service.getTableStatement(entity.toConfigure(pluginManager, plugin), definition));
                         })
                         .orElseGet(() -> CommonResponse.failure(String.format("Plugin [ %s ] not found", entity.getType()))))
@@ -135,15 +132,29 @@ public class MetadataServiceImpl
     }
 
     @Override
-    public CommonResponse<Response> updateAutoIncrement(String code, TableDefinition definition, String database, String table)
+    public CommonResponse<Response> updateAutoIncrement(String code, TableDefinition configure, String database, String table)
     {
         return repository.findByCode(code)
                 .map(entity -> pluginManager.getPlugin(entity.getType())
                         .map(plugin -> {
                             PluginService service = plugin.getService(PluginService.class);
-                            definition.setDatabase(database);
-                            definition.setTable(table);
+                            TableDefinition definition = TableDefinition.create(database, table)
+                                    .autoIncrement(configure.getAutoIncrement());
                             return CommonResponse.success(service.updateAutoIncrement(entity.toConfigure(pluginManager, plugin), definition));
+                        })
+                        .orElseGet(() -> CommonResponse.failure(String.format("Plugin [ %s ] not found", entity.getType()))))
+                .orElseGet(() -> CommonResponse.failure(String.format("Resource [ %s ] not found", code)));
+    }
+
+    @Override
+    public CommonResponse<Response> createTable(String code, String database, TableDefinition configure)
+    {
+        return repository.findByCode(code)
+                .map(entity -> pluginManager.getPlugin(entity.getType())
+                        .map(plugin -> {
+                            PluginService service = plugin.getService(PluginService.class);
+                            configure.setDatabase(database);
+                            return CommonResponse.success(service.createTable(entity.toConfigure(pluginManager, plugin), configure));
                         })
                         .orElseGet(() -> CommonResponse.failure(String.format("Plugin [ %s ] not found", entity.getType()))))
                 .orElseGet(() -> CommonResponse.failure(String.format("Resource [ %s ] not found", code)));

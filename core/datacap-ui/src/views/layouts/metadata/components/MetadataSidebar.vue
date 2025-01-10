@@ -335,6 +335,10 @@ export default defineComponent({
     visibleCreateTable(opened: boolean)
     {
       this.tableCreateVisible = opened
+
+      if (!opened) {
+        this.onChangeDatabase()
+      }
     },
     visibleCreateColumn(opened: boolean)
     {

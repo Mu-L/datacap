@@ -343,6 +343,7 @@ nav:
           - api/metadata/tableInfo.md
           - api/metadata/tableStatement.md
           - api/metadata/tableAutoIncrement.md
+          - api/metadata/table-create.md
           - api/metadata/engines.md
           - api/metadata/column.md
           - api/metadata/data-types.md

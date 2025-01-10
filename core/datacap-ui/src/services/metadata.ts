@@ -56,6 +56,11 @@ class MetadataService
     {
         return HttpUtils.put(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/auto-increment`, configure)
     }
+
+    createTable(code: string, database: string, configure: any): Promise<ResponseModel>
+    {
+        return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }/create-table`, configure)
+    }
 }
 
 export default new MetadataService()

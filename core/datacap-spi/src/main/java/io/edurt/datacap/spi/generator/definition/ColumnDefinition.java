@@ -3,15 +3,15 @@ package io.edurt.datacap.spi.generator.definition;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.edurt.datacap.spi.generator.DataType;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
-@Data
+@Getter
+@Setter
 @ToString
-@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -21,7 +21,14 @@ public class ColumnDefinition
 {
     private String name;
     private DataType type;
-    private boolean nullable;
-    private Object defaultValue;
+    private Integer length;
+    private Integer precision;
+    private Integer scale;
+    private boolean nullable = true;
+    private String defaultValue;
     private String comment;
+    private String charset;
+    private String collate;
+    private boolean primaryKey;
+    private boolean autoIncrement;
 }

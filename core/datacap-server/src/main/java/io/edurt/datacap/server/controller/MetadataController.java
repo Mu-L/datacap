@@ -6,6 +6,7 @@ import io.edurt.datacap.spi.generator.definition.TableDefinition;
 import io.edurt.datacap.spi.model.Response;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -93,9 +94,19 @@ public class MetadataController
             @PathVariable String code,
             @PathVariable String database,
             @PathVariable String table,
-            @RequestBody TableDefinition definition
+            @RequestBody TableDefinition configure
     )
     {
-        return this.service.updateAutoIncrement(code, definition, database, table);
+        return this.service.updateAutoIncrement(code, configure, database, table);
+    }
+
+    @PostMapping(value = "{code}/{database}/create-table")
+    public CommonResponse<Response> createTable(
+            @PathVariable String code,
+            @PathVariable String database,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.createTable(code, database, configure);
     }
 }

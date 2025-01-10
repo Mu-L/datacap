@@ -147,7 +147,7 @@
       <ShadcnSpace class="fixed bottom-0 left-0 right-0 border-t bg-white p-2 flex justify-end gap-4 shadow-lg">
         <ShadcnButton type="default" @click="onCancel">{{ $t('common.cancel') }}</ShadcnButton>
 
-        <ShadcnButton submit :loading="loading" :disabled="loading">
+        <ShadcnButton submit :loading="saving" :disabled="saving">
           {{ $t('common.save') }}
         </ShadcnButton>
       </ShadcnSpace>
@@ -183,6 +183,7 @@ export default defineComponent({
   {
     return {
       loading: false,
+      saving: false,
       engines: [],
       dataTypes: [],
       formState: null as any
@@ -216,39 +217,35 @@ export default defineComponent({
   methods: {
     onSubmit()
     {
-      if (this.info) {
-        this.loading = true
-        // TableService.createTable(Number(this.info.databaseId), this.formState)
-        //             .then(response => {
-        //               if (response.status) {
-        //                 if (response.data.isSuccessful) {
-        //                   this.$Message.success({
-        //                     content: this.$t('source.tip.createTableSuccess').replace('$VALUE', String(this.formState.name)),
-        //                     showIcon: true
-        //                   })
-        //
-        //                   this.onCancel()
-        //                 }
-        //                 else {
-        //                   this.$Message.error({
-        //                     content: response.data.message,
-        //                     showIcon: true
-        //                   })
-        //                 }
-        //               }
-        //               else {
-        //                 this.$Message.error({
-        //                   content: response.message,
-        //                   showIcon: true
-        //                 })
-        //               }
-        //             })
-        //             .finally(() => this.loading = false)
-      }
+      this.saving = true
+
+      const code = this.$route.params.source
+      const database = this.$route.params.database
+
+      MetadataService.createTable(code, database, this.formState)
+                     .then(response => {
+                       if (response.status && response.data && response.data.isSuccessful) {
+                         this.$Message.success({
+                           content: this.$t('source.tip.createTableSuccess').replace('$VALUE', String(this.formState.name)),
+                           showIcon: true
+                         })
+
+                         this.onCancel()
+                       }
+                       else {
+                         this.$Message.error({
+                           content: response.data.message,
+                           showIcon: true
+                         })
+                       }
+                     })
+                     .finally(() => this.saving = false)
     },
     onAdd()
     {
-      const newColumn = {}
+      const newColumn = {
+        removed: false
+      }
       if (this.formState.columns.length === 0) {
         newColumn.removed = true
       }

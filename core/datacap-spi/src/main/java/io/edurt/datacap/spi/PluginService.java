@@ -9,9 +9,12 @@ import io.edurt.datacap.spi.adapter.NativeAdapter;
 import io.edurt.datacap.spi.connection.Connection;
 import io.edurt.datacap.spi.connection.JdbcConnection;
 import io.edurt.datacap.spi.generator.DataType;
+import io.edurt.datacap.spi.generator.column.CreateColumn;
 import io.edurt.datacap.spi.generator.definition.BaseDefinition;
 import io.edurt.datacap.spi.generator.definition.TableDefinition;
+import io.edurt.datacap.spi.generator.table.AbstractTable;
 import io.edurt.datacap.spi.generator.table.AlterTable;
+import io.edurt.datacap.spi.generator.table.CreateTable;
 import io.edurt.datacap.spi.model.Configure;
 import io.edurt.datacap.spi.model.Response;
 import org.slf4j.Logger;
@@ -671,7 +674,7 @@ public interface PluginService
 
         return this.getResponse(
                 sql.replace("{0}", definition.getDatabase())
-                        .replace("{1}", definition.getTable()),
+                        .replace("{1}", definition.getName()),
                 configure,
                 definition
         );
@@ -687,11 +690,54 @@ public interface PluginService
      */
     default Response updateAutoIncrement(Configure configure, TableDefinition definition)
     {
-        String sql = AlterTable.create(definition.getTable())
+        String sql = AlterTable.create(definition.getName())
                 .autoIncrement(definition.getAutoIncrement())
                 .build();
 
         return this.getResponse(sql, configure, definition);
+    }
+
+    /**
+     * 新建表
+     * Create table
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param definition 表配置定义 | Table configuration definition
+     * @return 执行结果 | Execution result
+     */
+    default Response createTable(Configure configure, TableDefinition definition)
+    {
+        AbstractTable tableDefinition = CreateTable.create(definition.getDatabase(), definition.getName())
+                .comment(definition.getComment())
+                .engine(definition.getEngine());
+
+        definition.getColumns().forEach(col -> {
+            if (col.isPrimaryKey()) {
+                tableDefinition.addPrimaryKey(col.getName());
+            }
+
+            CreateColumn column = CreateColumn.create(col.getName(), col.getType());
+
+            column.comment(col.getComment())
+                    .length(col.getLength())
+                    .defaultValue(col.getDefaultValue());
+
+            if (col.isAutoIncrement()) {
+                column.autoIncrement();
+            }
+
+            if (col.isNullable()) {
+                column.notNull();
+            }
+
+            tableDefinition.addColumn(column);
+        });
+
+        return this.getResponse(
+                tableDefinition.build(),
+                configure,
+                definition
+        );
     }
 
     private Response getResponse(String sql, Configure configure, BaseDefinition definition)

@@ -1,80 +1,83 @@
-package io.edurt.datacap.spi.generator;
+package io.edurt.datacap.spi.generator.column;
 
-public class Column
+import io.edurt.datacap.spi.generator.DataType;
+
+public abstract class AbstractColumn
+        implements Column
 {
-    private final String name;
-    private final DataType type;
-    private Integer length;
-    private Integer precision;
-    private Integer scale;
-    private boolean nullable = true;
-    private String defaultValue;
-    private String comment;
-    private boolean autoIncrement;
-    private String charset;
-    private String collate;
+    protected final String name;
+    protected final DataType type;
+    protected Integer length;
+    protected Integer precision;
+    protected Integer scale;
+    protected boolean nullable = true;
+    protected String defaultValue;
+    protected String comment;
+    protected String charset;
+    protected String collate;
 
-    private Column(String name, DataType type)
+    protected AbstractColumn(String name, DataType type)
     {
         this.name = name;
         this.type = type;
     }
 
-    public static Column create(String name, DataType type)
+    @Override
+    public String getName()
     {
-        return new Column(name, type);
+        return name;
     }
 
-    public Column length(int length)
+    @Override
+    public DataType getType()
+    {
+        return type;
+    }
+
+    public AbstractColumn length(int length)
     {
         this.length = length;
         return this;
     }
 
-    public Column precision(int precision, int scale)
+    public AbstractColumn precision(int precision, int scale)
     {
         this.precision = precision;
         this.scale = scale;
         return this;
     }
 
-    public Column notNull()
+    public AbstractColumn notNull()
     {
         this.nullable = false;
         return this;
     }
 
-    public Column defaultValue(String value)
+    public AbstractColumn defaultValue(String value)
     {
         this.defaultValue = value;
         return this;
     }
 
-    public Column comment(String comment)
+    public AbstractColumn comment(String comment)
     {
         this.comment = comment;
         return this;
     }
 
-    public Column autoIncrement()
-    {
-        this.autoIncrement = true;
-        return this;
-    }
-
-    public Column charset(String charset)
+    public AbstractColumn charset(String charset)
     {
         this.charset = charset;
         return this;
     }
 
-    public Column collate(String collate)
+    public AbstractColumn collate(String collate)
     {
         this.collate = collate;
         return this;
     }
 
-    public String build()
+    protected StringBuilder buildBasicSQL()
     {
         StringBuilder sql = new StringBuilder();
         sql.append("`").append(name).append("` ");
@@ -110,14 +113,6 @@ public class Column
             }
         }
 
-        if (autoIncrement) {
-            sql.append(" AUTO_INCREMENT");
-        }
-
-        if (comment != null) {
-            sql.append(" COMMENT '").append(comment).append("'");
-        }
-
-        return sql.toString();
+        return sql;
     }
 }
