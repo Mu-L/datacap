@@ -4,6 +4,7 @@ import io.edurt.datacap.common.response.CommonResponse;
 import io.edurt.datacap.service.service.MetadataService;
 import io.edurt.datacap.spi.generator.definition.TableDefinition;
 import io.edurt.datacap.spi.model.Response;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -108,5 +109,16 @@ public class MetadataController
     )
     {
         return this.service.createTable(code, database, configure);
+    }
+
+    @DeleteMapping(value = "{code}/{database}/{table}/drop-table")
+    public CommonResponse<Response> dropTable(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.dropTable(code, database, table, configure);
     }
 }

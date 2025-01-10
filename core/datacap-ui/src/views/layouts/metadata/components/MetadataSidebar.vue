@@ -136,10 +136,7 @@
                  :info="dataInfo as any"
                  @close="visibleTruncateTable(false)"/>
 
-  <TableDrop v-if="tableDropVisible"
-             :is-visible="tableDropVisible"
-             :info="dataInfo as any"
-             @close="visibleDropTable(false)"/>
+  <TableDrop v-if="tableDropVisible" :is-visible="tableDropVisible" @close="visibleDropTable(false)"/>
 
   <ColumnChange v-if="columnChangeVisible"
                 :is-visible="columnChangeVisible"
@@ -355,6 +352,10 @@ export default defineComponent({
     visibleDropTable(opened: boolean)
     {
       this.tableDropVisible = opened
+
+      if (!opened) {
+        this.onChangeDatabase()
+      }
     },
     visibleChangeColumn(opened: boolean)
     {

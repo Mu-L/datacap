@@ -15,5 +15,5 @@ import lombok.experimental.SuperBuilder;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BaseDefinition
 {
-    private boolean preview;
+    private boolean preview = false;
 }

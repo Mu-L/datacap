@@ -15,6 +15,7 @@ import io.edurt.datacap.spi.generator.definition.TableDefinition;
 import io.edurt.datacap.spi.generator.table.AbstractTable;
 import io.edurt.datacap.spi.generator.table.AlterTable;
 import io.edurt.datacap.spi.generator.table.CreateTable;
+import io.edurt.datacap.spi.generator.table.DropTable;
 import io.edurt.datacap.spi.model.Configure;
 import io.edurt.datacap.spi.model.Response;
 import org.slf4j.Logger;
@@ -738,6 +739,22 @@ public interface PluginService
                 configure,
                 definition
         );
+    }
+
+    /**
+     * 删除表
+     * Delete table
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param definition 表配置定义 | Table configuration definition
+     * @return 执行结果 | Execution result
+     */
+    default Response dropTable(Configure configure, TableDefinition definition)
+    {
+        DropTable tableDefinition = DropTable.create(definition.getDatabase(), definition.getName())
+                .ifExists();
+
+        return this.getResponse(tableDefinition.build(), configure, definition);
     }
 
     private Response getResponse(String sql, Configure configure, BaseDefinition definition)

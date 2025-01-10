@@ -25,4 +25,6 @@ public interface MetadataService
     CommonResponse<Response> updateAutoIncrement(String code, TableDefinition configure, String database, String table);
 
     CommonResponse<Response> createTable(String code, String database, TableDefinition configure);
+
+    CommonResponse<Response> dropTable(String code, String database, String table, TableDefinition configure);
 }

@@ -61,6 +61,11 @@ class MetadataService
     {
         return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }/create-table`, configure)
     }
+
+    dropTable(code: string, database: string, table: string, configure: any): Promise<ResponseModel>
+    {
+        return HttpUtils.delete(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/drop-table`, configure)
+    }
 }
 
 export default new MetadataService()
