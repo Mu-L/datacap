@@ -12,6 +12,16 @@ class MetadataService
         super(DEFAULT_PATH)
     }
 
+    getEngines(code: string): Promise<ResponseModel>
+    {
+        return HttpUtils.get(`${ DEFAULT_PATH }/${ code }/engines`)
+    }
+
+    getDataTypes(code: string): Promise<ResponseModel>
+    {
+        return HttpUtils.get(`${ DEFAULT_PATH }/${ code }/data-types`)
+    }
+
     getDatabaseBySource(code: string): Promise<ResponseModel>
     {
         return HttpUtils.get(`${ DEFAULT_PATH }/${ code }/databases`)

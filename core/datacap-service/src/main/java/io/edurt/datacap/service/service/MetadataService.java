@@ -6,6 +6,10 @@ import io.edurt.datacap.spi.model.Response;
 
 public interface MetadataService
 {
+    CommonResponse<Response> getEngines(String code);
+
+    CommonResponse<Response> getDataTypes(String code);
+
     CommonResponse<Response> getDatabases(String code);
 
     CommonResponse<Response> getTables(String code, String database);

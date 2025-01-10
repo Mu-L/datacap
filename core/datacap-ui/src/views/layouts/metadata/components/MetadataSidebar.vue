@@ -119,10 +119,7 @@
     </div>
   </ShadcnCard>
 
-  <TableCreate v-if="tableCreateVisible"
-               :is-visible="tableCreateVisible"
-               :info="dataInfo as any"
-               @close="visibleCreateTable(false)"/>
+  <TableCreate v-if="tableCreateVisible" :is-visible="tableCreateVisible" @close="visibleCreateTable(false)"/>
 
   <ColumnCreate v-if="columnCreateVisible"
                 :is-visible="columnCreateVisible"

@@ -22,6 +22,18 @@ public class MetadataController
         this.service = service;
     }
 
+    @GetMapping(value = "{code}/engines")
+    public CommonResponse<Response> fetchEngines(@PathVariable String code)
+    {
+        return this.service.getEngines(code);
+    }
+
+    @GetMapping(value = "{code}/data-types")
+    public CommonResponse<Response> fetchDatatypes(@PathVariable String code)
+    {
+        return this.service.getDataTypes(code);
+    }
+
     @GetMapping(value = "{code}/databases")
     public CommonResponse<Response> fetchDatabases(@PathVariable String code)
     {

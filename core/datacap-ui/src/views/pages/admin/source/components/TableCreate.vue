@@ -4,7 +4,9 @@
                 width="40%"
                 :title="$t('source.common.menuNewTable')"
                 @on-close="onCancel">
-    <ShadcnForm v-if="formState"
+    <ShadcnSkeleton v-if="loading" animation/>
+
+    <ShadcnForm v-else-if="!loading && formState"
                 v-model="formState"
                 style="padding-bottom: 40px;"
                 @on-submit="onSubmit">
@@ -24,7 +26,15 @@
           <ShadcnFormItem name="engine"
                           :label="$t('source.common.engine')"
                           :rules="[{ required: true, message: $t('source.validator.tableEngine.required') }]">
-            <ShadcnInput v-model="formState.engine" name="engine" :placeholder="$t('source.placeholder.tableEngine')"/>
+            <ShadcnSelect v-model="formState.engine" name="engine" :placeholder="$t('source.placeholder.tableEngine')">
+              <template #options>
+                <ShadcnSelectOption v-for="engine in engines"
+                                    :key="engine"
+                                    :value="engine"
+                                    :label="engine">
+                </ShadcnSelectOption>
+              </template>
+            </ShadcnSelect>
           </ShadcnFormItem>
         </ShadcnCol>
 
@@ -71,7 +81,15 @@
               <ShadcnFormItem :name="`columns[${index}].type`"
                               :label="$t('source.common.columnType')"
                               :rules="[{ required: true, message: $t('source.validator.columnType.required') }]">
-                <ShadcnInput v-model="formState.columns[index].type" :placeholder="$t('source.placeholder.columnType')" :name="`columns[${index}].type`"/>
+                <ShadcnSelect v-model="formState.columns[index].type" :placeholder="$t('source.placeholder.columnType')" :name="`columns[${index}].type`">
+                  <template #options>
+                    <ShadcnSelectOption v-for="dataType in dataTypes"
+                                        :key="dataType"
+                                        :value="dataType"
+                                        :label="dataType">
+                    </ShadcnSelectOption>
+                  </template>
+                </ShadcnSelect>
               </ShadcnFormItem>
             </ShadcnCol>
 
@@ -139,7 +157,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { StructureModel } from '@/model/structure'
+import MetadataService from '@/services/metadata'
+import HttpUtils from '@/utils/http'
 
 export default defineComponent({
   name: 'TableCreate',
@@ -158,23 +177,39 @@ export default defineComponent({
   props: {
     isVisible: {
       type: Boolean
-    },
-    info: {
-      type: Object as () => StructureModel | null
     }
   },
   data()
   {
     return {
       loading: false,
+      engines: [],
+      dataTypes: [],
       formState: null as any
     }
   },
   created()
   {
+    const code = this.$route.params.source
+
     this.formState = {
       columns: []
     }
+
+    this.loading = true
+    HttpUtils.all([MetadataService.getEngines(code), MetadataService.getDataTypes(code)])
+             .then(HttpUtils.spread((...responses) => {
+               const [engines, dataTypes] = responses
+
+               if (engines.status && engines.data && engines.data.isSuccessful) {
+                 this.engines = engines.data.columns
+               }
+
+               if (dataTypes.status && dataTypes.data && dataTypes.data.isSuccessful) {
+                 this.dataTypes = dataTypes.data.columns
+               }
+             }))
+             .finally(() => this.loading = false)
 
     this.onAdd()
   },

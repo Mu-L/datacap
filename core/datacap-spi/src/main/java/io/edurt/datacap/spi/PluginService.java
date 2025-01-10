@@ -8,6 +8,7 @@ import io.edurt.datacap.spi.adapter.JdbcAdapter;
 import io.edurt.datacap.spi.adapter.NativeAdapter;
 import io.edurt.datacap.spi.connection.Connection;
 import io.edurt.datacap.spi.connection.JdbcConnection;
+import io.edurt.datacap.spi.generator.DataType;
 import io.edurt.datacap.spi.generator.definition.BaseDefinition;
 import io.edurt.datacap.spi.generator.definition.TableDefinition;
 import io.edurt.datacap.spi.generator.table.AlterTable;
@@ -16,6 +17,7 @@ import io.edurt.datacap.spi.model.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -148,6 +150,39 @@ public interface PluginService
     {
         this.connect(configure);
         return this.execute(content);
+    }
+
+    /**
+     * 获取数据库支持的引擎
+     * Get database supported engines
+     *
+     * @return 引擎列表 | Engine list
+     */
+    default Response getEngines()
+    {
+        return Response.builder()
+                .columns(Lists.newArrayList(
+                        "InnoDB",
+                        "MyISAM"
+                ))
+                .isConnected(true)
+                .isSuccessful(true)
+                .build();
+    }
+
+    /**
+     * 获取数据库支持数据类型
+     * Get database supported data types
+     *
+     * @return 数据类型列表 | Data type list
+     */
+    default Response getDataTypes()
+    {
+        return Response.builder()
+                .columns(Arrays.asList(DataType.values()))
+                .isConnected(true)
+                .isSuccessful(true)
+                .build();
     }
 
     /**
