@@ -149,11 +149,12 @@
     <!--                    :columns="dataSelectedChanged.columns"-->
     <!--                    @close="visibleChanged(false)"/>-->
 
-    <!--    <TableColumn v-if="visibleColumn.show"-->
-    <!--                 :isVisible="visibleColumn.show"-->
-    <!--                 :columns="visibleColumn.columns"-->
-    <!--                 @close="visibleColumns($event, false)"-->
-    <!--                 @change="visibleColumns($event, false)"/>-->
+    <TableColumn v-if="visibleColumn.show"
+                 :isVisible="visibleColumn.show"
+                 :columns="visibleColumn.columns"
+                 @close="visibleColumns($event, false)"
+                 @change="visibleColumns($event, false)">
+    </TableColumn>
 
     <!--    <TableRowFilter v-if="filterConfigure.show"-->
     <!--                    :isVisible="filterConfigure.show"-->
@@ -463,9 +464,8 @@ export default defineComponent({
     {
       this.visibleColumn.show = show
       if (event) {
-        const configure: TableFilter = this.getConfigure()
-        const columns = event.map((item: string) => ({ column: item }))
-        configure.columns = columns
+        const configure = this.getConfigure()
+        configure.columns = event.map((item: string) => ({ name: item }))
         // Remove the reduced column is not selected
         this.originalColumns.filter((item: { field: string; }) => !event.includes(item.field))
             .map((item: { checked: boolean; }) => {
