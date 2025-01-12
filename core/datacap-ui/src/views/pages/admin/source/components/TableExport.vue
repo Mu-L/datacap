@@ -1,45 +1,51 @@
 <template>
   <ShadcnModal v-model="visible"
-               height="33%"
                width="40%"
                :title="title"
                @on-close="onCancel">
-    <ShadcnForm v-model="formState" v-if="formState" @on-submit="onSubmit">
-      <ShadcnFormItem name="format" :label="$t('source.common.exportDataFormat')">
-        <ShadcnRadioGroup v-model="formState.format" name="format">
-          <ShadcnRadio value="CSV">CSV</ShadcnRadio>
-        </ShadcnRadioGroup>
-      </ShadcnFormItem>
+    <div class="px-4 py-4">
+      <ShadcnSkeleton v-if="loading" animation/>
 
-      <ShadcnFormItem name="count" :label="$t('source.common.exportDataCount')">
-        <ShadcnNumber v-model="formState.count" name="count"/>
-      </ShadcnFormItem>
+      <ShadcnForm v-else-if="!loading && formState" v-model="formState" @on-submit="onSubmit">
+        <ShadcnFormItem name="format" :label="$t('source.common.exportDataFormat')">
+          <ShadcnToggleGroup v-model="formState.format" name="format">
+            <ShadcnToggle v-for="item in formats" :value="item.name">{{ item.name }}</ShadcnToggle>
+          </ShadcnToggleGroup>
+        </ShadcnFormItem>
 
-      <ShadcnFormItem name="path" :label="$t('source.common.downloadPath')">
-        <div class="flex items-center space-x-1">
-          <ShadcnInput v-model="formState.path" disabled="" name="path"/>
-          <ShadcnButton :disabled="!formState.path" @click="onDownload()">
-            {{ $t('source.common.downloadFile') }}
+        <ShadcnRow>
+          <ShadcnCol span="6">
+            <ShadcnFormItem name="count" :label="$t('source.common.exportDataCount')">
+              <ShadcnNumber v-model="formState.count" name="count"/>
+            </ShadcnFormItem>
+          </ShadcnCol>
+        </ShadcnRow>
+
+        <ShadcnFormItem name="path" :label="$t('source.common.downloadPath')">
+          <div class="flex items-center space-x-1">
+            <ShadcnInput v-model="formState.path" disabled="" name="path"/>
+            <ShadcnButton :disabled="!formState.path" @click="onDownload()">
+              {{ $t('source.common.downloadFile') }}
+            </ShadcnButton>
+          </div>
+        </ShadcnFormItem>
+
+        <ShadcnSpace>
+          <ShadcnButton type="default" @click="onCancel">{{ $t('common.cancel') }}</ShadcnButton>
+
+          <ShadcnButton submit :loading="submitting" :disabled="submitting">
+            {{ $t('source.common.generateData') }}
           </ShadcnButton>
-        </div>
-      </ShadcnFormItem>
-
-      <ShadcnSpace>
-        <ShadcnButton type="default" @click="onCancel">{{ $t('common.cancel') }}</ShadcnButton>
-
-        <ShadcnButton submit :loading="loading" :disabled="loading">
-          {{ $t('common.save') }}
-        </ShadcnButton>
-      </ShadcnSpace>
-    </ShadcnForm>
+        </ShadcnSpace>
+      </ShadcnForm>
+    </div>
   </ShadcnModal>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { StructureModel } from '@/model/structure.ts'
-import TableService from '@/services/table'
-import { TableExportModel, TableExportRequest } from '@/model/table'
+import PluginService from '@/services/plugin'
+import MetadataService from '@/services/metadata'
 
 export default defineComponent({
   name: 'TableExport',
@@ -58,44 +64,60 @@ export default defineComponent({
   props: {
     isVisible: {
       type: Boolean
-    },
-    info: {
-      type: Object as () => StructureModel | null
     }
   },
   data()
   {
     return {
       loading: false,
+      submitting: false,
       title: null as string | null,
-      formState: null as unknown as TableExportModel
+      formats: [],
+      formState: {
+        format: 'JsonConvert',
+        count: 5000,
+        path: null
+      }
     }
   },
   created()
   {
-    this.formState = TableExportRequest.of()
-    if (this.info) {
-      this.title = this.$t('source.common.exportDataTable').replace('$VALUE', String(this.info.title))
+    const table = this.$route.params?.table
+    if (table) {
+      this.title = this.$t('source.common.exportDataTable').replace('$VALUE', table)
+
+      this.loading = true
+      PluginService.getPlugins()
+                   .then(response => {
+                     if (response.status && response.data) {
+                       this.formats = response.data.filter(item => item.type === 'CONVERT')
+                     }
+                   })
+                   .finally(() => this.loading = false)
     }
   },
   methods: {
     onSubmit()
     {
-      if (this.info) {
-        this.loading = true
-        TableService.exportData(Number(this.info.value), this.formState)
-                    .then(response => {
-                      if (response.status) {
-                        this.formState.path = response.data
-                      }
-                      else {
-                        this.$Message.error({
-                          content: response.message,
-                          showIcon: true
-                        })
-                      }
-                    })
-                    .finally(() => this.loading = false)
+      const code = this.$route.params?.source
+      const database = this.$route.params?.database
+      const table = this.$route.params?.table
+
+      if (code && database && table) {
+        this.submitting = true
+        MetadataService.exportData(code, database, table, this.formState)
+                       .then(response => {
+                         if (response.status) {
+                           this.formState.path = response.data
+                         }
+                         else {
+                           this.$Message.error({
+                             content: response.message,
+                             showIcon: true
+                           })
+                         }
+                       })
+                       .finally(() => this.submitting = false)
       }
     },
     onDownload()

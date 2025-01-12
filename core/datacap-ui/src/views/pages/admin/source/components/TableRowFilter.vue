@@ -6,15 +6,6 @@
                @on-close="onCancel">
 
     <ShadcnForm v-model="formState">
-      <ShadcnFormItem :label="$t('source.common.filterCondition')" name="condition">
-        <ShadcnSelect v-model="formState.condition">
-          <template #options>
-            <ShadcnSelectOption value="AND" label="AND"/>
-            <ShadcnSelectOption value="OR" label="OR"/>
-          </template>
-        </ShadcnSelect>
-      </ShadcnFormItem>
-
       <div class="flex items-center space-x-2" v-for="(item, index) in formState.filters">
         <ShadcnFormItem name="column" class="w-full">
           <ShadcnSelect v-model="item.index" @on-change="onFetchOperations(item.index, item)">
@@ -27,7 +18,7 @@
         <ShadcnFormItem name="operator" class="w-full">
           <ShadcnSelect v-model="item.operator" :disabled="!item.index">
             <template #options>
-              <ShadcnSelectOption v-for="operation in item.operations" :value="Object.keys(OPERATOR)[Object.values(OPERATOR).indexOf(operation)]" :label="operation">
+              <ShadcnSelectOption v-for="operation in item.operations" :value="operation" :label="operation">
                 {{ operation }}
               </ShadcnSelectOption>
             </template>
@@ -70,7 +61,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { ColumnFilter, ColumnFilterRequest, Operator } from '@/model/table'
 import { cloneDeep } from 'lodash'
 
 export default defineComponent({
@@ -106,15 +96,16 @@ export default defineComponent({
   created()
   {
     if (this.configure) {
-      this.formState = cloneDeep(this.configure)
+      this.formState = {
+        filters: cloneDeep(this.configure)
+      }
     }
   },
   data()
   {
     return {
-      OPERATOR: Operator,
+      OPERATOR: '',
       formState: {
-        condition: 'AND',
         filters: [] as any[]
       }
     }
@@ -122,28 +113,21 @@ export default defineComponent({
   methods: {
     onAddFilter()
     {
-      const filter: ColumnFilter = ColumnFilterRequest.of()
+      const filter = {}
       this.formState.filters.push(filter)
     },
     onRemoveFilter(index: number)
     {
       this.formState.filters.splice(index, 1)
     },
-    onFetchOperations(value: any, filter: ColumnFilter)
+    onFetchOperations(value: any, filter: any)
     {
-      const type = this.types[value]
-      filter.column = value
-      if (type === 'Long' || type === 'Double' || type === 'Integer') {
-        filter.operations = [Operator.EQ, Operator.NEQ, Operator.GT, Operator.LT, Operator.GTE, Operator.LTE]
-      }
-      else {
-        filter.operations = [Operator.EQ, Operator.NEQ, Operator.LIKE, Operator.NLIKE, Operator.NULL, Operator.NNULL]
-      }
-      console.log(filter)
+      filter.name = value
+      filter.operations = ['EQ', 'NE', 'GT', 'GE', 'LT', 'LE', 'LIKE', 'IN', 'NOT IN', 'IS NULL', 'IS NOT NULL']
     },
     onFilter()
     {
-      this.$emit('apply', this.formState)
+      this.$emit('apply', this.formState.filters)
 
       this.onCancel()
     },

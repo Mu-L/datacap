@@ -4,8 +4,8 @@
                @on-close="onCancel">
     <ShadcnForm v-model="formState" v-if="formState" @on-submit="onSubmit">
       <ShadcnFormItem name="showPageSize" :label="$t('source.common.showPageSize')">
-        <ShadcnNumber v-model="formState.pageSize"
-                      min="1"
+        <ShadcnNumber v-model="formState.size"
+                      :min="1"
                       :max="10000"
                       name="pageSize"/>
       </ShadcnFormItem>
@@ -26,11 +26,8 @@ export default defineComponent({
     isVisible: {
       type: Boolean
     },
-    configure: {
+    pagination: {
       type: Object
-    },
-    page: {
-      type: Number
     }
   },
   computed: {
@@ -49,8 +46,14 @@ export default defineComponent({
   {
     return {
       formState: {
-        pageSize: 500
+        page: 500
       }
+    }
+  },
+  created()
+  {
+    if (this.pagination) {
+      this.formState = this.pagination
     }
   },
   methods: {

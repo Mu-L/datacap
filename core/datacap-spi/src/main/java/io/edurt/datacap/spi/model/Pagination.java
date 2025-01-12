@@ -1,64 +1,67 @@
 package io.edurt.datacap.spi.model;
 
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
 @NoArgsConstructor
 public class Pagination
 {
-    private int pageSize;
-    private int currentPage;
-    private int totalRecords;
+    private int size; // 每页显示的记录数
+    private int page; // 当前页
+    private int total; // 总记录数
+    private int pages; // 总页数
+    private boolean hasPrevious; // 是否有上一页
+    private boolean hasNext; // 是否有下一页
+    private int startIndex; // 开始索引
+    private int endIndex; // 结束索引
 
-    private Pagination(int pageSize, int currentPage, int totalRecords)
+    private Pagination(int size, int page)
     {
-        this.pageSize = pageSize;
-        this.currentPage = currentPage;
-        this.totalRecords = totalRecords;
+        this.size = size;
+        this.page = page;
     }
 
-    public static Pagination newInstance(int pageSize, int currentPage, int totalRecords)
+    public static Pagination create(int size, int page)
     {
-        return new Pagination(pageSize, currentPage, totalRecords);
+        return new Pagination(size, page);
     }
 
-    public int getTotalPages()
+    public Pagination total(int total)
     {
-        return (int) Math.ceil((double) totalRecords / pageSize);
+        this.total = total;
+        return this;
     }
 
-    public int getStartIndex()
+    public Pagination hasPrevious(boolean hasPrevious)
     {
-        return (currentPage - 1) * pageSize;
+        this.hasPrevious = hasPrevious;
+        return this;
     }
 
-    public int getEndIndex()
+    public Pagination hasNext(boolean hasNext)
     {
-        int endIndex = currentPage * pageSize - 1;
-        return endIndex < totalRecords ? endIndex : totalRecords - 1;
+        this.hasNext = hasNext;
+        return this;
     }
 
-    public int getPageSize()
+    public Pagination startIndex(int startIndex)
     {
-        return pageSize;
+        this.startIndex = startIndex;
+        return this;
     }
 
-    public int getCurrentPage()
+    public Pagination endIndex(int endIndex)
     {
-        return currentPage;
+        this.endIndex = endIndex;
+        return this;
     }
 
-    public int getTotalRecords()
+    public Pagination pages(int pages)
     {
-        return totalRecords;
-    }
-
-    public boolean getHasPreviousPage()
-    {
-        return currentPage > 1;
-    }
-
-    public boolean getHasNextPage()
-    {
-        return currentPage < getTotalPages();
+        this.pages = pages;
+        return this;
     }
 }
