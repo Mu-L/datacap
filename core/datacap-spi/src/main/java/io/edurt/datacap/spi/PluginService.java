@@ -1,5 +1,7 @@
 package io.edurt.datacap.spi;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import io.edurt.datacap.plugin.Service;
 import io.edurt.datacap.spi.adapter.Adapter;
@@ -10,14 +12,17 @@ import io.edurt.datacap.spi.connection.Connection;
 import io.edurt.datacap.spi.connection.JdbcConnection;
 import io.edurt.datacap.spi.generator.DataType;
 import io.edurt.datacap.spi.generator.column.CreateColumn;
+import io.edurt.datacap.spi.generator.column.SelectColumn;
 import io.edurt.datacap.spi.generator.definition.BaseDefinition;
 import io.edurt.datacap.spi.generator.definition.TableDefinition;
 import io.edurt.datacap.spi.generator.table.AbstractTable;
 import io.edurt.datacap.spi.generator.table.AlterTable;
 import io.edurt.datacap.spi.generator.table.CreateTable;
 import io.edurt.datacap.spi.generator.table.DropTable;
+import io.edurt.datacap.spi.generator.table.SelectTable;
 import io.edurt.datacap.spi.generator.table.TruncateTable;
 import io.edurt.datacap.spi.model.Configure;
+import io.edurt.datacap.spi.model.Pagination;
 import io.edurt.datacap.spi.model.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -692,7 +697,7 @@ public interface PluginService
      */
     default Response updateAutoIncrement(Configure configure, TableDefinition definition)
     {
-        String sql = AlterTable.create(definition.getName())
+        String sql = AlterTable.create(definition.getDatabase(), definition.getName())
                 .autoIncrement(definition.getAutoIncrement())
                 .build();
 
@@ -773,6 +778,87 @@ public interface PluginService
         return this.getResponse(tableDefinition.build(), configure, definition);
     }
 
+    /**
+     * 查询表
+     * Query table
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param definition 表配置定义 | Table configuration definition
+     * @return 执行结果 | Execution result
+     */
+    default Response queryTable(Configure configure, TableDefinition definition)
+    {
+        SelectTable tableDefinition = SelectTable.create(definition.getDatabase(), definition.getName())
+                .limit(definition.getPagination().getSize())
+                .offset((long) (definition.getPagination().getPage() - 1) * definition.getPagination().getSize());
+
+        definition.getColumns().forEach(col -> {
+            tableDefinition.addColumn(SelectColumn.create(col.getName(), DataType.VARCHAR));
+        });
+
+        return this.getResponse(
+                tableDefinition.build(),
+                configure,
+                definition,
+                this.getPagination(configure, definition)
+        );
+    }
+
+    /**
+     * 获取分页
+     * Get pagination
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param definition 表配置定义 | Table configuration definition
+     * @return 分页 | Pagination
+     */
+    default Pagination getPagination(Configure configure, TableDefinition definition)
+    {
+        try {
+            /*
+             * {0} 数据库
+             * {1} 数据表
+             * {2} 页数
+             * {3} 每页大小
+             * {4} 筛选条件
+             */
+            String sql = "SELECT\n" +
+                    "   {3} as object_size,\n" +
+                    "   {2} as object_page,\n" +
+                    "   @total := CAST((SELECT COUNT(1) FROM {0}.{1}) AS SIGNED) as object_total,\n" +
+                    "   CEIL(@total / {3}) as object_total_pages,\n" +
+                    "   IF({2} > 1, 1, 0) as object_has_previous,\n" +
+                    "   IF(({3} * {2}) < @total, 1, 0) as object_has_next,\n" +
+                    "   ({2} - 1) * {3} + 1 as object_start_index,\n" +
+                    "   LEAST(CAST(({2} * {3}) AS SIGNED), CAST(@total AS SIGNED)) as object_end_index\n" +
+                    "FROM DUAL;";
+
+            // 强制指定为 JsonConvert
+            configure.setFormat("JsonConvert");
+            Response response = this.getResponse(
+                    sql.replace("{0}", definition.getDatabase())
+                            .replace("{1}", definition.getName())
+                            .replace("{2}", String.valueOf(definition.getPagination().getPage()))
+                            .replace("{3}", String.valueOf(definition.getPagination().getSize())),
+                    configure,
+                    definition
+            );
+            Preconditions.checkArgument(response.getIsSuccessful(), response.getMessage());
+
+            ObjectNode node = (ObjectNode) response.getColumns().get(0);
+            return Pagination.create(node.get("object_size").asInt(), node.get("object_page").asInt())
+                    .total(node.get("object_total").asInt())
+                    .pages(node.get("object_total_pages").asInt())
+                    .hasPrevious(node.get("object_has_previous").asInt() == 1)
+                    .hasNext(node.get("object_has_next").asInt() == 1)
+                    .startIndex(node.get("object_start_index").asInt())
+                    .endIndex(node.get("object_end_index").asInt());
+        }
+        catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
     private Response getResponse(String sql, Configure configure, BaseDefinition definition)
     {
         Response response;
@@ -790,6 +876,13 @@ public interface PluginService
             response = this.execute(configure, sql);
             response.setContent(sql);
         }
+        return response;
+    }
+
+    private Response getResponse(String sql, Configure configure, TableDefinition definition, Pagination pagination)
+    {
+        Response response = this.getResponse(sql, configure, definition);
+        response.setPagination(pagination);
         return response;
     }
 

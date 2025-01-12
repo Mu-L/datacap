@@ -70,7 +70,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { ColumnFilter, ColumnFilterRequest, Operator } from '@/model/table'
 import { cloneDeep } from 'lodash'
 
 export default defineComponent({
@@ -112,7 +111,7 @@ export default defineComponent({
   data()
   {
     return {
-      OPERATOR: Operator,
+      OPERATOR: '',
       formState: {
         condition: 'AND',
         filters: [] as any[]

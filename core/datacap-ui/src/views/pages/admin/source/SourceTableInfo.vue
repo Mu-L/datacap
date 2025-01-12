@@ -1,8 +1,8 @@
 <template>
   <div class="relative min-h-screen">
-    <ShadcnSpin v-if="loading" fixed/>
+    <ShadcnSkeleton v-if="loading" animation/>
 
-    <div v-if="dataInfo">
+    <div v-else-if="dataInfo">
       <ShadcnRow class="mt-4" :gutter="20">
         <ShadcnCol span="4">
           <div class="flex items-center space-x-2">

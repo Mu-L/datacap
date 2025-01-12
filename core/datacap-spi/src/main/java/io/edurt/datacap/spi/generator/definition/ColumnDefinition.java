@@ -19,6 +19,8 @@ import lombok.ToString;
 public class ColumnDefinition
         extends BaseDefinition
 {
+    private String database;
+    private String table;
     private String name;
     private DataType type;
     private Integer length;

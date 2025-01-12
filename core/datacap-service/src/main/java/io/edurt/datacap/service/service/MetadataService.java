@@ -29,4 +29,8 @@ public interface MetadataService
     CommonResponse<Response> dropTable(String code, String database, String table, TableDefinition configure);
 
     CommonResponse<Response> truncateTable(String code, String database, String table, TableDefinition configure);
+
+    CommonResponse<Response> queryTable(String code, String database, String table, TableDefinition configure);
+
+    CommonResponse<Response> exportData(String code, String database, String table, TableDefinition configure);
 }

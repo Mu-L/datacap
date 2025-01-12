@@ -1,22 +1,27 @@
 <template>
   <div class="relative min-h-screen">
-    <ShadcnSpin v-model="loading" fixed/>
+    <ShadcnSkeleton v-if="loading" animation/>
 
-    <AceEditor v-if="!loading"
-               :value="statement as string"
-               :read-only="true"
-               :height="'100vh'"/>
+    <ShadcnCodeEditor v-else-if="statement"
+                      v-model="statement"
+                      height="100vh"
+                      :config="{
+                        language: 'sql',
+                        readOnly: true,
+                        minimap: {
+                          enabled: false
+                        }
+                      }">
+    </ShadcnCodeEditor>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, watch } from 'vue'
-import AceEditor from '@/views/components/editor/AceEditor.vue'
 import MetadataService from '@/services/metadata'
 
 export default defineComponent({
   name: 'SourceTableStatement',
-  components: { AceEditor },
   data()
   {
     return {

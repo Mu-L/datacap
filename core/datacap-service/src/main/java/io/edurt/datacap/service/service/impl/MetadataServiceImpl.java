@@ -7,6 +7,7 @@ import io.edurt.datacap.service.repository.SourceRepository;
 import io.edurt.datacap.service.service.MetadataService;
 import io.edurt.datacap.spi.PluginService;
 import io.edurt.datacap.spi.generator.definition.TableDefinition;
+import io.edurt.datacap.spi.model.Configure;
 import io.edurt.datacap.spi.model.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -185,6 +186,36 @@ public class MetadataServiceImpl
                             TableDefinition definition = TableDefinition.create(database, table);
                             definition.setPreview(configure.isPreview());
                             return CommonResponse.success(service.truncateTable(entity.toConfigure(pluginManager, plugin), definition));
+                        })
+                        .orElseGet(() -> CommonResponse.failure(String.format("Plugin [ %s ] not found", entity.getType()))))
+                .orElseGet(() -> CommonResponse.failure(String.format("Resource [ %s ] not found", code)));
+    }
+
+    @Override
+    public CommonResponse<Response> queryTable(String code, String database, String table, TableDefinition configure)
+    {
+        return repository.findByCode(code)
+                .map(entity -> pluginManager.getPlugin(entity.getType())
+                        .map(plugin -> {
+                            PluginService service = plugin.getService(PluginService.class);
+                            configure.setDatabase(database);
+                            configure.setName(table);
+                            return CommonResponse.success(service.queryTable(entity.toConfigure(pluginManager, plugin), configure));
+                        })
+                        .orElseGet(() -> CommonResponse.failure(String.format("Plugin [ %s ] not found", entity.getType()))))
+                .orElseGet(() -> CommonResponse.failure(String.format("Resource [ %s ] not found", code)));
+    }
+
+    @Override
+    public CommonResponse<Response> exportData(String code, String database, String table, TableDefinition configure)
+    {
+        return repository.findByCode(code)
+                .map(entity -> pluginManager.getPlugin(entity.getType())
+                        .map(plugin -> {
+                            PluginService service = plugin.getService(PluginService.class);
+                            Configure conf = entity.toConfigure(pluginManager, plugin);
+                            conf.setFormat(configure.getFormat());
+                            return CommonResponse.success(Response.builder().build());
                         })
                         .orElseGet(() -> CommonResponse.failure(String.format("Plugin [ %s ] not found", entity.getType()))))
                 .orElseGet(() -> CommonResponse.failure(String.format("Resource [ %s ] not found", code)));

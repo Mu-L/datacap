@@ -1,8 +1,8 @@
 <template>
   <div class="relative min-h-screen">
-    <ShadcnSpin v-if="loading" fixed/>
+    <ShadcnSkeleton v-if="loading" animation/>
 
-    <ShadcnTable v-else-if="!loading && data.length > 0"
+    <ShadcnTable v-else-if="data && data.length > 0"
                  size="small"
                  :columns="headers"
                  :data="data">

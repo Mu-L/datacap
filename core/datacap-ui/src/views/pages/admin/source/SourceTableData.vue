@@ -8,7 +8,7 @@
           <ShadcnTooltip :content="$t('source.common.firstPage')">
             <ShadcnButton circle
                           size="small"
-                          :disabled="!configure?.pagination?.hasPreviousPage"
+                          :disabled="!configure.pagination.hasPrevious"
                           @click="onApplyPagination(configure.operator.FIRST)">
               <ShadcnIcon icon="ArrowLeftToLine" size="15"/>
             </ShadcnButton>
@@ -17,7 +17,7 @@
           <ShadcnTooltip :content="$t('source.common.previousPage')">
             <ShadcnButton circle
                           size="small"
-                          :disabled="!configure?.pagination?.hasPreviousPage"
+                          :disabled="!configure.pagination.hasPrevious"
                           @click="onApplyPagination(configure.operator.PREVIOUS)">
               <ShadcnIcon icon="ArrowLeft" size="15"/>
             </ShadcnButton>
@@ -26,7 +26,7 @@
           <ShadcnTooltip :content="$t('source.common.nextPage')">
             <ShadcnButton circle
                           size="small"
-                          :disabled="!configure?.pagination?.hasNextPage"
+                          :disabled="!configure.pagination.hasNext"
                           @click="onApplyPagination(configure.operator.NEXT)">
               <ShadcnIcon icon="ArrowRight" size="15"/>
             </ShadcnButton>
@@ -35,7 +35,7 @@
           <ShadcnTooltip :content="$t('source.common.lastPage')">
             <ShadcnButton circle
                           size="small"
-                          :disabled="!configure.pagination.hasNextPage"
+                          :disabled="!configure.pagination.hasNext"
                           @click="onApplyPagination(configure.operator.LAST)">
               <ShadcnIcon icon="ArrowRightToLine" size="15"/>
             </ShadcnButton>
@@ -48,9 +48,9 @@
           </ShadcnTooltip>
 
           <div class="text-sm text-muted-foreground flex gap-2 ml-4 mr-4">
-            [ <span>{{ configure?.pagination?.startIndex as number + 1 }}</span> / <span>{{ configure?.pagination?.endIndex as number + 1 }}</span> ]
+            [ <span>{{ configure.pagination.startIndex }}</span> / <span>{{ configure.pagination.endIndex }}</span> ]
             <span>of</span>
-            <span>{{ configure.pagination.totalRecords }}</span>
+            <span>{{ configure.pagination.total }}</span>
             <span>{{ $t('source.common.records') }}</span>
           </div>
 
@@ -138,35 +138,37 @@
       </div>
     </ShadcnCard>
 
-    <TableCellInfo v-if="dataCellChanged.pending"
-                   :isVisible="dataCellChanged.pending"
-                   :columns="dataCellChanged.columns"
-                   :type="dataCellChanged.type"
-                   @close="visibleCellChanged(false)"/>
+    <!--    <TableCellInfo v-if="dataCellChanged.pending"-->
+    <!--                   :isVisible="dataCellChanged.pending"-->
+    <!--                   :columns="dataCellChanged.columns"-->
+    <!--                   :type="dataCellChanged.type"-->
+    <!--                   @close="visibleCellChanged(false)"/>-->
 
-    <TableRowDelete v-if="dataSelectedChanged.pending"
-                    :isVisible="dataSelectedChanged.pending"
-                    :columns="dataSelectedChanged.columns"
-                    @close="visibleChanged(false)"/>
+    <!--    <TableRowDelete v-if="dataSelectedChanged.pending"-->
+    <!--                    :isVisible="dataSelectedChanged.pending"-->
+    <!--                    :columns="dataSelectedChanged.columns"-->
+    <!--                    @close="visibleChanged(false)"/>-->
 
-    <TableColumn v-if="visibleColumn.show"
-                 :isVisible="visibleColumn.show"
-                 :columns="visibleColumn.columns"
-                 @close="visibleColumns($event, false)"
-                 @change="visibleColumns($event, false)"/>
+    <!--    <TableColumn v-if="visibleColumn.show"-->
+    <!--                 :isVisible="visibleColumn.show"-->
+    <!--                 :columns="visibleColumn.columns"-->
+    <!--                 @close="visibleColumns($event, false)"-->
+    <!--                 @change="visibleColumns($event, false)"/>-->
 
-    <TableRowFilter v-if="filterConfigure.show"
-                    :isVisible="filterConfigure.show"
-                    :columns="filterConfigure.columns"
-                    :types="filterConfigure.types"
-                    :configure="filterConfigure.configure"
-                    @apply="onApplyFilter"
-                    @close="onFilterConfigure(false)"/>
+    <!--    <TableRowFilter v-if="filterConfigure.show"-->
+    <!--                    :isVisible="filterConfigure.show"-->
+    <!--                    :columns="filterConfigure.columns"-->
+    <!--                    :types="filterConfigure.types"-->
+    <!--                    :configure="filterConfigure.configure"-->
+    <!--                    @apply="onApplyFilter"-->
+    <!--                    @close="onFilterConfigure(false)"/>-->
 
     <TablePagination v-if="visibleSetting.show"
                      :is-visible="visibleSetting.show"
-                     :configure="configure"
-                     @close="visibleSettings(false)"/>
+                     :pagination="configure.pagination"
+                     @close="visibleSettings(false)"
+                     @change="configure.pagination = $event">
+    </TablePagination>
 
     <SqlInfo v-if="visibleContent.show"
              :isVisible="visibleContent.show"
@@ -184,8 +186,6 @@ import '@/views/components/grid/ag-theme-datacap.css'
 import { ColumnApi, ColumnState, GridApi } from 'ag-grid-community'
 import { PaginationEnum, PaginationModel } from '@/model/pagination.ts'
 import { createColumnDefs, createDataEditorOptions } from '@/views/pages/admin/source/components/TableUtils.ts'
-import { OrderFilter, SqlColumn, SqlType, TableFilter } from '@/model/table.ts'
-import TableService from '@/services/table.ts'
 import { cloneDeep } from 'lodash'
 import TableRowDelete from '@/views/pages/admin/source/components/TableRowDelete.vue'
 import TableCellInfo from '@/views/pages/admin/source/components/TableCellInfo.vue'
@@ -193,6 +193,7 @@ import TableColumn from '@/views/pages/admin/source/components/TableColumn.vue'
 import TableRowFilter from '@/views/pages/admin/source/components/TableRowFilter.vue'
 import SqlInfo from '@/views/components/sql/SqlInfo.vue'
 import TablePagination from '@/views/pages/admin/source/components/TablePagination.vue'
+import MetadataService from '@/services/metadata'
 
 export default defineComponent({
   name: 'SourceTableData',
@@ -219,7 +220,7 @@ export default defineComponent({
         headers: [] as any[],
         columns: [] as any[],
         datasets: [] as any[],
-        pagination: null as unknown as PaginationModel,
+        pagination: null as any,
         operator: PaginationEnum
       },
       visibleContent: {
@@ -229,7 +230,7 @@ export default defineComponent({
       dataCellChanged: {
         changed: false,
         pending: false,
-        type: null as unknown as SqlType,
+        type: null as any,
         columns: [] as any[]
       },
       dataSelectedChanged: {
@@ -261,66 +262,79 @@ export default defineComponent({
       this.clearData()
       this.gridOptions = createDataEditorOptions(this.i18n)
       if (!this.configure.pagination) {
-        const pagination: PaginationModel = {
-          currentPage: 1,
-          pageSize: 500
+        const pagination = {
+          page: 1,
+          size: 500
         }
         this.configure.pagination = pagination
       }
-      const code = String(this.$route?.params.table)
-      if (code) {
+
+      const code = this.$route?.params.source
+      const database = this.$route?.params.database
+      const table = this.$route?.params.table
+
+      if (code && database && table) {
         this.loading = true
-        TableService.getData(code, this.configure)
-                    .then(response => {
-                      if (response.status && response.data) {
-                        this.configure.headers = createColumnDefs(response.data.headers, response.data.types)
-                        this.originalColumns = this.configure.headers
-                        this.configure.datasets = response.data.columns
-                        this.originalDatasets = cloneDeep(response.data.columns)
-                        this.configure.pagination = response.data.pagination
-                        this.visibleContent.content = response.data.content
-                        this.filterConfigure.columns = cloneDeep(response.data.headers)
-                        this.filterConfigure.types = cloneDeep(response.data.types)
-                      }
-                      else {
-                        this.$Message.error({
-                          content: response.message,
-                          showIcon: true
-                        })
-                      }
-                    })
-                    .finally(() => this.loading = false)
+        const { pagination } = this.configure
+
+        const conf = {
+          pagination: pagination
+        }
+
+        MetadataService.queryTable(code, database, table, conf)
+                       .then(response => {
+                         if (response.status && response.data) {
+                           this.configure.headers = createColumnDefs(response.data.headers, response.data.types)
+                           this.originalColumns = this.configure.headers
+                           this.configure.datasets = response.data.columns
+                           this.originalDatasets = cloneDeep(response.data.columns)
+                           this.configure.pagination = response.data.pagination
+                           this.visibleContent.content = response.data.content
+                           this.filterConfigure.columns = cloneDeep(response.data.headers)
+                           this.filterConfigure.types = cloneDeep(response.data.types)
+                         }
+                         else {
+                           this.$Message.error({
+                             content: response.message,
+                             showIcon: true
+                           })
+                         }
+                       })
+                       .finally(() => this.loading = false)
       }
     },
-    handleRefererData(configure: TableFilter)
+    handleRefererData(configure: any)
     {
       this.configure.datasets = []
       this.gridOptions.overlayNoRowsTemplate = '<span></span>'
-      const code = this.$route?.params.table as string
-      if (code) {
+      const code = this.$route?.params.source
+      const database = this.$route?.params.database
+      const table = this.$route?.params.table
+
+      if (code && database && table) {
         this.refererLoading = true
-        TableService.getData(code, configure)
-                    .then(response => {
-                      if (response.status && response.data) {
-                        this.configure.headers = createColumnDefs(response.data.headers, response.data.types)
-                        this.configure.datasets = response.data.columns
-                        this.originalDatasets = cloneDeep(response.data.columns)
-                        if (this.configure?.datasets?.length === 0) {
-                          this.gridOptions.overlayNoRowsTemplate = '<span>No Rows To Show</span>'
-                        }
-                        this.configure.pagination = response.data.pagination
-                        this.visibleContent.content = response.data.content
-                        this.filterConfigure.columns = cloneDeep(response.data.headers)
-                        this.filterConfigure.types = cloneDeep(response.data.types)
-                      }
-                      else {
-                        this.$Message.error({
-                          content: response.message,
-                          showIcon: true
-                        })
-                      }
-                    })
-                    .finally(() => this.refererLoading = false)
+        MetadataService.queryTable(code, database, table, configure)
+                       .then(response => {
+                         if (response.status && response.data) {
+                           this.configure.headers = createColumnDefs(response.data.headers, response.data.types)
+                           this.configure.datasets = response.data.columns
+                           this.originalDatasets = cloneDeep(response.data.columns)
+                           if (this.configure?.datasets?.length === 0) {
+                             this.gridOptions.overlayNoRowsTemplate = '<span>No Rows To Show</span>'
+                           }
+                           this.configure.pagination = response.data.pagination
+                           this.visibleContent.content = response.data.content
+                           this.filterConfigure.columns = cloneDeep(response.data.headers)
+                           this.filterConfigure.types = cloneDeep(response.data.types)
+                         }
+                         else {
+                           this.$Message.error({
+                             content: response.message,
+                             showIcon: true
+                           })
+                         }
+                       })
+                       .finally(() => this.refererLoading = false)
       }
     },
     onRefresh()
@@ -377,20 +391,18 @@ export default defineComponent({
     },
     onApplyPagination(operator: PaginationEnum)
     {
-      if (this.configure.pagination.currentPage) {
+      if (this.configure.pagination.page) {
         if (operator === PaginationEnum.PREVIOUS) {
-          this.configure.pagination.currentPage--
+          this.configure.pagination.page--
         }
         else if (operator === PaginationEnum.NEXT) {
-          this.configure.pagination.currentPage++
+          this.configure.pagination.page++
         }
         else if (operator === PaginationEnum.FIRST) {
-          this.configure.pagination.currentPage = 1
+          this.configure.pagination.page = 1
         }
         else if (operator === PaginationEnum.LAST) {
-          if (this.configure.pagination.totalPages) {
-            this.configure.pagination.currentPage = this.configure.pagination.totalPages
-          }
+          this.configure.pagination.page = this.configure.pagination.pages
         }
         this.onSortChanged()
       }
@@ -485,17 +497,16 @@ export default defineComponent({
       configure.pagination = this.configure.pagination
       configure.orders = orders as OrderFilter[]
     },
-    getVisibleColumn(configure: TableFilter)
+    getVisibleColumn(configure: any)
     {
-      const columns = this.gridColumnApi.getColumnState()
-                          .filter(item => !item.hide)
-                          .map((item: { colId: any; }) => ({ column: item.colId }))
-      configure.columns = columns
+      configure.columns = this.gridColumnApi.getColumnState()
+                              .filter(item => !item.hide)
+                              .map((item: { colId: any; }) => ({ name: item.colId }))
     },
-    getConfigure(): TableFilter
+    getConfigure(): any
     {
       this.clearData()
-      const configure: TableFilter = {
+      const configure = {
         filter: this.filterConfigure.configure
       }
       this.getSortConfigure(configure)

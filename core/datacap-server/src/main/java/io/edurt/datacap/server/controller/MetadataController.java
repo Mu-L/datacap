@@ -132,4 +132,26 @@ public class MetadataController
     {
         return this.service.truncateTable(code, database, table, configure);
     }
+
+    @PostMapping(value = "{code}/{database}/{table}/query-table")
+    public CommonResponse<Response> queryTable(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.queryTable(code, database, table, configure);
+    }
+
+    @PostMapping(value = "{code}/{database}/{table}/export-data")
+    public CommonResponse<Response> exportData(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.exportData(code, database, table, configure);
+    }
 }

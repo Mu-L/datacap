@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 public class AlterTable
 {
+    private final String database;
     private final String tableName;
     private final List<String> addColumns = new ArrayList<>();
     private final List<String> modifyColumns = new ArrayList<>();
@@ -24,14 +25,15 @@ public class AlterTable
     private String rowFormat;
     private Long autoIncrement;
 
-    private AlterTable(String tableName)
+    private AlterTable(String database, String tableName)
     {
+        this.database = database;
         this.tableName = tableName;
     }
 
-    public static AlterTable create(String tableName)
+    public static AlterTable create(String database, String tableName)
     {
-        return new AlterTable(tableName);
+        return new AlterTable(database, tableName);
     }
 
     // 添加列
@@ -184,7 +186,7 @@ public class AlterTable
         }
 
         // 构建完整的 ALTER TABLE 语句
-        String sql = "ALTER TABLE `" + tableName + "` \n" +
+        String sql = "ALTER TABLE `" + database + "`.`" + tableName + "` \n" +
                 alterations.stream()
                         .collect(
                                 Collectors.joining(",\n  ", "  ", ";")

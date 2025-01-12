@@ -1,15 +1,16 @@
 <template>
   <ShadcnCard :border="false">
-    <ShadcnSelect v-model="selectDatabase" @on-change="onChangeDatabase">
+    <ShadcnSelect v-model="selectDatabase" :loading="loading" @on-change="onChangeDatabase">
       <template #options>
         <ShadcnSelectOption v-for="item in databaseArray" :label="item.title" :value="item.code"/>
       </template>
     </ShadcnSelect>
 
     <div class="relative h-screen overflow-x-auto overflow-y-auto">
-      <ShadcnSpin v-if="loading" fixed/>
+      <ShadcnSkeleton v-if="loading" animation class="mt-2"/>
 
-      <ShadcnTree v-model="databaseModel"
+      <ShadcnTree v-else-if="!loading && dataTreeArray.length > 0"
+                  v-model="databaseModel"
                   :data="dataTreeArray"
                   :loadData="onLoadData"
                   @on-node-click="onNodeClick">
@@ -48,7 +49,7 @@
                         size="16"
                         icon="Key"/>
 
-            <span class="text-xs font-normal text-gray-900">
+            <span class="font-normal text-gray-900">
               {{ node.title }}
             </span>
 
@@ -60,7 +61,7 @@
       </ShadcnTree>
 
       <ShadcnContextMenu v-if="contextmenu.visible && dataInfo" v-model="contextmenu.visible" :position="contextmenu.position">
-        <ShadcnContextMenuSub v-if="dataInfo.level === StructureEnum.TABLE || dataInfo.level === StructureEnum.COLUMN || dataInfo.type === 'table'"
+        <ShadcnContextMenuSub v-if="dataInfo.level === StructureEnum.TABLE || dataInfo.level === StructureEnum.COLUMN || dataInfo.type === 'table' || dataInfo.type === 'column'"
                               :label="$t('source.common.menuNew')">
           <ShadcnContextMenuItem v-if="dataInfo.level === StructureEnum.TABLE || dataInfo.type === 'table'"
                                  @click="visibleCreateTable(true)">
@@ -70,7 +71,7 @@
             </div>
           </ShadcnContextMenuItem>
 
-          <ShadcnContextMenuItem v-else-if="dataInfo.level === StructureEnum.COLUMN"
+          <ShadcnContextMenuItem v-if="dataInfo.level === StructureEnum.COLUMN || dataInfo.type === 'column'"
                                  @click="visibleCreateColumn(true)">
             <div class="flex items-center space-x-1">
               <ShadcnIcon icon="Columns" size="15"/>
@@ -88,28 +89,28 @@
           </ShadcnContextMenuItem>
         </ShadcnContextMenuSub>
 
-        <ShadcnContextMenuItem v-if="dataInfo?.level === StructureEnum.TABLE" @click="visibleTruncateTable(true)">
+        <ShadcnContextMenuItem v-if="dataInfo.level === StructureEnum.TABLE" @click="visibleTruncateTable(true)">
           <div class="flex items-center space-x-1">
             <ShadcnIcon icon="Trash" size="15"/>
             <span>{{ $t('source.common.truncateTable') }}</span>
           </div>
         </ShadcnContextMenuItem>
 
-        <ShadcnContextMenuItem v-if="dataInfo?.level === StructureEnum.TABLE" @click="visibleDropTable(true)">
+        <ShadcnContextMenuItem v-if="dataInfo.level === StructureEnum.TABLE" @click="visibleDropTable(true)">
           <div class="flex items-center space-x-1">
             <ShadcnIcon icon="Delete" size="15"/>
             <span>{{ $t('source.common.dropTable') }}</span>
           </div>
         </ShadcnContextMenuItem>
 
-        <ShadcnContextMenuItem v-if="dataInfo?.level === StructureEnum.COLUMN" @click="visibleChangeColumn(true)">
+        <ShadcnContextMenuItem v-if="dataInfo.level === StructureEnum.COLUMN" @click="visibleChangeColumn(true)">
           <div class="flex items-center space-x-1">
             <ShadcnIcon icon="Pencil" size="15"/>
             <span>{{ $t('source.common.changeColumn') }}</span>
           </div>
         </ShadcnContextMenuItem>
 
-        <ShadcnContextMenuItem v-if="dataInfo?.level === StructureEnum.COLUMN" @click="visibleDropColumn(true)">
+        <ShadcnContextMenuItem v-if="dataInfo.level === StructureEnum.COLUMN" @click="visibleDropColumn(true)">
           <div class="flex items-center space-x-1">
             <ShadcnIcon icon="Delete" size="15"/>
             <span>{{ $t('source.common.dropColumn') }}</span>
@@ -237,6 +238,10 @@ export default defineComponent({
       if (source) {
         this.originalSource = source
         this.loading = true
+        const table = this.$route.params?.table
+        if (table) {
+          this.databaseModel = [ `${table}_table` ]
+        }
         MetadataService.getDatabaseBySource(source)
                        .then(response => {
                          if (response.status) {
@@ -388,7 +393,6 @@ export default defineComponent({
         title: `${ this.$t('common.' + type) } (${ items.length })`,
         level: StructureEnum.TYPE,
         value: type,
-        disabled: true,
         children: items.map(item => ({
           type: item.object_data_type || '',
           title: item.object_name,

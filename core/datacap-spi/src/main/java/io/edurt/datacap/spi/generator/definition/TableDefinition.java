@@ -1,12 +1,14 @@
 package io.edurt.datacap.spi.generator.definition;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.edurt.datacap.spi.model.Pagination;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.commons.compress.utils.Sets;
 
 import java.util.Set;
 
@@ -25,7 +27,10 @@ public class TableDefinition
     private String comment;
     private String engine;
     private long autoIncrement;
-    private Set<ColumnDefinition> columns;
+    private String format;
+    private long count;
+    private Set<ColumnDefinition> columns = Sets.newHashSet();
+    private Pagination pagination;
 
     private TableDefinition(String database, String name)
     {
@@ -59,6 +64,18 @@ public class TableDefinition
     public TableDefinition columns(Set<ColumnDefinition> columns)
     {
         this.columns = columns;
+        return this;
+    }
+
+    public TableDefinition format(String format)
+    {
+        this.format = format;
+        return this;
+    }
+
+    public TableDefinition count(long count)
+    {
+        this.count = count;
         return this;
     }
 }

@@ -27,8 +27,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import AceEditor from '@/views/components/editor/AceEditor.vue'
-import TableService from '@/services/table'
-import { SqlColumn, SqlType, TableFilter, TableFilterRequest } from '@/model/table'
 
 export default defineComponent({
   name: 'TableRowDelete',
@@ -38,7 +36,7 @@ export default defineComponent({
       type: Boolean
     },
     columns: {
-      type: Array<SqlColumn>
+      type: Array<any>
     }
   },
   computed: {
@@ -59,7 +57,7 @@ export default defineComponent({
       loading: false,
       submitting: false,
       contentDML: null as string | null,
-      configure: null as unknown as TableFilter,
+      configure: null as any,
       code: null as string | null
     }
   },
@@ -74,49 +72,49 @@ export default defineComponent({
   methods: {
     handleInitialize()
     {
-      this.configure = TableFilterRequest.of()
-      this.loading = true
-      const originalColumns = Array<SqlColumn>()
-      this.columns?.forEach((item: any) => originalColumns.push({ original: item }))
-      this.configure.columns = originalColumns
-      this.configure.type = SqlType.DELETE
-      this.configure.preview = true
-      TableService.putData(String(this.code), this.configure)
-                  .then(response => {
-                    if (response.status && response.data && response.data.isSuccessful) {
-                      this.contentDML = response.data.content
-                    }
-                    else {
-                      this.$Message.error({
-                        content: response.message,
-                        showIcon: true
-                      })
-                    }
-                  })
-                  .finally(() => this.loading = false)
+      // this.configure = TableFilterRequest.of()
+      // this.loading = true
+      // const originalColumns = Array<SqlColumn>()
+      // this.columns?.forEach((item: any) => originalColumns.push({ original: item }))
+      // this.configure.columns = originalColumns
+      // this.configure.type = SqlType.DELETE
+      // this.configure.preview = true
+      // TableService.putData(String(this.code), this.configure)
+      //             .then(response => {
+      //               if (response.status && response.data && response.data.isSuccessful) {
+      //                 this.contentDML = response.data.content
+      //               }
+      //               else {
+      //                 this.$Message.error({
+      //                   content: response.message,
+      //                   showIcon: true
+      //                 })
+      //               }
+      //             })
+      //             .finally(() => this.loading = false)
     },
     onSubmit()
     {
-      this.submitting = true
-      this.configure.preview = false
-      TableService.putData(this.code as string, this.configure)
-                  .then(response => {
-                    if (response.status && response.data && response.data.isSuccessful) {
-                      this.$Message.success({
-                        content: this.$t('source.tip.deleteSuccess'),
-                        showIcon: true
-                      })
-
-                      this.onCancel()
-                    }
-                    else {
-                      this.$Message.error({
-                        content: response.data.message,
-                        showIcon: true
-                      })
-                    }
-                  })
-                  .finally(() => this.submitting = false)
+      // this.submitting = true
+      // this.configure.preview = false
+      // TableService.putData(this.code as string, this.configure)
+      //             .then(response => {
+      //               if (response.status && response.data && response.data.isSuccessful) {
+      //                 this.$Message.success({
+      //                   content: this.$t('source.tip.deleteSuccess'),
+      //                   showIcon: true
+      //                 })
+      //
+      //                 this.onCancel()
+      //               }
+      //               else {
+      //                 this.$Message.error({
+      //                   content: response.data.message,
+      //                   showIcon: true
+      //                 })
+      //               }
+      //             })
+      //             .finally(() => this.submitting = false)
     },
     onCancel()
     {

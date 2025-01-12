@@ -26,8 +26,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { SqlColumn, SqlType, TableFilter, TableFilterRequest } from '@/model/table'
-import TableService from '@/services/table'
 import AceEditor from '@/views/components/editor/AceEditor.vue'
 
 export default defineComponent({
@@ -38,10 +36,10 @@ export default defineComponent({
       type: Boolean
     },
     columns: {
-      type: Array<SqlColumn>
+      type: Array<any>
     },
     type: {
-      type: Object as () => SqlType
+      type: Object as () => any
     }
   },
   computed: {
@@ -62,7 +60,7 @@ export default defineComponent({
       loading: false,
       submitting: false,
       contentDML: null as string | null,
-      configure: null as unknown as TableFilter,
+      configure: null as any,
       code: null as string | null
     }
   },
@@ -77,52 +75,52 @@ export default defineComponent({
   methods: {
     handleInitialize()
     {
-      this.configure = TableFilterRequest.of()
+      this.configure = {}
       this.loading = true
-      if (this.type === SqlType.UPDATE) {
-        this.configure.columns = this.columns
-      }
-      else {
-        this.configure.newColumns = this.columns
-      }
+      // if (this.type === SqlType.UPDATE) {
+      //   this.configure.columns = this.columns
+      // }
+      // else {
+      //   this.configure.newColumns = this.columns
+      // }
       this.configure.type = this.type
       this.configure.preview = true
-      TableService.putData(String(this.code), this.configure)
-                  .then(response => {
-                    if (response.status && response.data && response.data.isSuccessful) {
-                      this.contentDML = response.data.content
-                    }
-                    else {
-                      this.$Message.error({
-                        content: response.message,
-                        showIcon: true
-                      })
-                    }
-                  })
-                  .finally(() => this.loading = false)
+      // TableService.putData(String(this.code), this.configure)
+      //             .then(response => {
+      //               if (response.status && response.data && response.data.isSuccessful) {
+      //                 this.contentDML = response.data.content
+      //               }
+      //               else {
+      //                 this.$Message.error({
+      //                   content: response.message,
+      //                   showIcon: true
+      //                 })
+      //               }
+      //             })
+      //             .finally(() => this.loading = false)
     },
     onSubmit()
     {
       this.submitting = true
       this.configure.preview = false
-      TableService.putData(this.code as string, this.configure)
-                  .then(response => {
-                    if (response.status && response.data && response.data.isSuccessful) {
-                      this.$Message.success({
-                        content: this.$t('source.tip.updateSuccess'),
-                        showIcon: true
-                      })
-
-                      this.onCancel()
-                    }
-                    else {
-                      this.$Message.error({
-                        content: response.data.message,
-                        showIcon: true
-                      })
-                    }
-                  })
-                  .finally(() => this.submitting = false)
+      // TableService.putData(this.code as string, this.configure)
+      //             .then(response => {
+      //               if (response.status && response.data && response.data.isSuccessful) {
+      //                 this.$Message.success({
+      //                   content: this.$t('source.tip.updateSuccess'),
+      //                   showIcon: true
+      //                 })
+      //
+      //                 this.onCancel()
+      //               }
+      //               else {
+      //                 this.$Message.error({
+      //                   content: response.data.message,
+      //                   showIcon: true
+      //                 })
+      //               }
+      //             })
+      //             .finally(() => this.submitting = false)
     },
     onCancel()
     {
