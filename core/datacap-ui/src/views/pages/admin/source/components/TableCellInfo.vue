@@ -27,6 +27,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import AceEditor from '@/views/components/editor/AceEditor.vue'
+import MetadataService from '@/services/metadata.ts'
 
 export default defineComponent({
   name: 'TableCellInfo',
@@ -60,44 +61,69 @@ export default defineComponent({
       loading: false,
       submitting: false,
       contentDML: null as string | null,
-      configure: null as any,
-      code: null as string | null
+      configure: null as any
     }
   },
   created()
   {
-    const code = String(this.$route?.params.table)
-    if (code) {
-      this.code = code
-    }
-    this.handleInitialize()
+    this.onChange(true)
   },
   methods: {
-    handleInitialize()
+    onChange(preview: boolean)
     {
-      this.configure = {}
-      this.loading = true
-      // if (this.type === SqlType.UPDATE) {
-      //   this.configure.columns = this.columns
-      // }
-      // else {
-      //   this.configure.newColumns = this.columns
-      // }
-      this.configure.type = this.type
-      this.configure.preview = true
-      // TableService.putData(String(this.code), this.configure)
-      //             .then(response => {
-      //               if (response.status && response.data && response.data.isSuccessful) {
-      //                 this.contentDML = response.data.content
-      //               }
-      //               else {
-      //                 this.$Message.error({
-      //                   content: response.message,
-      //                   showIcon: true
-      //                 })
-      //               }
-      //             })
-      //             .finally(() => this.loading = false)
+      const code = this.$route?.params.source
+      const database = this.$route?.params.database
+      const table = this.$route?.params.table
+
+      if (code && database && table) {
+        if (preview) {
+          this.loading = true
+        }
+        else {
+          this.submitting = true
+        }
+
+        const columns = this.columns.map(item => {
+          return {
+            original: item
+          }
+        })
+
+        const configure = {
+          preview: preview,
+          columns: columns
+        }
+        MetadataService.updateData(code, database, table, configure)
+                       .then(response => {
+                         if (response.status && response.data && response.data.isSuccessful) {
+                           if (preview) {
+                             this.contentDML = response.data.content
+                           }
+                           else {
+                             this.$Message.success({
+                               content: this.$t('source.tip.deleteSuccess'),
+                               showIcon: true
+                             })
+
+                             this.onCancel()
+                           }
+                         }
+                         else {
+                           this.$Message.error({
+                             content: response.message,
+                             showIcon: true
+                           })
+                         }
+                       })
+                       .finally(() => {
+                         if (preview) {
+                           this.loading = false
+                         }
+                         else {
+                           this.submitting = false
+                         }
+                       })
+      }
     },
     onSubmit()
     {

@@ -54,36 +54,12 @@
             <span>{{ $t('source.common.records') }}</span>
           </div>
 
-          <ShadcnTooltip :content="$t('source.common.addRows')">
-            <ShadcnButton circle size="small" @click="onAddOrCloneRow(false)">
-              <ShadcnIcon icon="Plus" size="15"/>
-            </ShadcnButton>
-          </ShadcnTooltip>
-
-          <ShadcnTooltip :content="$t('source.common.copyRows')">
-            <ShadcnButton circle
-                          size="small"
-                          :disabled="dataSelectedChanged.columns.length === 0"
-                          @click="onAddOrCloneRow(true)">
-              <ShadcnIcon icon="Copy" size="15"/>
-            </ShadcnButton>
-          </ShadcnTooltip>
-
           <ShadcnTooltip :content="$t('source.common.deleteRows')">
             <ShadcnButton circle
                           size="small"
                           :disabled="!dataSelectedChanged.changed"
                           @click="visibleChanged(true)">
               <ShadcnIcon icon="Minus" size="15"/>
-            </ShadcnButton>
-          </ShadcnTooltip>
-
-          <ShadcnTooltip :content="$t('source.common.previewPendingChanges')">
-            <ShadcnButton circle
-                          size="small"
-                          :disabled="!dataCellChanged.changed && dataCellChanged.columns.length === 0"
-                          @click="visibleCellChanged(true)">
-              <ShadcnIcon icon="RectangleEllipsis" size="15"/>
             </ShadcnButton>
           </ShadcnTooltip>
 
@@ -137,12 +113,6 @@
         </AgGridVue>
       </div>
     </ShadcnCard>
-
-    <!--    <TableCellInfo v-if="dataCellChanged.pending"-->
-    <!--                   :isVisible="dataCellChanged.pending"-->
-    <!--                   :columns="dataCellChanged.columns"-->
-    <!--                   :type="dataCellChanged.type"-->
-    <!--                   @close="visibleCellChanged(false)"/>-->
 
     <TableRowDelete v-if="dataSelectedChanged.pending"
                     :isVisible="dataSelectedChanged.pending"
@@ -358,12 +328,12 @@ export default defineComponent({
         const originalColumn = cloneDeep(oldColumn)
         originalColumn[event.colDef.field] = event.oldValue
         this.dataCellChanged.changed = true
-        const column: SqlColumn = {
+        const column = {
           column: event.colDef.field,
           value: event.newValue,
           original: originalColumn
         }
-        this.dataCellChanged.type = SqlType.UPDATE
+        this.dataCellChanged.type = 'UPDATE'
         this.dataCellChanged.columns.push(column)
       }
     },
@@ -416,35 +386,6 @@ export default defineComponent({
       this.filterConfigure.show = show
       if (!show) {
         this.handleRefererData(this.getConfigure())
-      }
-    },
-    onAddOrCloneRow(clone: boolean)
-    {
-      const newData = {} as any
-      if (!clone) {
-        this.originalColumns.forEach((column: { field: string; }) => {
-          newData[column.field] = null
-        })
-        this.configure.datasets.push(newData)
-        this.newRows.push(newData)
-      }
-      else {
-        this.dataSelectedChanged.columns.forEach(column => {
-          this.configure.datasets.push(column)
-          this.newRows.push(column)
-        })
-      }
-      this.dataCellChanged.type = SqlType.INSERT
-      this.dataCellChanged.changed = true
-      this.dataCellChanged.columns = this.newRows
-      this.gridApi.setRowData(this.configure.datasets)
-    },
-    visibleCellChanged(isOpen: boolean)
-    {
-      this.dataCellChanged.pending = isOpen
-      if (!isOpen) {
-        this.dataCellChanged.changed = false
-        this.dataCellChanged.columns = []
       }
     },
     visibleChanged(isOpen: boolean)
