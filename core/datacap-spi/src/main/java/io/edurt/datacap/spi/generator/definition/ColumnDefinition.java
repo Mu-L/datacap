@@ -1,6 +1,7 @@
 package io.edurt.datacap.spi.generator.definition;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.edurt.datacap.spi.generator.DataType;
 import io.edurt.datacap.spi.generator.Filter;
 import io.edurt.datacap.spi.generator.OrderBy;
@@ -38,4 +39,5 @@ public class ColumnDefinition
     private OrderBy.Direction order;
     private Filter.Operator operator;
     private Object value;
+    private JsonNode original; // 原始数据，删除需要依赖该数据判断
 }

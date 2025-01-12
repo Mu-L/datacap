@@ -144,10 +144,11 @@
     <!--                   :type="dataCellChanged.type"-->
     <!--                   @close="visibleCellChanged(false)"/>-->
 
-    <!--    <TableRowDelete v-if="dataSelectedChanged.pending"-->
-    <!--                    :isVisible="dataSelectedChanged.pending"-->
-    <!--                    :columns="dataSelectedChanged.columns"-->
-    <!--                    @close="visibleChanged(false)"/>-->
+    <TableRowDelete v-if="dataSelectedChanged.pending"
+                    :isVisible="dataSelectedChanged.pending"
+                    :columns="dataSelectedChanged.columns"
+                    @close="visibleChanged(false)">
+    </TableRowDelete>
 
     <TableColumn v-if="visibleColumn.show"
                  :isVisible="visibleColumn.show"

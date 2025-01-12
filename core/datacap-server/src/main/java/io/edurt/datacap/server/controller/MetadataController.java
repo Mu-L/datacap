@@ -144,6 +144,17 @@ public class MetadataController
         return this.service.queryTable(code, database, table, configure);
     }
 
+    @DeleteMapping(value = "{code}/{database}/{table}/delete-data")
+    public CommonResponse<Response> deleteData(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.deleteData(code, database, table, configure);
+    }
+
     @PostMapping(value = "{code}/{database}/{table}/export-data")
     public CommonResponse<Response> exportData(
             @PathVariable String code,

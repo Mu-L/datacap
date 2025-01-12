@@ -32,5 +32,7 @@ public interface MetadataService
 
     CommonResponse<Response> queryTable(String code, String database, String table, TableDefinition configure);
 
+    CommonResponse<Response> deleteData(String code, String database, String table, TableDefinition configure);
+
     CommonResponse<Response> exportData(String code, String database, String table, TableDefinition configure);
 }

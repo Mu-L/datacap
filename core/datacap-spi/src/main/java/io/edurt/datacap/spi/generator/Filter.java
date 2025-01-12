@@ -72,7 +72,7 @@ public class Filter
         return condition.toString();
     }
 
-    private String formatValue(Object value)
+    private Object formatValue(Object value)
     {
         if (value == null) {
             return "NULL";
@@ -83,7 +83,7 @@ public class Filter
         if (value instanceof Object[]) {
             return String.join(", ", formatArrayValues((Object[]) value));
         }
-        return String.valueOf(value);
+        return value;
     }
 
     private String[] formatArrayValues(Object[] values)

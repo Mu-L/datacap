@@ -3,6 +3,7 @@ package io.edurt.datacap.spi;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import io.edurt.datacap.plugin.Service;
 import io.edurt.datacap.spi.adapter.Adapter;
 import io.edurt.datacap.spi.adapter.HttpAdapter;
@@ -20,6 +21,7 @@ import io.edurt.datacap.spi.generator.definition.TableDefinition;
 import io.edurt.datacap.spi.generator.table.AbstractTable;
 import io.edurt.datacap.spi.generator.table.AlterTable;
 import io.edurt.datacap.spi.generator.table.CreateTable;
+import io.edurt.datacap.spi.generator.table.DeleteTable;
 import io.edurt.datacap.spi.generator.table.DropTable;
 import io.edurt.datacap.spi.generator.table.SelectTable;
 import io.edurt.datacap.spi.generator.table.TruncateTable;
@@ -33,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface PluginService
@@ -808,6 +811,31 @@ public interface PluginService
                 configure,
                 definition,
                 this.getPagination(configure, definition)
+        );
+    }
+
+    /**
+     * 删除表数据
+     * Delete table data
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param definition 表配置定义 | Table configuration definition
+     * @return 执行结果 | Execution result
+     */
+    default Response deleteData(Configure configure, TableDefinition definition)
+    {
+        Set<String> set = Sets.newHashSet();
+
+        definition.getColumns().forEach(col -> {
+            set.add(DeleteTable.create(definition.getDatabase(), definition.getName())
+                    .addFilters(col.getOriginal())
+                    .build());
+        });
+
+        return this.getResponse(
+                String.join("\n", set),
+                configure,
+                definition
         );
     }
 

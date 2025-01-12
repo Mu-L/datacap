@@ -77,6 +77,11 @@ class MetadataService
         return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/query-table`, configure)
     }
 
+    deleteData(code: string, database: string, table: string, configure: any): Promise<ResponseModel>
+    {
+        return HttpUtils.delete(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/delete-data`, configure)
+    }
+
     exportData(code: string, database: string, table: string, configure: any): Promise<ResponseModel>
     {
         return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/export-data`, configure)
