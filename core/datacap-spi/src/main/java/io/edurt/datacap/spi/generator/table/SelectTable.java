@@ -1,5 +1,6 @@
 package io.edurt.datacap.spi.generator.table;
 
+import io.edurt.datacap.spi.generator.Filter;
 import io.edurt.datacap.spi.generator.OrderBy;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import java.util.stream.Collectors;
 public class SelectTable
         extends AbstractTable
 {
-    private final List<String> whereConditions = new ArrayList<>();
+    private final List<Filter> filters = new ArrayList<>();
     private final List<String> groupByColumns = new ArrayList<>();
     private final List<OrderBy> orderByColumns = new ArrayList<>();
     private String havingClause;
@@ -32,9 +33,9 @@ public class SelectTable
         return this;
     }
 
-    public SelectTable where(String condition)
+    public SelectTable addFilter(Filter filter)
     {
-        whereConditions.add(condition);
+        filters.add(filter);
         return this;
     }
 
@@ -86,9 +87,11 @@ public class SelectTable
                 .append("`");
 
         // 添加 WHERE 条件
-        if (!whereConditions.isEmpty()) {
+        if (!filters.isEmpty()) {
             sql.append("\nWHERE ")
-                    .append(String.join("\nAND ", whereConditions));
+                    .append(filters.stream()
+                            .map(Filter::build)
+                            .collect(Collectors.joining("\nAND ")));
         }
 
         // 添加 GROUP BY

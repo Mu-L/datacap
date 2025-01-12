@@ -1,6 +1,14 @@
 <template>
   <ShadcnModal v-model="visible" title="Show Content" width="40%">
-    <AceEditor :value="content as string" read-only/>
+    <ShadcnCodeEditor v-model="content"
+                      :config="{
+                        language: 'sql',
+                        readOnly: true,
+                        minimap: {
+                          enabled: false
+                        }
+                      }">
+    </ShadcnCodeEditor>
 
     <template #footer>
       <ShadcnButton type="error" @click="onCancel">
@@ -12,11 +20,9 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import AceEditor from '@/views/components/editor/AceEditor.vue'
 
 export default defineComponent({
   name: 'SqlInfo',
-  components: { AceEditor },
   computed: {
     visible: {
       get(): boolean

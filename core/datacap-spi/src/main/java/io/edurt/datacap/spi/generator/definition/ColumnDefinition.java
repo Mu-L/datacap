@@ -2,6 +2,7 @@ package io.edurt.datacap.spi.generator.definition;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.edurt.datacap.spi.generator.DataType;
+import io.edurt.datacap.spi.generator.Filter;
 import io.edurt.datacap.spi.generator.OrderBy;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -35,4 +36,6 @@ public class ColumnDefinition
     private boolean primaryKey;
     private boolean autoIncrement;
     private OrderBy.Direction order;
+    private Filter.Operator operator;
+    private Object value;
 }

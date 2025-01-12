@@ -11,6 +11,7 @@ import io.edurt.datacap.spi.adapter.NativeAdapter;
 import io.edurt.datacap.spi.connection.Connection;
 import io.edurt.datacap.spi.connection.JdbcConnection;
 import io.edurt.datacap.spi.generator.DataType;
+import io.edurt.datacap.spi.generator.Filter;
 import io.edurt.datacap.spi.generator.OrderBy;
 import io.edurt.datacap.spi.generator.column.CreateColumn;
 import io.edurt.datacap.spi.generator.column.SelectColumn;
@@ -798,6 +799,9 @@ public interface PluginService
 
         // 添加排序
         definition.getOrders().forEach(order -> tableDefinition.addOrderBy(OrderBy.create(order.getName(), order.getOrder())));
+
+        // 添加筛选
+        definition.getFilters().forEach(filter -> tableDefinition.addFilter(Filter.create(filter.getName(), filter.getOperator(), filter.getValue())));
 
         return this.getResponse(
                 tableDefinition.build(),

@@ -156,13 +156,14 @@
                  @change="visibleColumns($event, false)">
     </TableColumn>
 
-    <!--    <TableRowFilter v-if="filterConfigure.show"-->
-    <!--                    :isVisible="filterConfigure.show"-->
-    <!--                    :columns="filterConfigure.columns"-->
-    <!--                    :types="filterConfigure.types"-->
-    <!--                    :configure="filterConfigure.configure"-->
-    <!--                    @apply="onApplyFilter"-->
-    <!--                    @close="onFilterConfigure(false)"/>-->
+    <TableRowFilter v-if="filterConfigure.show"
+                    :isVisible="filterConfigure.show"
+                    :columns="filterConfigure.columns"
+                    :types="filterConfigure.types"
+                    :configure="filterConfigure.filters"
+                    @apply="onApplyFilter"
+                    @close="onFilterConfigure(false)">
+    </TableRowFilter>
 
     <TablePagination v-if="visibleSetting.show"
                      :is-visible="visibleSetting.show"
@@ -174,7 +175,8 @@
     <SqlInfo v-if="visibleContent.show"
              :isVisible="visibleContent.show"
              :content="visibleContent.content"
-             @close="visibleContents(false)"/>
+             @close="visibleContents(false)">
+    </SqlInfo>
   </div>
 </template>
 
@@ -250,10 +252,7 @@ export default defineComponent({
         show: false,
         columns: [] as any[],
         types: [] as any[],
-        configure: {
-          condition: 'AND',
-          filters: [] as any[]
-        }
+        filters: [] as any[]
       }
     }
   },
@@ -263,11 +262,10 @@ export default defineComponent({
       this.clearData()
       this.gridOptions = createDataEditorOptions(this.i18n)
       if (!this.configure.pagination) {
-        const pagination = {
+        this.configure.pagination = {
           page: 1,
-          size: 500
+          size: 20
         }
-        this.configure.pagination = pagination
       }
 
       const code = this.$route?.params.source
@@ -410,7 +408,7 @@ export default defineComponent({
     },
     onApplyFilter(value: any)
     {
-      this.filterConfigure.configure = value
+      this.filterConfigure.filters = value
     },
     onFilterConfigure(show: boolean)
     {
@@ -508,7 +506,7 @@ export default defineComponent({
     {
       this.clearData()
       const configure = {
-        filter: this.filterConfigure.configure
+        filters: this.filterConfigure.filters
       }
       this.getSortConfigure(configure)
       this.getVisibleColumn(configure)
