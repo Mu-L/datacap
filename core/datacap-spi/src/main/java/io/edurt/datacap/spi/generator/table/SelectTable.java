@@ -1,5 +1,7 @@
 package io.edurt.datacap.spi.generator.table;
 
+import io.edurt.datacap.spi.generator.OrderBy;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,7 +11,7 @@ public class SelectTable
 {
     private final List<String> whereConditions = new ArrayList<>();
     private final List<String> groupByColumns = new ArrayList<>();
-    private final List<String> orderByColumns = new ArrayList<>();
+    private final List<OrderBy> orderByColumns = new ArrayList<>();
     private String havingClause;
     private Long limit;
     private Long offset;
@@ -22,6 +24,12 @@ public class SelectTable
     public static SelectTable create(String database, String name)
     {
         return new SelectTable(database, name);
+    }
+
+    public SelectTable addOrderBy(OrderBy orderBy)
+    {
+        orderByColumns.add(orderBy);
+        return this;
     }
 
     public SelectTable where(String condition)
@@ -41,14 +49,6 @@ public class SelectTable
     public SelectTable having(String condition)
     {
         this.havingClause = condition;
-        return this;
-    }
-
-    public SelectTable orderBy(String... columns)
-    {
-        for (String column : columns) {
-            orderByColumns.add("`" + column + "`");
-        }
         return this;
     }
 
@@ -106,7 +106,9 @@ public class SelectTable
         // 添加 ORDER BY
         if (!orderByColumns.isEmpty()) {
             sql.append("\nORDER BY ")
-                    .append(String.join(", ", orderByColumns));
+                    .append(orderByColumns.stream()
+                            .map(OrderBy::build)
+                            .collect(Collectors.joining(", ")));
         }
 
         // 添加 LIMIT 和 OFFSET

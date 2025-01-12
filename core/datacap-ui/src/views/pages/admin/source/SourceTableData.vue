@@ -487,15 +487,16 @@ export default defineComponent({
         this.handleRefererData(this.getConfigure())
       }
     },
-    getSortConfigure(configure: TableFilter)
+    getSortConfigure(configure: any)
     {
       const columnState = this.gridColumnApi.getColumnState()
-      const orders = columnState.map((column: ColumnState) => ({
-        column: column.colId,
-        order: column.sort
-      }))
+      const orders = columnState.filter(item => item.sort !== null)
+                                .map((column: ColumnState) => ({
+                                  name: column.colId,
+                                  order: column.sort
+                                }))
       configure.pagination = this.configure.pagination
-      configure.orders = orders as OrderFilter[]
+      configure.orders = orders
     },
     getVisibleColumn(configure: any)
     {

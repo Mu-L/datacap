@@ -30,6 +30,7 @@ public class TableDefinition
     private String format;
     private long count;
     private Set<ColumnDefinition> columns = Sets.newHashSet();
+    private Set<ColumnDefinition> orders = Sets.newHashSet();
     private Pagination pagination;
 
     private TableDefinition(String database, String name)
@@ -76,6 +77,12 @@ public class TableDefinition
     public TableDefinition count(long count)
     {
         this.count = count;
+        return this;
+    }
+
+    public TableDefinition orders(Set<ColumnDefinition> orders)
+    {
+        this.orders = orders;
         return this;
     }
 }

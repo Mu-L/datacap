@@ -11,6 +11,7 @@ import io.edurt.datacap.spi.adapter.NativeAdapter;
 import io.edurt.datacap.spi.connection.Connection;
 import io.edurt.datacap.spi.connection.JdbcConnection;
 import io.edurt.datacap.spi.generator.DataType;
+import io.edurt.datacap.spi.generator.OrderBy;
 import io.edurt.datacap.spi.generator.column.CreateColumn;
 import io.edurt.datacap.spi.generator.column.SelectColumn;
 import io.edurt.datacap.spi.generator.definition.BaseDefinition;
@@ -792,9 +793,11 @@ public interface PluginService
                 .limit(definition.getPagination().getSize())
                 .offset((long) (definition.getPagination().getPage() - 1) * definition.getPagination().getSize());
 
-        definition.getColumns().forEach(col -> {
-            tableDefinition.addColumn(SelectColumn.create(col.getName(), DataType.VARCHAR));
-        });
+        // 添加查询列
+        definition.getColumns().forEach(col -> tableDefinition.addColumn(SelectColumn.create(col.getName(), DataType.VARCHAR)));
+
+        // 添加排序
+        definition.getOrders().forEach(order -> tableDefinition.addOrderBy(OrderBy.create(order.getName(), order.getOrder())));
 
         return this.getResponse(
                 tableDefinition.build(),
