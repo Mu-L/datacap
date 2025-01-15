@@ -17,6 +17,7 @@ import io.edurt.datacap.spi.generator.OrderBy;
 import io.edurt.datacap.spi.generator.column.CreateColumn;
 import io.edurt.datacap.spi.generator.column.SelectColumn;
 import io.edurt.datacap.spi.generator.definition.BaseDefinition;
+import io.edurt.datacap.spi.generator.definition.ColumnDefinition;
 import io.edurt.datacap.spi.generator.definition.TableDefinition;
 import io.edurt.datacap.spi.generator.table.AbstractTable;
 import io.edurt.datacap.spi.generator.table.AlterTable;
@@ -951,6 +952,139 @@ public interface PluginService
 
         return this.getResponse(
                 tableDefinition.build(),
+                configure,
+                definition
+        );
+    }
+
+    /**
+     * 获取指定列
+     * Get column
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param definition 表配置定义 | Table configuration definition
+     * @return 执行结果 | Execution result
+     */
+    default Response getColumn(Configure configure, TableDefinition definition)
+    {
+        Optional<ColumnDefinition> column = definition.getColumns().stream().findAny();
+
+        if (column.isEmpty()) {
+            throw new IllegalArgumentException("Column must be specified");
+        }
+
+        String sql = "SELECT \n" +
+                "    detail.*\n" +
+                "FROM (\n" +
+                "    -- 列信息：优化了类型解析\n" +
+                "    SELECT\n" +
+                "        'column' as type_name,\n" +
+                "        COLUMN_NAME as object_name,\n" +
+                "        SUBSTRING_INDEX(COLUMN_TYPE, '(', 1) as object_data_type,  -- 更高效的类型提取\n" +
+                "        NULLIF(\n" +
+                "            SUBSTRING_INDEX(SUBSTRING_INDEX(COLUMN_TYPE, '(', -1), ')', 1),\n" +
+                "            COLUMN_TYPE\n" +
+                "        ) as object_length,  -- 更高效的长度提取\n" +
+                "        IS_NULLABLE as object_nullable,\n" +
+                "        COLUMN_DEFAULT as object_default_value,\n" +
+                "        COLUMN_COMMENT as object_comment,\n" +
+                "        ORDINAL_POSITION as object_position,\n" +
+                "        '' as object_definition\n" +
+                "    FROM\n" +
+                "        information_schema.COLUMNS c\n" +
+                "    WHERE\n" +
+                "        TABLE_SCHEMA = '{0}'\n" +
+                "        AND TABLE_NAME = '{1}'\n" +
+                "        AND COLUMN_NAME = '{2}'\n" +
+                "\n" +
+                "    UNION ALL\n" +
+                "\n" +
+                "    -- 主键信息：添加了索引以提升性能\n" +
+                "    SELECT\n" +
+                "        'primary' as type_name,\n" +
+                "        COLUMN_NAME as object_name,\n" +
+                "        '' as object_data_type,\n" +
+                "        NULL as object_length,\n" +
+                "        '' as object_nullable,\n" +
+                "        '' as object_default_value,\n" +
+                "        '' as object_comment,\n" +
+                "        0 as object_position,\n" +
+                "        CONCAT('PRIMARY KEY on (',\n" +
+                "            GROUP_CONCAT(COLUMN_NAME ORDER BY ORDINAL_POSITION),\n" +
+                "            ')'\n" +
+                "        ) as object_definition\n" +
+                "    FROM\n" +
+                "        information_schema.KEY_COLUMN_USAGE\n" +
+                "    WHERE\n" +
+                "        TABLE_SCHEMA = '{0}'\n" +
+                "        AND TABLE_NAME = '{1}'\n" +
+                "        AND CONSTRAINT_NAME = 'PRIMARY'\n" +
+                "        AND COLUMN_NAME = '{2}'\n" +
+                "    GROUP BY\n" +
+                "        TABLE_SCHEMA, TABLE_NAME, CONSTRAINT_NAME, COLUMN_NAME\n" +
+                "\n" +
+                "    UNION ALL\n" +
+                "\n" +
+                "    -- 索引信息：优化了索引名称的处理\n" +
+                "    SELECT DISTINCT\n" +
+                "        'index' as type_name,\n" +
+                "        COLUMN_NAME as object_name,\n" +
+                "        '' as object_data_type,\n" +
+                "        NULL as object_length,\n" +
+                "        '' as object_nullable,\n" +
+                "        '' as object_default_value,\n" +
+                "        '' as object_comment,\n" +
+                "        0 as object_position,\n" +
+                "        CONCAT(\n" +
+                "            CASE NON_UNIQUE\n" +
+                "                WHEN 1 THEN 'Non-unique'\n" +
+                "                ELSE 'Unique'\n" +
+                "            END,\n" +
+                "            ' index on (',\n" +
+                "            GROUP_CONCAT(COLUMN_NAME ORDER BY SEQ_IN_INDEX),\n" +
+                "            ')'\n" +
+                "        ) as object_definition\n" +
+                "    FROM\n" +
+                "        information_schema.STATISTICS\n" +
+                "    WHERE\n" +
+                "        TABLE_SCHEMA = '{0}'\n" +
+                "        AND TABLE_NAME = '{1}'\n" +
+                "        AND COLUMN_NAME = '{2}'\n" +
+                "    GROUP BY\n" +
+                "        TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NON_UNIQUE\n" +
+                "\n" +
+                "    UNION ALL\n" +
+                "\n" +
+                "    -- 触发器信息：保持原有逻辑\n" +
+                "    SELECT\n" +
+                "        'trigger' as type_name,\n" +
+                "        TRIGGER_NAME as object_name,\n" +
+                "        '' as object_data_type,\n" +
+                "        NULL as object_length,\n" +
+                "        '' as object_nullable,\n" +
+                "        '' as object_default_value,\n" +
+                "        '' as object_comment,\n" +
+                "        0 as object_position,\n" +
+                "        CONCAT(\n" +
+                "            'TRIGGER ',\n" +
+                "            ACTION_TIMING, ' ',\n" +
+                "            EVENT_MANIPULATION\n" +
+                "        ) as object_definition\n" +
+                "    FROM\n" +
+                "        information_schema.TRIGGERS\n" +
+                "    WHERE\n" +
+                "        EVENT_OBJECT_SCHEMA = '{0}'\n" +
+                "        AND EVENT_OBJECT_TABLE = '{1}'\n" +
+                ") detail\n" +
+                "ORDER BY\n" +
+                "    FIELD(type_name, 'column', 'primary', 'index', 'trigger'),\n" +
+                "    object_position,\n" +
+                "    object_name;";
+
+        return this.getResponse(
+                sql.replace("{0}", definition.getDatabase())
+                        .replace("{1}", definition.getName())
+                        .replace("{2}", column.get().getName()),
                 configure,
                 definition
         );

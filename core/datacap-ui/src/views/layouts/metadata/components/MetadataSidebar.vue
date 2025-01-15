@@ -133,14 +133,15 @@
 
   <TableDrop v-if="tableDropVisible" :is-visible="tableDropVisible" @close="visibleDropTable(false)"/>
 
-  <ColumnChange v-if="columnChangeVisible"
+  <ColumnChange v-if="columnChangeVisible && dataInfo"
                 :is-visible="columnChangeVisible"
-                :info="dataInfo as any"
-                @close="visibleChangeColumn(false)"/>
+                :column="dataInfo.code"
+                @close="visibleChangeColumn(false)">
+  </ColumnChange>
 
   <ColumnDrop v-if="columnDropVisible && dataInfo"
               :is-visible="columnDropVisible"
-              :column="dataInfo?.code"
+              :column="dataInfo.code"
               @close="visibleDropColumn(false)">
   </ColumnDrop>
 </template>

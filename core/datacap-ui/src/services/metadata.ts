@@ -101,6 +101,11 @@ class MetadataService
     {
         return HttpUtils.delete(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/drop-column`, configure)
     }
+
+    getColumn(code: string, database: string, table: string, configure: any): Promise<ResponseModel>
+    {
+        return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/get-column`, configure)
+    }
 }
 
 export default new MetadataService()
