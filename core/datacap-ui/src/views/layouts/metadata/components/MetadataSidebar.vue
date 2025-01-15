@@ -138,10 +138,11 @@
                 :info="dataInfo as any"
                 @close="visibleChangeColumn(false)"/>
 
-  <ColumnDrop v-if="columnDropVisible"
+  <ColumnDrop v-if="columnDropVisible && dataInfo"
               :is-visible="columnDropVisible"
-              :info="dataInfo as any"
-              @close="visibleDropColumn(false)"/>
+              :column="dataInfo?.code"
+              @close="visibleDropColumn(false)">
+  </ColumnDrop>
 </template>
 
 <script lang="ts">
@@ -299,7 +300,7 @@ export default defineComponent({
     },
     onNodeClick(node: any)
     {
-      if (node.level === StructureEnum.TYPE) {
+      if (node.level === StructureEnum.TYPE || node.level === StructureEnum.COLUMN) {
         return
       }
 
@@ -363,6 +364,10 @@ export default defineComponent({
     visibleDropColumn(opened: boolean)
     {
       this.columnDropVisible = opened
+
+      if (!opened) {
+        this.onChangeDatabase()
+      }
     },
     visibleContextMenu(event: any, node: any)
     {

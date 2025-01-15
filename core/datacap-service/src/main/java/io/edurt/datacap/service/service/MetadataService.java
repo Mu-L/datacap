@@ -37,4 +37,6 @@ public interface MetadataService
     CommonResponse<Response> exportData(String code, String database, String table, TableDefinition configure);
 
     CommonResponse<Response> createColumn(String code, String database, String table, TableDefinition configure);
+
+    CommonResponse<Response> dropColumn(String code, String database, String table, TableDefinition configure);
 }

@@ -176,4 +176,15 @@ public class MetadataController
     {
         return this.service.createColumn(code, database, table, configure);
     }
+
+    @DeleteMapping(value = "{code}/{database}/{table}/drop-column")
+    public CommonResponse<Response> dropColumn(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.dropColumn(code, database, table, configure);
+    }
 }

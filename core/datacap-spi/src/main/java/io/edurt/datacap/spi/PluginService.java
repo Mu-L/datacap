@@ -935,6 +935,27 @@ public interface PluginService
         );
     }
 
+    /**
+     * 删除列
+     * Drop column
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param definition 表配置定义 | Table configuration definition
+     * @return 执行结果 | Execution result
+     */
+    default Response dropColumn(Configure configure, TableDefinition definition)
+    {
+        AlterTable tableDefinition = AlterTable.create(definition.getDatabase(), definition.getName());
+
+        definition.getColumns().forEach(col -> tableDefinition.dropColumn(col.getName()));
+
+        return this.getResponse(
+                tableDefinition.build(),
+                configure,
+                definition
+        );
+    }
+
     private Response getResponse(String sql, Configure configure, BaseDefinition definition)
     {
         Response response;
