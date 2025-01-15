@@ -71,7 +71,7 @@
             </div>
           </ShadcnContextMenuItem>
 
-          <ShadcnContextMenuItem v-if="dataInfo.level === StructureEnum.COLUMN || dataInfo.type === 'column'"
+          <ShadcnContextMenuItem v-if="dataInfo.level === StructureEnum.COLUMN || dataInfo.type === 'column' || dataInfo.level === StructureEnum.TABLE"
                                  @click="visibleCreateColumn(true)">
             <div class="flex items-center space-x-1">
               <ShadcnIcon icon="Columns" size="15"/>
@@ -122,10 +122,7 @@
 
   <TableCreate v-if="tableCreateVisible" :is-visible="tableCreateVisible" @close="visibleCreateTable(false)"/>
 
-  <ColumnCreate v-if="columnCreateVisible"
-                :is-visible="columnCreateVisible"
-                :info="dataInfo as any"
-                @close="visibleCreateColumn(false)"/>
+  <ColumnCreate v-if="columnCreateVisible" :is-visible="columnCreateVisible" @close="visibleCreateColumn(false)"/>
 
   <TableExport v-if="tableExportVisible"
                :isVisible="tableExportVisible"
@@ -240,7 +237,7 @@ export default defineComponent({
         this.loading = true
         const table = this.$route.params?.table
         if (table) {
-          this.databaseModel = [ `${table}_table` ]
+          this.databaseModel = [`${ table }_table`]
         }
         MetadataService.getDatabaseBySource(source)
                        .then(response => {

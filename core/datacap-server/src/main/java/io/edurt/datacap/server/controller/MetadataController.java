@@ -165,4 +165,15 @@ public class MetadataController
     {
         return this.service.exportData(code, database, table, configure);
     }
+
+    @PostMapping(value = "{code}/{database}/{table}/create-column")
+    public CommonResponse<Response> createColumn(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.createColumn(code, database, table, configure);
+    }
 }

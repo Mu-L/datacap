@@ -894,6 +894,47 @@ public interface PluginService
         }
     }
 
+    /**
+     * 创建列
+     * Create column
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param definition 表配置定义 | Table configuration definition
+     * @return 执行结果 | Execution result
+     */
+    default Response createColumn(Configure configure, TableDefinition definition)
+    {
+        AlterTable tableDefinition = AlterTable.create(definition.getDatabase(), definition.getName());
+
+        definition.getColumns().forEach(col -> {
+            if (col.isPrimaryKey()) {
+                tableDefinition.addPrimaryKey(col.getName());
+            }
+
+            CreateColumn column = CreateColumn.create(col.getName(), col.getType());
+
+            column.comment(col.getComment())
+                    .length(col.getLength())
+                    .defaultValue(col.getDefaultValue());
+
+            if (col.isAutoIncrement()) {
+                column.autoIncrement();
+            }
+
+            if (col.isNullable()) {
+                column.notNull();
+            }
+
+            tableDefinition.addColumn(column);
+        });
+
+        return this.getResponse(
+                tableDefinition.build(),
+                configure,
+                definition
+        );
+    }
+
     private Response getResponse(String sql, Configure configure, BaseDefinition definition)
     {
         Response response;

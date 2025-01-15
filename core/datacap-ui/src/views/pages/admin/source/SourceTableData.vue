@@ -235,7 +235,7 @@ export default defineComponent({
       if (!this.configure.pagination) {
         this.configure.pagination = {
           page: 1,
-          size: 20
+          size: 100
         }
       }
 
