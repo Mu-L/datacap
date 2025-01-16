@@ -198,4 +198,15 @@ public class MetadataController
     {
         return this.service.getColumn(code, database, table, configure);
     }
+
+    @PutMapping(value = "{code}/{database}/{table}/change-column")
+    public CommonResponse<Response> changeColumn(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.changeColumn(code, database, table, configure);
+    }
 }

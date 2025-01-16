@@ -6,7 +6,7 @@
                @on-close="onCancel">
     <ShadcnSkeleton v-if="loading" animation/>
 
-    <ShadcnForm v-model="formState" v-if="formState" @on-submit="onSubmit">
+    <ShadcnForm v-else-if="formState" v-model="formState" @on-submit="onSubmit">
       <ShadcnRow gutter="16">
         <ShadcnCol v-for="(_item, index) in formState.columns" span="12">
           <ShadcnRow gutter="16">
@@ -204,38 +204,32 @@ export default defineComponent({
     },
     onSubmit()
     {
-      if (this.info) {
+      const code = this.$route.params.source
+      const database = this.$route.params.database
+      const table = this.$route.params.table
+
+      if (code && database && table) {
         this.submitting = true
-        // TableService.manageColumn(String(this.info.tableId), this.formState)
-        //             .then(response => {
-        //               if (response.status) {
-        //                 if (response.data.isSuccessful) {
-        //                   const columns = this.formState
-        //                                       ?.columns
-        //                                       ?.map(item => item.name)
-        //                                       .join(', ') as string
-        //                   this.$Message.success({
-        //                     content: this.$t('source.tip.changeColumnSuccess').replace('$VALUE', columns),
-        //                     showIcon: true
-        //                   })
-        //
-        //                   this.onCancel()
-        //                 }
-        //                 else {
-        //                   this.$Message.error({
-        //                     content: response.data.message,
-        //                     showIcon: true
-        //                   })
-        //                 }
-        //               }
-        //               else {
-        //                 this.$Message.error({
-        //                   content: response.message,
-        //                   showIcon: true
-        //                 })
-        //               }
-        //             })
-        //             .finally(() => this.submitting = false)
+        MetadataService.changeColumn(code, database, table, this.formState)
+                       .then(response => {
+                         if (response.status && response.data && response.data.isSuccessful) {
+                           const columns = this.formState.columns.map(item => item.name)
+                                               .join(', ') as string
+                           this.$Message.success({
+                             content: this.$t('source.tip.changeColumnSuccess').replace('$VALUE', columns),
+                             showIcon: true
+                           })
+
+                           this.onCancel()
+                         }
+                         else {
+                           this.$Message.error({
+                             content: response.message,
+                             showIcon: true
+                           })
+                         }
+                       })
+                       .finally(() => this.submitting = false)
       }
     },
     onCancel()

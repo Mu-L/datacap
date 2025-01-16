@@ -106,6 +106,11 @@ class MetadataService
     {
         return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/get-column`, configure)
     }
+
+    changeColumn(code: string, database: string, table: string, configure: any): Promise<ResponseModel>
+    {
+        return HttpUtils.put(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/change-column`, configure)
+    }
 }
 
 export default new MetadataService()

@@ -729,19 +729,7 @@ public interface PluginService
                 tableDefinition.addPrimaryKey(col.getName());
             }
 
-            CreateColumn column = CreateColumn.create(col.getName(), col.getType());
-
-            column.comment(col.getComment())
-                    .length(col.getLength())
-                    .defaultValue(col.getDefaultValue());
-
-            if (col.isAutoIncrement()) {
-                column.autoIncrement();
-            }
-
-            if (col.isNullable()) {
-                column.notNull();
-            }
+            CreateColumn column = this.getCreateColumn(col);
 
             tableDefinition.addColumn(column);
         });
@@ -907,27 +895,7 @@ public interface PluginService
     {
         AlterTable tableDefinition = AlterTable.create(definition.getDatabase(), definition.getName());
 
-        definition.getColumns().forEach(col -> {
-            if (col.isPrimaryKey()) {
-                tableDefinition.addPrimaryKey(col.getName());
-            }
-
-            CreateColumn column = CreateColumn.create(col.getName(), col.getType());
-
-            column.comment(col.getComment())
-                    .length(col.getLength())
-                    .defaultValue(col.getDefaultValue());
-
-            if (col.isAutoIncrement()) {
-                column.autoIncrement();
-            }
-
-            if (col.isNullable()) {
-                column.notNull();
-            }
-
-            tableDefinition.addColumn(column);
-        });
+        definition.getColumns().forEach(col -> tableDefinition.addColumn(getCreateColumn(col)));
 
         return this.getResponse(
                 tableDefinition.build(),
@@ -1090,6 +1058,27 @@ public interface PluginService
         );
     }
 
+    /**
+     * 修改列
+     * Change column
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param definition 表配置定义 | Table configuration definition
+     * @return 执行结果 | Execution result
+     */
+    default Response changeColumn(Configure configure, TableDefinition definition)
+    {
+        AlterTable tableDefinition = AlterTable.create(definition.getDatabase(), definition.getName());
+
+        definition.getColumns().forEach(col -> tableDefinition.modifyColumn(getCreateColumn(col)));
+
+        return this.getResponse(
+                tableDefinition.build(),
+                configure,
+                definition
+        );
+    }
+
     private Response getResponse(String sql, Configure configure, BaseDefinition definition)
     {
         Response response;
@@ -1115,6 +1104,25 @@ public interface PluginService
         Response response = this.getResponse(sql, configure, definition);
         response.setPagination(pagination);
         return response;
+    }
+
+    private CreateColumn getCreateColumn(ColumnDefinition col)
+    {
+        CreateColumn column = CreateColumn.create(col.getName(), col.getType());
+
+        column.comment(col.getComment())
+                .length(col.getLength())
+                .defaultValue(col.getDefaultValue());
+
+        if (col.isAutoIncrement()) {
+            column.autoIncrement();
+        }
+
+        if (col.isNullable()) {
+            column.notNull();
+        }
+
+        return column;
     }
 
     default void destroy()
