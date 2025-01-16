@@ -10,7 +10,7 @@
       <div class="flex items-center">
         <!-- Logo -->
         <div class="mr-3">
-          <ShadcnLink link="/" class="pr-6 mt-1">
+          <ShadcnLink link="/" class="w-fit mt-1">
             <ShadcnAvatar src="/static/images/logo.png" alt="DataCap Logo"/>
           </ShadcnLink>
         </div>

@@ -1,5 +1,7 @@
 package io.edurt.datacap.spi.generator.table;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -7,14 +9,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 public class InsertTable
         extends AbstractTable
 {
     private final List<JsonNode> values = new ArrayList<>();
-    private Set<String> columnNames;
     private final Set<String> primaryKeys = new HashSet<>();
+    private Set<String> columnNames;
 
     private InsertTable(String database, String name)
     {

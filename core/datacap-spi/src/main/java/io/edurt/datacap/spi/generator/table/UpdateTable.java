@@ -1,5 +1,8 @@
 package io.edurt.datacap.spi.generator.table;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import io.edurt.datacap.spi.generator.Filter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,9 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import io.edurt.datacap.spi.generator.Filter;
-
 public class UpdateTable
         extends AbstractTable
 {
@@ -20,7 +20,6 @@ public class UpdateTable
     private final List<BatchUpdate> batchUpdates = new ArrayList<>();
     private final Set<String> primaryKeys = new HashSet<>();
     private Long limit;
-    private JsonNode filterNode;
 
     private UpdateTable(String database, String name)
     {
@@ -53,7 +52,6 @@ public class UpdateTable
      */
     public UpdateTable addFilters(JsonNode node)
     {
-        this.filterNode = node;
         if (!primaryKeys.isEmpty()) {
             // 如果有主键，只添加主键作为过滤条件
             for (String key : primaryKeys) {

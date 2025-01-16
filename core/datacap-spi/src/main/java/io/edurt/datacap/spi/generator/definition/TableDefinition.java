@@ -1,11 +1,9 @@
 package io.edurt.datacap.spi.generator.definition;
 
-import java.util.List;
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.spi.model.Pagination;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -15,6 +13,9 @@ import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.compress.utils.Sets;
 
+import java.util.List;
+import java.util.Set;
+
 @Getter
 @Setter
 @ToString
@@ -22,6 +23,7 @@ import org.apache.commons.compress.utils.Sets;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 public class TableDefinition
         extends BaseDefinition
 {

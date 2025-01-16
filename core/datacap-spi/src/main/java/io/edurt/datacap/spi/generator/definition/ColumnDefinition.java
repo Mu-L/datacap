@@ -2,6 +2,7 @@ package io.edurt.datacap.spi.generator.definition;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.spi.generator.DataType;
 import io.edurt.datacap.spi.generator.Filter;
 import io.edurt.datacap.spi.generator.OrderBy;
@@ -19,6 +20,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 public class ColumnDefinition
         extends BaseDefinition
 {
