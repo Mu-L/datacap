@@ -1,5 +1,6 @@
 package io.edurt.datacap.server.controller;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.response.CommonResponse;
 import io.edurt.datacap.service.service.MetadataService;
 import io.edurt.datacap.spi.generator.definition.TableDefinition;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController()
 @RequestMapping(value = "/api/v1/metadata")
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP2"})
 public class MetadataController
 {
     private final MetadataService service;
