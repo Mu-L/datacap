@@ -46,7 +46,7 @@ export default defineComponent({
   {
     return {
       formState: {
-        page: 500
+        size: 500
       }
     }
   },
