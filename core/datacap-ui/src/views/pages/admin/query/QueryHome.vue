@@ -11,9 +11,9 @@
 
       <ShadcnLayoutMain class="min-h-screen flex-1 overflow-hidden">
         <ShadcnLayoutHeader>
-          <ShadcnCard ref="editorContainer">
+          <ShadcnCard ref="editorContainer" :border="false">
             <template #title>
-              <ShadcnSpace>
+              <ShadcnSpace v-if="selectSource.code">
                 <ShadcnButton :loading="loading.running" :disabled="(!selectSource.id && !loading.running) || loading.running" @click="onRun()">
                   <template #icon>
                     <ShadcnIcon icon="Play" :size="15"/>
@@ -80,7 +80,7 @@
                   {{ $t('query.common.help') }}
                 </ShadcnButton>
 
-                <ShadcnButton type="default" @click="onPlusEditor">
+                <ShadcnButton type="default" :disabled="!selectSource.code" @click="onPlusEditor">
                   <template #icon>
                     <ShadcnIcon icon="Pencil" :size="15"/>
                   </template>
@@ -90,7 +90,13 @@
               </ShadcnSpace>
             </template>
 
-            <ShadcnTab v-model="activeEditor as string" :closable="editors.size > 1" @on-tab-remove="onMinusEditor">
+            <div v-if="!selectSource.code" class="flex justify-center" style="height: 300px">
+              <div class="flex items-center justify-center">
+                <ShadcnAlert>{{ this.$t('source.tip.selected') }}</ShadcnAlert>
+              </div>
+            </div>
+
+            <ShadcnTab v-else v-model="activeEditor as string" :closable="editors.size > 1" @on-tab-remove="onMinusEditor">
               <ShadcnTabItem v-for="item in editors.values()" :label="item.title" :key="item.key" :value="item.key">
                 <ShadcnCodeEditor v-model="item.content"
                                   :config="{language: 'sql', ...editorConfig}"
@@ -225,7 +231,7 @@ export default defineComponent({
   methods: {
     handlerInitialize()
     {
-      setTimeout(() => this.createEditor(), 1000)
+      this.createEditor()
 
       this.queryConfigure.configure = { name: this.selectSource.id as string, content: '', mode: 'ADHOC', format: 'JsonConvert' }
       const params = this.$route.params
@@ -239,10 +245,8 @@ export default defineComponent({
             SnippetService.getByCode(code as string)
                           .then((response) => {
                             if (response.status && response.data?.code) {
-                              const instance = this.selectEditor.editorMaps.get(this.selectEditor.activeKey as string)
-                              if (instance) {
-                                instance.instance?.setValue(response.data.context)
-                              }
+                              const activeEditor = this.editors.get(this.activeEditor)
+                              activeEditor.content = response.data.context
                             }
                           })
                           .finally(() => this.loading.froming = false)
@@ -252,14 +256,12 @@ export default defineComponent({
             this.queryConfigure.configure.mode = 'HISTORY'
             AuditService.getByCode(code as string)
                         .then((response) => {
-                          if (response.status && response.data?.content) {
-                            const instance = this.selectEditor.editorMaps.get(this.selectEditor.activeKey as string)
-                            if (instance) {
-                              instance.instance?.setValue(response.data.content)
-                              const full = `${ response.data.source.id }:${ response.data.source.type }:${ response.data.source.code }`
-                              this.selectSource.full = full
-                              this.onChange(full)
-                            }
+                          if (response.status && response.data) {
+                            const activeEditor = this.editors.get(this.activeEditor)
+                            activeEditor.content = response.data.content
+                            const full = `${ response.data.source.id }:${ response.data.source.type }:${ response.data.source.code }`
+                            this.selectSource.full = full
+                            this.onChange(full)
                           }
                         })
                         .finally(() => this.loading.froming = false)
