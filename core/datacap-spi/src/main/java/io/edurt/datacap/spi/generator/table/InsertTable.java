@@ -14,6 +14,7 @@ public class InsertTable
 {
     private final List<JsonNode> values = new ArrayList<>();
     private Set<String> columnNames;
+    private final Set<String> primaryKeys = new HashSet<>();
 
     private InsertTable(String database, String name)
     {
@@ -23,6 +24,19 @@ public class InsertTable
     public static InsertTable create(String database, String name)
     {
         return new InsertTable(database, name);
+    }
+
+    /**
+     * 设置主键列
+     *
+     * @param keys 主键列名列表
+     * @return InsertTable实例
+     */
+    public InsertTable addPrimaryKeys(List<String> keys)
+    {
+        primaryKeys.clear();
+        primaryKeys.addAll(keys);
+        return this;
     }
 
     /**
@@ -63,8 +77,13 @@ public class InsertTable
         return this;
     }
 
-    private Object processJsonValue(JsonNode value)
+    private Object processJsonValue(JsonNode value, String columnName)
     {
+        // 如果是主键列，返回 null
+        if (primaryKeys.contains(columnName)) {
+            return null;
+        }
+
         if (value == null || value.isNull()) {
             return null;
         }
@@ -81,7 +100,7 @@ public class InsertTable
         if (value.isArray()) {
             Object[] arrayValues = new Object[value.size()];
             for (int i = 0; i < value.size(); i++) {
-                arrayValues[i] = processJsonValue(value.get(i));
+                arrayValues[i] = processJsonValue(value.get(i), columnName);
             }
             return arrayValues;
         }
@@ -147,7 +166,7 @@ public class InsertTable
                     List<String> rowValues = columnNames.stream()
                             .map(col -> {
                                 JsonNode value = jsonNode.get(col);
-                                Object processed = processJsonValue(value);
+                                Object processed = processJsonValue(value, col);
                                 return formatValue(processed);
                             })
                             .collect(Collectors.toList());

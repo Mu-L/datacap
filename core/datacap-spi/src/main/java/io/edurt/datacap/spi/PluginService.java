@@ -403,6 +403,29 @@ public interface PluginService
         );
     }
 
+    default Response getPrimaryKeys(Configure configure, String database, String table)
+    {
+        String sql = "SELECT \n" +
+                "    COLUMN_NAME as object_name,\n" +
+                "    CONCAT('PRIMARY KEY on (',\n" +
+                "        GROUP_CONCAT(COLUMN_NAME ORDER BY ORDINAL_POSITION),\n" +
+                "        ')'\n" +
+                "    ) as object_definition\n" +
+                "FROM \n" +
+                "    information_schema.KEY_COLUMN_USAGE\n" +
+                "WHERE \n" +
+                "    TABLE_SCHEMA = '{0}'\n" +
+                "    AND TABLE_NAME = '{1}'\n" +
+                "    AND CONSTRAINT_NAME = 'PRIMARY'\n" +
+                "GROUP BY \n" +
+                "    TABLE_SCHEMA, TABLE_NAME, CONSTRAINT_NAME, COLUMN_NAME;";
+        return this.execute(
+                configure,
+                sql.replace("{0}", database)
+                        .replace("{1}", table)
+        );
+    }
+
     /**
      * 根据数据库获取数据库信息
      * Get database information by database
@@ -1037,6 +1060,20 @@ public interface PluginService
     {
         InsertTable tableDefinition = InsertTable.create(definition.getDatabase(), definition.getName())
                 .addValues(definition.getRows());
+
+        Response primaryKeys = this.getPrimaryKeys(configure, definition.getDatabase(), definition.getName());
+        if (primaryKeys.getIsSuccessful()) {
+            List<String> keys = primaryKeys.getColumns()
+                    .stream()
+                    .map(col -> {
+                        ObjectNode node = (ObjectNode) col;
+
+                        return node.get("object_name").asText();
+                    })
+                    .collect(Collectors.toList());
+
+            tableDefinition.addPrimaryKeys(keys);
+        }
 
         return this.getResponse(
                 tableDefinition.build(),
