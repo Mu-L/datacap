@@ -2,7 +2,7 @@
   <ShadcnLayout>
     <ShadcnLayoutWrapper>
       <ShadcnLayoutSider style="top: -8px;">
-        <ShadcnCard>
+        <ShadcnCard :border="false">
           <SourceSelect v-model="selectSource.full as string" @on-change="onChange($event)"/>
 
           <MetadataTree v-if="selectSource.code" :code="selectSource.code as string"/>
@@ -149,8 +149,6 @@ import { HttpUtils } from '@/utils/http'
 import FunctionService from '@/services/function'
 import ExecuteService from '@/services/execute'
 import DatabaseService from '@/services/metadata.ts'
-import TableService from '@/services/table'
-import ColumnService from '@/services/column'
 import axios from 'axios'
 import GridTable from '@/views/components/grid/GridTable.vue'
 import { GridConfigure } from '@/views/components/grid/GridConfigure'

@@ -183,7 +183,7 @@ export default defineComponent({
                    }
                    else {
                      this.$Message.error({
-                       content: columnResponse.message,
+                       content: columnResponse.data.message,
                        showIcon: true
                      })
                    }
@@ -193,7 +193,7 @@ export default defineComponent({
                    }
                    else {
                      this.$Message.error({
-                       content: dataTypeResponse.message,
+                       content: dataTypeResponse.data.message,
                        showIcon: true
                      })
                    }
@@ -224,7 +224,7 @@ export default defineComponent({
                          }
                          else {
                            this.$Message.error({
-                             content: response.message,
+                             content: response.data.message,
                              showIcon: true
                            })
                          }
