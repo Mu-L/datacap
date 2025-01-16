@@ -54,12 +54,36 @@
             <span>{{ $t('source.common.records') }}</span>
           </div>
 
+          <ShadcnTooltip :content="$t('source.common.addRows')">
+            <ShadcnButton circle size="small" @click="onAddOrCloneRow(false)">
+              <ShadcnIcon icon="Plus" size="15"/>
+            </ShadcnButton>
+          </ShadcnTooltip>
+
+          <ShadcnTooltip :content="$t('source.common.copyRows')">
+            <ShadcnButton circle
+                          size="small"
+                          :disabled="dataSelectedChanged.columns.length === 0"
+                          @click="onAddOrCloneRow(true)">
+              <ShadcnIcon icon="Copy" size="15"/>
+            </ShadcnButton>
+          </ShadcnTooltip>
+
           <ShadcnTooltip :content="$t('source.common.deleteRows')">
             <ShadcnButton circle
                           size="small"
                           :disabled="!dataSelectedChanged.changed"
                           @click="visibleChanged(true)">
               <ShadcnIcon icon="Minus" size="15"/>
+            </ShadcnButton>
+          </ShadcnTooltip>
+
+          <ShadcnTooltip :content="$t('source.common.previewPendingChanges')">
+            <ShadcnButton circle
+                          size="small"
+                          :disabled="!dataCellChanged.changed && dataCellChanged.columns.length === 0"
+                          @click="visibleCellChanged(true)">
+              <ShadcnIcon icon="RectangleEllipsis" size="15"/>
             </ShadcnButton>
           </ShadcnTooltip>
 
@@ -113,6 +137,13 @@
         </AgGridVue>
       </div>
     </ShadcnCard>
+
+    <TableCellInfo v-if="dataCellChanged.pending"
+                   :isVisible="dataCellChanged.pending"
+                   :columns="dataCellChanged.columns"
+                   :is-update="dataCellChanged.type === 'UPDATE'"
+                   @close="visibleCellChanged(false)">
+    </TableCellInfo>
 
     <TableRowDelete v-if="dataSelectedChanged.pending"
                     :isVisible="dataSelectedChanged.pending"
@@ -235,7 +266,7 @@ export default defineComponent({
       if (!this.configure.pagination) {
         this.configure.pagination = {
           page: 1,
-          size: 20
+          size: 100
         }
       }
 
@@ -328,13 +359,31 @@ export default defineComponent({
         const originalColumn = cloneDeep(oldColumn)
         originalColumn[event.colDef.field] = event.oldValue
         this.dataCellChanged.changed = true
-        const column = {
-          column: event.colDef.field,
-          value: event.newValue,
-          original: originalColumn
+
+        // 检查是否已经存在相同original的记录
+        const existingIndex = this.dataCellChanged.columns.findIndex(
+            item => item.original.id === originalColumn.id
+        )
+
+        if (existingIndex !== -1) {
+          // 如果存在,则合并row对象
+          this.dataCellChanged.columns[existingIndex].row = {
+            ...this.dataCellChanged.columns[existingIndex].row,
+            [event.colDef.field]: event.newValue
+          }
         }
+        else {
+          // 如果不存在,则创建新记录
+          const column = {
+            row: {
+              [event.colDef.field]: event.newValue
+            },
+            original: originalColumn
+          }
+          this.dataCellChanged.columns.push(column)
+        }
+
         this.dataCellChanged.type = 'UPDATE'
-        this.dataCellChanged.columns.push(column)
       }
     },
     onSelectionChanged()
@@ -386,6 +435,37 @@ export default defineComponent({
       this.filterConfigure.show = show
       if (!show) {
         this.handleRefererData(this.getConfigure())
+      }
+    },
+    onAddOrCloneRow(clone: boolean)
+    {
+      const newData = {} as any
+
+      if (!clone) {
+        this.originalColumns.forEach((column: { field: string; }) => {
+          newData[column.field] = null
+        })
+        this.configure.datasets.push(newData)
+        this.newRows.push(newData)
+      }
+      else {
+        this.dataSelectedChanged.columns.forEach(column => {
+          this.configure.datasets.push(column)
+          this.newRows.push(column)
+        })
+      }
+      this.dataCellChanged.changed = true
+      this.dataCellChanged.type = null
+      this.dataCellChanged.columns = this.newRows
+      this.gridApi.setRowData(this.configure.datasets)
+    },
+    visibleCellChanged(isOpen: boolean)
+    {
+      this.dataCellChanged.pending = isOpen
+      if (!isOpen) {
+        this.dataCellChanged.changed = false
+        this.dataCellChanged.columns = []
+        this.onRefresh()
       }
     },
     visibleChanged(isOpen: boolean)

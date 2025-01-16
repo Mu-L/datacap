@@ -1,5 +1,6 @@
 package io.edurt.datacap.server.controller;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.common.response.CommonResponse;
 import io.edurt.datacap.service.service.MetadataService;
 import io.edurt.datacap.spi.generator.definition.TableDefinition;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController()
 @RequestMapping(value = "/api/v1/metadata")
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP2"})
 public class MetadataController
 {
     private final MetadataService service;
@@ -164,5 +166,71 @@ public class MetadataController
     )
     {
         return this.service.exportData(code, database, table, configure);
+    }
+
+    @PostMapping(value = "{code}/{database}/{table}/create-column")
+    public CommonResponse<Response> createColumn(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.createColumn(code, database, table, configure);
+    }
+
+    @DeleteMapping(value = "{code}/{database}/{table}/drop-column")
+    public CommonResponse<Response> dropColumn(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.dropColumn(code, database, table, configure);
+    }
+
+    @PostMapping(value = "{code}/{database}/{table}/get-column")
+    public CommonResponse<Response> getColumn(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.getColumn(code, database, table, configure);
+    }
+
+    @PutMapping(value = "{code}/{database}/{table}/change-column")
+    public CommonResponse<Response> changeColumn(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.changeColumn(code, database, table, configure);
+    }
+
+    @PostMapping(value = "{code}/{database}/{table}/insert-data")
+    public CommonResponse<Response> insertData(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.insertData(code, database, table, configure);
+    }
+
+    @PutMapping(value = "{code}/{database}/{table}/update-data")
+    public CommonResponse<Response> updateData(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.updateData(code, database, table, configure);
     }
 }

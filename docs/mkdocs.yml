@@ -348,6 +348,8 @@ nav:
           - api/metadata/table-truncate.md
           - api/metadata/engines.md
           - api/metadata/column.md
+          - api/metadata/column-drop.md
+          - api/metadata/column-change.md
           - api/metadata/data-types.md
   - NavDriver:
       - driver/mongodb.md

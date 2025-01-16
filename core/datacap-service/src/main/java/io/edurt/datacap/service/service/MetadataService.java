@@ -35,4 +35,16 @@ public interface MetadataService
     CommonResponse<Response> deleteData(String code, String database, String table, TableDefinition configure);
 
     CommonResponse<Response> exportData(String code, String database, String table, TableDefinition configure);
+
+    CommonResponse<Response> createColumn(String code, String database, String table, TableDefinition configure);
+
+    CommonResponse<Response> dropColumn(String code, String database, String table, TableDefinition configure);
+
+    CommonResponse<Response> getColumn(String code, String database, String table, TableDefinition configure);
+
+    CommonResponse<Response> changeColumn(String code, String database, String table, TableDefinition configure);
+
+    CommonResponse<Response> insertData(String code, String database, String table, TableDefinition configure);
+
+    CommonResponse<Response> updateData(String code, String database, String table, TableDefinition configure);
 }

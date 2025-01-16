@@ -1,6 +1,9 @@
 package io.edurt.datacap.spi.generator.definition;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Lists;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.spi.model.Pagination;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -10,6 +13,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.compress.utils.Sets;
 
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -19,6 +23,7 @@ import java.util.Set;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 public class TableDefinition
         extends BaseDefinition
 {
@@ -33,6 +38,7 @@ public class TableDefinition
     private Set<ColumnDefinition> orders = Sets.newHashSet();
     private Set<ColumnDefinition> filters = Sets.newHashSet();
     private Pagination pagination;
+    private List<JsonNode> rows = Lists.newArrayList();
 
     private TableDefinition(String database, String name)
     {
@@ -90,6 +96,18 @@ public class TableDefinition
     public TableDefinition filters(Set<ColumnDefinition> filters)
     {
         this.filters = filters;
+        return this;
+    }
+
+    public TableDefinition pagination(Pagination pagination)
+    {
+        this.pagination = pagination;
+        return this;
+    }
+
+    public TableDefinition values(List<JsonNode> rows)
+    {
+        this.rows = rows;
         return this;
     }
 }

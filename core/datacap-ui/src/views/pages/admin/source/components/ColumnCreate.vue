@@ -37,7 +37,18 @@
               <ShadcnFormItem :name="`columns[${index}].type`"
                               :label="$t('source.common.columnType')"
                               :rules="[{ required: true, message: $t('source.validator.columnType.required') }]">
-                <ShadcnInput v-model="formState.columns[index].type" :placeholder="$t('source.placeholder.columnType')" :name="`columns[${index}].type`"/>
+                <ShadcnSelect v-model="formState.columns[index].type"
+                              :placeholder="$t('source.placeholder.columnType')"
+                              :loading="loading"
+                              :name="`columns[${index}].type`">
+                  <template #options>
+                    <ShadcnSelectOption v-for="dataType in dataTypes"
+                                        :key="dataType"
+                                        :value="dataType"
+                                        :label="dataType">
+                    </ShadcnSelectOption>
+                  </template>
+                </ShadcnSelect>
               </ShadcnFormItem>
             </ShadcnCol>
 
@@ -95,7 +106,7 @@
       <ShadcnSpace>
         <ShadcnButton type="default" @click="onCancel">{{ $t('common.cancel') }}</ShadcnButton>
 
-        <ShadcnButton submit :loading="loading" :disabled="loading">
+        <ShadcnButton submit :loading="saving" :disabled="saving">
           {{ $t('common.save') }}
         </ShadcnButton>
       </ShadcnSpace>
@@ -105,7 +116,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { StructureModel } from '@/model/structure'
+import MetadataService from '@/services/metadata'
 
 export default defineComponent({
   name: 'ColumnCreate',
@@ -124,67 +135,75 @@ export default defineComponent({
   props: {
     isVisible: {
       type: Boolean
-    },
-    info: {
-      type: Object as () => StructureModel | null
     }
   },
   data()
   {
     return {
       loading: false,
-      formState: null as unknown as TableModel
+      saving: false,
+      dataTypes: [],
+      formState: null as any
     }
   },
   created()
   {
-    this.formState = TableRequest.of()
-    this.formState.type = SqlType.CREATE
+    const code = this.$route.params.source
+
+    this.formState = {
+      columns: []
+    }
+
+    this.loading = true
+    MetadataService.getDataTypes(code)
+                   .then(response => {
+                     if (response.status && response.data && response.data.isSuccessful) {
+                       this.dataTypes = response.data.columns
+                     }
+                   })
+                   .finally(() => this.loading = false)
+
     this.onAdd()
   },
   methods: {
     onSubmit()
     {
-      if (this.info) {
-        this.loading = true
-        TableService.manageColumn(String(this.info.value), this.formState)
-                    .then(response => {
-                      if (response.status) {
-                        if (response.data.isSuccessful) {
-                          const columns = String(this.formState?.columns?.map(item => item.name).join(', '))
-                          this.$Message.success({
-                            content: this.$t('source.tip.createColumnSuccess').replace('$VALUE', columns),
-                            showIcon: true
-                          })
+      const code = this.$route.params.source
+      const database = this.$route.params.database
+      const table = this.$route.params.table
 
-                          this.onCancel()
-                        }
-                        else {
-                          this.$Message.error({
-                            content: response.data?.message,
-                            showIcon: true
-                          })
-                        }
-                      }
-                      else {
-                        this.$Message.error({
-                          content: response.message,
-                          showIcon: true
-                        })
-                      }
-                    })
-                    .finally(() => this.loading = false)
+      if (code && database && table) {
+        this.saving = true
+        MetadataService.createColumn(code, database, table, this.formState)
+                       .then(response => {
+                         if (response.status && response.data && response.data.isSuccessful) {
+                           const columns = String(this.formState?.columns?.map(item => item.name).join(', '))
+                           this.$Message.success({
+                             content: this.$t('source.tip.createColumnSuccess').replace('$VALUE', columns),
+                             showIcon: true
+                           })
+
+                           this.onCancel()
+                         }
+                         else {
+                           this.$Message.error({
+                             content: response.data.message,
+                             showIcon: true
+                           })
+                         }
+                       })
+                       .finally(() => this.saving = false)
       }
     },
     onAdd()
     {
-      if (this.formState.columns) {
-        const newColumn = ColumnRequest.of()
-        if (this.formState.columns.length === 0) {
-          newColumn.removed = true
-        }
-        this.formState.columns.push(newColumn)
+      const newColumn = {
+        removed: false
       }
+      if (this.formState.columns.length === 0) {
+        newColumn.removed = true
+      }
+      this.formState.columns.push(newColumn)
     },
     onRemove(index: number)
     {

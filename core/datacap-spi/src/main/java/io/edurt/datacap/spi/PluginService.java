@@ -17,14 +17,17 @@ import io.edurt.datacap.spi.generator.OrderBy;
 import io.edurt.datacap.spi.generator.column.CreateColumn;
 import io.edurt.datacap.spi.generator.column.SelectColumn;
 import io.edurt.datacap.spi.generator.definition.BaseDefinition;
+import io.edurt.datacap.spi.generator.definition.ColumnDefinition;
 import io.edurt.datacap.spi.generator.definition.TableDefinition;
 import io.edurt.datacap.spi.generator.table.AbstractTable;
 import io.edurt.datacap.spi.generator.table.AlterTable;
 import io.edurt.datacap.spi.generator.table.CreateTable;
 import io.edurt.datacap.spi.generator.table.DeleteTable;
 import io.edurt.datacap.spi.generator.table.DropTable;
+import io.edurt.datacap.spi.generator.table.InsertTable;
 import io.edurt.datacap.spi.generator.table.SelectTable;
 import io.edurt.datacap.spi.generator.table.TruncateTable;
+import io.edurt.datacap.spi.generator.table.UpdateTable;
 import io.edurt.datacap.spi.model.Configure;
 import io.edurt.datacap.spi.model.Pagination;
 import io.edurt.datacap.spi.model.Response;
@@ -225,7 +228,7 @@ public interface PluginService
      * @param database 数据库 | Database
      * @return 数据表结构 | Table structure
      */
-    default Response getTablesForDatabase(Configure configure, String database)
+    default Response getTables(Configure configure, String database)
     {
         String sql = "SELECT\n" +
                 "    CASE\n" +
@@ -295,7 +298,7 @@ public interface PluginService
      * @param table 数据表 | Table
      * @return 数据列结构 | Column structure
      */
-    default Response getColumnsForTable(Configure configure, String database, String table)
+    default Response getColumns(Configure configure, String database, String table)
     {
         String sql = "SELECT detail.*\n" +
                 "FROM (\n" +
@@ -401,6 +404,29 @@ public interface PluginService
         );
     }
 
+    default Response getPrimaryKeys(Configure configure, String database, String table)
+    {
+        String sql = "SELECT \n" +
+                "    COLUMN_NAME as object_name,\n" +
+                "    CONCAT('PRIMARY KEY on (',\n" +
+                "        GROUP_CONCAT(COLUMN_NAME ORDER BY ORDINAL_POSITION),\n" +
+                "        ')'\n" +
+                "    ) as object_definition\n" +
+                "FROM \n" +
+                "    information_schema.KEY_COLUMN_USAGE\n" +
+                "WHERE \n" +
+                "    TABLE_SCHEMA = '{0}'\n" +
+                "    AND TABLE_NAME = '{1}'\n" +
+                "    AND CONSTRAINT_NAME = 'PRIMARY'\n" +
+                "GROUP BY \n" +
+                "    TABLE_SCHEMA, TABLE_NAME, CONSTRAINT_NAME, COLUMN_NAME;";
+        return this.execute(
+                configure,
+                sql.replace("{0}", database)
+                        .replace("{1}", table)
+        );
+    }
+
     /**
      * 根据数据库获取数据库信息
      * Get database information by database
@@ -409,7 +435,7 @@ public interface PluginService
      * @param database 数据库 | Database
      * @return 数据库信息 | Database information
      */
-    default Response getDatabaseInfo(Configure configure, String database)
+    default Response getDatabase(Configure configure, String database)
     {
         String sql = "SELECT \n" +
                 "    s.SCHEMA_NAME as object_name,\n" +
@@ -472,7 +498,7 @@ public interface PluginService
      * @param table 表 | Table
      * @return 表信息 | Table information
      */
-    default Response getTableInfo(Configure configure, String database, String table)
+    default Response getTable(Configure configure, String database, String table)
     {
         String sql = "WITH object_info AS (\n" +
                 "    -- 获取表和视图类型\n" +
@@ -700,7 +726,7 @@ public interface PluginService
      * @param definition 表配置定义 | Table configuration definition
      * @return 执行结果 | Execution result
      */
-    default Response updateAutoIncrement(Configure configure, TableDefinition definition)
+    default Response changeAutoIncrement(Configure configure, TableDefinition definition)
     {
         String sql = AlterTable.create(definition.getDatabase(), definition.getName())
                 .autoIncrement(definition.getAutoIncrement())
@@ -728,19 +754,7 @@ public interface PluginService
                 tableDefinition.addPrimaryKey(col.getName());
             }
 
-            CreateColumn column = CreateColumn.create(col.getName(), col.getType());
-
-            column.comment(col.getComment())
-                    .length(col.getLength())
-                    .defaultValue(col.getDefaultValue());
-
-            if (col.isAutoIncrement()) {
-                column.autoIncrement();
-            }
-
-            if (col.isNullable()) {
-                column.notNull();
-            }
+            CreateColumn column = this.getCreateColumn(col);
 
             tableDefinition.addColumn(column);
         });
@@ -840,6 +854,294 @@ public interface PluginService
     }
 
     /**
+     * 创建列
+     * Create column
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param definition 表配置定义 | Table configuration definition
+     * @return 执行结果 | Execution result
+     */
+    default Response createColumn(Configure configure, TableDefinition definition)
+    {
+        AlterTable tableDefinition = AlterTable.create(definition.getDatabase(), definition.getName());
+
+        definition.getColumns().forEach(col -> tableDefinition.addColumn(getCreateColumn(col)));
+
+        return this.getResponse(
+                tableDefinition.build(),
+                configure,
+                definition
+        );
+    }
+
+    /**
+     * 删除列
+     * Drop column
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param definition 表配置定义 | Table configuration definition
+     * @return 执行结果 | Execution result
+     */
+    default Response dropColumn(Configure configure, TableDefinition definition)
+    {
+        AlterTable tableDefinition = AlterTable.create(definition.getDatabase(), definition.getName());
+
+        definition.getColumns().forEach(col -> tableDefinition.dropColumn(col.getName()));
+
+        return this.getResponse(
+                tableDefinition.build(),
+                configure,
+                definition
+        );
+    }
+
+    /**
+     * 获取指定列
+     * Get column
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param definition 表配置定义 | Table configuration definition
+     * @return 执行结果 | Execution result
+     */
+    default Response getColumn(Configure configure, TableDefinition definition)
+    {
+        Optional<ColumnDefinition> column = definition.getColumns().stream().findAny();
+
+        if (column.isEmpty()) {
+            throw new IllegalArgumentException("Column must be specified");
+        }
+
+        String sql = "SELECT \n" +
+                "    detail.*\n" +
+                "FROM (\n" +
+                "    -- 列信息：优化了类型解析\n" +
+                "    SELECT\n" +
+                "        'column' as type_name,\n" +
+                "        COLUMN_NAME as object_name,\n" +
+                "        SUBSTRING_INDEX(COLUMN_TYPE, '(', 1) as object_data_type,  -- 更高效的类型提取\n" +
+                "        NULLIF(\n" +
+                "            SUBSTRING_INDEX(SUBSTRING_INDEX(COLUMN_TYPE, '(', -1), ')', 1),\n" +
+                "            COLUMN_TYPE\n" +
+                "        ) as object_length,  -- 更高效的长度提取\n" +
+                "        IS_NULLABLE as object_nullable,\n" +
+                "        COLUMN_DEFAULT as object_default_value,\n" +
+                "        COLUMN_COMMENT as object_comment,\n" +
+                "        ORDINAL_POSITION as object_position,\n" +
+                "        '' as object_definition\n" +
+                "    FROM\n" +
+                "        information_schema.COLUMNS c\n" +
+                "    WHERE\n" +
+                "        TABLE_SCHEMA = '{0}'\n" +
+                "        AND TABLE_NAME = '{1}'\n" +
+                "        AND COLUMN_NAME = '{2}'\n" +
+                "\n" +
+                "    UNION ALL\n" +
+                "\n" +
+                "    -- 主键信息：添加了索引以提升性能\n" +
+                "    SELECT\n" +
+                "        'primary' as type_name,\n" +
+                "        COLUMN_NAME as object_name,\n" +
+                "        '' as object_data_type,\n" +
+                "        NULL as object_length,\n" +
+                "        '' as object_nullable,\n" +
+                "        '' as object_default_value,\n" +
+                "        '' as object_comment,\n" +
+                "        0 as object_position,\n" +
+                "        CONCAT('PRIMARY KEY on (',\n" +
+                "            GROUP_CONCAT(COLUMN_NAME ORDER BY ORDINAL_POSITION),\n" +
+                "            ')'\n" +
+                "        ) as object_definition\n" +
+                "    FROM\n" +
+                "        information_schema.KEY_COLUMN_USAGE\n" +
+                "    WHERE\n" +
+                "        TABLE_SCHEMA = '{0}'\n" +
+                "        AND TABLE_NAME = '{1}'\n" +
+                "        AND CONSTRAINT_NAME = 'PRIMARY'\n" +
+                "        AND COLUMN_NAME = '{2}'\n" +
+                "    GROUP BY\n" +
+                "        TABLE_SCHEMA, TABLE_NAME, CONSTRAINT_NAME, COLUMN_NAME\n" +
+                "\n" +
+                "    UNION ALL\n" +
+                "\n" +
+                "    -- 索引信息：优化了索引名称的处理\n" +
+                "    SELECT DISTINCT\n" +
+                "        'index' as type_name,\n" +
+                "        COLUMN_NAME as object_name,\n" +
+                "        '' as object_data_type,\n" +
+                "        NULL as object_length,\n" +
+                "        '' as object_nullable,\n" +
+                "        '' as object_default_value,\n" +
+                "        '' as object_comment,\n" +
+                "        0 as object_position,\n" +
+                "        CONCAT(\n" +
+                "            CASE NON_UNIQUE\n" +
+                "                WHEN 1 THEN 'Non-unique'\n" +
+                "                ELSE 'Unique'\n" +
+                "            END,\n" +
+                "            ' index on (',\n" +
+                "            GROUP_CONCAT(COLUMN_NAME ORDER BY SEQ_IN_INDEX),\n" +
+                "            ')'\n" +
+                "        ) as object_definition\n" +
+                "    FROM\n" +
+                "        information_schema.STATISTICS\n" +
+                "    WHERE\n" +
+                "        TABLE_SCHEMA = '{0}'\n" +
+                "        AND TABLE_NAME = '{1}'\n" +
+                "        AND COLUMN_NAME = '{2}'\n" +
+                "    GROUP BY\n" +
+                "        TABLE_SCHEMA, TABLE_NAME, COLUMN_NAME, NON_UNIQUE\n" +
+                "\n" +
+                "    UNION ALL\n" +
+                "\n" +
+                "    -- 触发器信息：保持原有逻辑\n" +
+                "    SELECT\n" +
+                "        'trigger' as type_name,\n" +
+                "        TRIGGER_NAME as object_name,\n" +
+                "        '' as object_data_type,\n" +
+                "        NULL as object_length,\n" +
+                "        '' as object_nullable,\n" +
+                "        '' as object_default_value,\n" +
+                "        '' as object_comment,\n" +
+                "        0 as object_position,\n" +
+                "        CONCAT(\n" +
+                "            'TRIGGER ',\n" +
+                "            ACTION_TIMING, ' ',\n" +
+                "            EVENT_MANIPULATION\n" +
+                "        ) as object_definition\n" +
+                "    FROM\n" +
+                "        information_schema.TRIGGERS\n" +
+                "    WHERE\n" +
+                "        EVENT_OBJECT_SCHEMA = '{0}'\n" +
+                "        AND EVENT_OBJECT_TABLE = '{1}'\n" +
+                ") detail\n" +
+                "ORDER BY\n" +
+                "    FIELD(type_name, 'column', 'primary', 'index', 'trigger'),\n" +
+                "    object_position,\n" +
+                "    object_name;";
+
+        return this.getResponse(
+                sql.replace("{0}", definition.getDatabase())
+                        .replace("{1}", definition.getName())
+                        .replace("{2}", column.get().getName()),
+                configure,
+                definition
+        );
+    }
+
+    /**
+     * 修改列
+     * Change column
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param definition 表配置定义 | Table configuration definition
+     * @return 执行结果 | Execution result
+     */
+    default Response changeColumn(Configure configure, TableDefinition definition)
+    {
+        AlterTable tableDefinition = AlterTable.create(definition.getDatabase(), definition.getName());
+
+        definition.getColumns().forEach(col -> tableDefinition.modifyColumn(getCreateColumn(col)));
+
+        return this.getResponse(
+                tableDefinition.build(),
+                configure,
+                definition
+        );
+    }
+
+    /**
+     * 插入数据
+     * Insert data
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param definition 表配置定义 | Table configuration definition
+     * @return 执行结果 | Execution result
+     */
+    default Response insertData(Configure configure, TableDefinition definition)
+    {
+        InsertTable tableDefinition = InsertTable.create(definition.getDatabase(), definition.getName())
+                .addValues(definition.getRows())
+                .addPrimaryKeys(this.formatPrimaryKeys(configure, definition.getDatabase(), definition.getName()));
+
+        return this.getResponse(
+                tableDefinition.build(),
+                configure,
+                definition
+        );
+    }
+
+    /**
+     * 更新数据
+     * Update data
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param definition 表配置定义 | Table configuration definition
+     * @return 执行结果 | Execution result
+     */
+    default Response updateData(Configure configure, TableDefinition definition)
+    {
+        UpdateTable tableDefinition = UpdateTable.create(definition.getDatabase(), definition.getName())
+                .addPrimaryKeys(this.formatPrimaryKeys(configure, definition.getDatabase(), definition.getName()));
+
+        definition.getRows().forEach(row -> {
+            tableDefinition.addUpdates(row.get("row"));
+            tableDefinition.addFilters(row.get("original"));
+        });
+
+        return this.getResponse(
+                tableDefinition.build(),
+                configure,
+                definition
+        );
+    }
+
+    private Response getResponse(String sql, Configure configure, BaseDefinition definition)
+    {
+        Response response;
+        if (definition.isPreview()) {
+            response = Response.builder()
+                    .isSuccessful(true)
+                    .isConnected(true)
+                    .headers(Lists.newArrayList())
+                    .columns(Lists.newArrayList())
+                    .types(Lists.newArrayList())
+                    .content(sql)
+                    .build();
+        }
+        else {
+            response = this.execute(configure, sql);
+            response.setContent(sql);
+        }
+        return response;
+    }
+
+    private Response getResponse(String sql, Configure configure, TableDefinition definition, Pagination pagination)
+    {
+        Response response = this.getResponse(sql, configure, definition);
+        response.setPagination(pagination);
+        return response;
+    }
+
+    private CreateColumn getCreateColumn(ColumnDefinition col)
+    {
+        CreateColumn column = CreateColumn.create(col.getName(), col.getType());
+
+        column.comment(col.getComment())
+                .length(col.getLength())
+                .defaultValue(col.getDefaultValue());
+
+        if (col.isAutoIncrement()) {
+            column.autoIncrement();
+        }
+
+        if (col.isNullable()) {
+            column.notNull();
+        }
+
+        return column;
+    }
+
+    /**
      * 获取分页
      * Get pagination
      *
@@ -894,31 +1196,25 @@ public interface PluginService
         }
     }
 
-    private Response getResponse(String sql, Configure configure, BaseDefinition definition)
+    default List<String> formatPrimaryKeys(Configure configure, String database, String table)
     {
-        Response response;
-        if (definition.isPreview()) {
-            response = Response.builder()
-                    .isSuccessful(true)
-                    .isConnected(true)
-                    .headers(Lists.newArrayList())
-                    .columns(Lists.newArrayList())
-                    .types(Lists.newArrayList())
-                    .content(sql)
-                    .build();
-        }
-        else {
-            response = this.execute(configure, sql);
-            response.setContent(sql);
-        }
-        return response;
-    }
+        List<String> columns = Lists.newArrayList();
 
-    private Response getResponse(String sql, Configure configure, TableDefinition definition, Pagination pagination)
-    {
-        Response response = this.getResponse(sql, configure, definition);
-        response.setPagination(pagination);
-        return response;
+        Response primaryKeys = this.getPrimaryKeys(configure, database, table);
+        if (primaryKeys.getIsSuccessful()) {
+            List<String> keys = primaryKeys.getColumns()
+                    .stream()
+                    .map(col -> {
+                        ObjectNode node = (ObjectNode) col;
+
+                        return node.get("object_name").asText();
+                    })
+                    .collect(Collectors.toList());
+
+            columns.addAll(keys);
+        }
+
+        return columns;
     }
 
     default void destroy()

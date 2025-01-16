@@ -106,15 +106,6 @@ const createSystemRouter = (router: any) => {
                 component: () => import('@/views/pages/system/function/FunctionHome.vue')
             },
             {
-                name: 'template',
-                path: 'template',
-                meta: {
-                    title: 'common.template',
-                    isRoot: false
-                },
-                component: () => import('@/views/pages/system/template/TemplateHome.vue')
-            },
-            {
                 name: 'menu',
                 path: 'menu',
                 meta: {

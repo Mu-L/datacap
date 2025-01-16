@@ -71,7 +71,7 @@
             </div>
           </ShadcnContextMenuItem>
 
-          <ShadcnContextMenuItem v-if="dataInfo.level === StructureEnum.COLUMN || dataInfo.type === 'column'"
+          <ShadcnContextMenuItem v-if="dataInfo.level === StructureEnum.COLUMN || dataInfo.type === 'column' || dataInfo.level === StructureEnum.TABLE"
                                  @click="visibleCreateColumn(true)">
             <div class="flex items-center space-x-1">
               <ShadcnIcon icon="Columns" size="15"/>
@@ -122,10 +122,7 @@
 
   <TableCreate v-if="tableCreateVisible" :is-visible="tableCreateVisible" @close="visibleCreateTable(false)"/>
 
-  <ColumnCreate v-if="columnCreateVisible"
-                :is-visible="columnCreateVisible"
-                :info="dataInfo as any"
-                @close="visibleCreateColumn(false)"/>
+  <ColumnCreate v-if="columnCreateVisible" :is-visible="columnCreateVisible" @close="visibleCreateColumn(false)"/>
 
   <TableExport v-if="tableExportVisible"
                :isVisible="tableExportVisible"
@@ -136,15 +133,17 @@
 
   <TableDrop v-if="tableDropVisible" :is-visible="tableDropVisible" @close="visibleDropTable(false)"/>
 
-  <ColumnChange v-if="columnChangeVisible"
+  <ColumnChange v-if="columnChangeVisible && dataInfo"
                 :is-visible="columnChangeVisible"
-                :info="dataInfo as any"
-                @close="visibleChangeColumn(false)"/>
+                :column="dataInfo.code"
+                @close="visibleChangeColumn(false)">
+  </ColumnChange>
 
-  <ColumnDrop v-if="columnDropVisible"
+  <ColumnDrop v-if="columnDropVisible && dataInfo"
               :is-visible="columnDropVisible"
-              :info="dataInfo as any"
-              @close="visibleDropColumn(false)"/>
+              :column="dataInfo.code"
+              @close="visibleDropColumn(false)">
+  </ColumnDrop>
 </template>
 
 <script lang="ts">
@@ -240,7 +239,7 @@ export default defineComponent({
         this.loading = true
         const table = this.$route.params?.table
         if (table) {
-          this.databaseModel = [ `${table}_table` ]
+          this.databaseModel = [`${ table }_table`]
         }
         MetadataService.getDatabaseBySource(source)
                        .then(response => {
@@ -302,7 +301,7 @@ export default defineComponent({
     },
     onNodeClick(node: any)
     {
-      if (node.level === StructureEnum.TYPE) {
+      if (node.level === StructureEnum.TYPE || node.level === StructureEnum.COLUMN) {
         return
       }
 
@@ -366,6 +365,10 @@ export default defineComponent({
     visibleDropColumn(opened: boolean)
     {
       this.columnDropVisible = opened
+
+      if (!opened) {
+        this.onChangeDatabase()
+      }
     },
     visibleContextMenu(event: any, node: any)
     {
@@ -392,7 +395,7 @@ export default defineComponent({
         type,
         title: `${ this.$t('common.' + type) } (${ items.length })`,
         level: StructureEnum.TYPE,
-        value: type,
+        value: `${type}_${new Date().getTime()}`,
         children: items.map(item => ({
           type: item.object_data_type || '',
           title: item.object_name,

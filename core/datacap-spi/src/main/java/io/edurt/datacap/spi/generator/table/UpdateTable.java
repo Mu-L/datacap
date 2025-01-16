@@ -5,9 +5,11 @@ import io.edurt.datacap.spi.generator.Filter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UpdateTable
@@ -16,6 +18,7 @@ public class UpdateTable
     private final List<Filter> filters = new ArrayList<>();
     private final Map<String, Object> updates = new HashMap<>();
     private final List<BatchUpdate> batchUpdates = new ArrayList<>();
+    private final Set<String> primaryKeys = new HashSet<>();
     private Long limit;
 
     private UpdateTable(String database, String name)
@@ -29,6 +32,19 @@ public class UpdateTable
     }
 
     /**
+     * 设置主键列
+     *
+     * @param keys 主键列名列表
+     * @return UpdateTable实例
+     */
+    public UpdateTable addPrimaryKeys(List<String> keys)
+    {
+        primaryKeys.clear();
+        primaryKeys.addAll(keys);
+        return this;
+    }
+
+    /**
      * 从 JsonNode 添加过滤条件
      *
      * @param node JsonNode 对象
@@ -36,57 +52,77 @@ public class UpdateTable
      */
     public UpdateTable addFilters(JsonNode node)
     {
-        Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
-        while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> field = fields.next();
-            String key = field.getKey();
-            JsonNode value = field.getValue();
-
-            if (!value.isNull()) {
-                Object processedValue;
-                if (value.isTextual()) {
-                    processedValue = value.asText().replace("'", "''");
+        if (!primaryKeys.isEmpty()) {
+            // 如果有主键，只添加主键作为过滤条件
+            for (String key : primaryKeys) {
+                JsonNode value = node.get(key);
+                if (value != null && !value.isNull()) {
+                    addFilterFromJsonValue(key, value);
                 }
-                else if (value.isNumber()) {
-                    processedValue = value.isInt() || value.isLong() ?
-                            value.asLong() : value.asDouble();
+            }
+        }
+        else {
+            // 如果没有主键，添加所有字段作为过滤条件
+            Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> field = fields.next();
+                String key = field.getKey();
+                JsonNode value = field.getValue();
+                if (!value.isNull()) {
+                    addFilterFromJsonValue(key, value);
                 }
-                else if (value.isBoolean()) {
-                    processedValue = value.asBoolean();
-                }
-                else if (value.isArray()) {
-                    Object[] arrayValues = new Object[value.size()];
-                    for (int i = 0; i < value.size(); i++) {
-                        JsonNode element = value.get(i);
-                        if (element.isTextual()) {
-                            arrayValues[i] = element.asText().replace("'", "''");
-                        }
-                        else if (element.isNumber()) {
-                            arrayValues[i] = element.isInt() || element.isLong() ?
-                                    element.asLong() : element.asDouble();
-                        }
-                        else if (element.isBoolean()) {
-                            arrayValues[i] = element.asBoolean();
-                        }
-                        else if (element.isNull()) {
-                            arrayValues[i] = null;
-                        }
-                        else {
-                            arrayValues[i] = element.toString();
-                        }
-                    }
-                    processedValue = arrayValues;
-                }
-                else if (value.asText().equalsIgnoreCase("null")) {
-                    processedValue = null;
-                }
-                else {
-                    processedValue = value.toString();
-                }
-                addFilter(Filter.create(key, Filter.Operator.EQ, processedValue));
             }
         }
         return this;
+    }
+
+    private void addFilterFromJsonValue(String key, JsonNode value)
+    {
+        Object processedValue;
+        if (value.isTextual()) {
+            processedValue = value.asText().replace("'", "''");
+        }
+        else if (value.isNumber()) {
+            if (value.isIntegralNumber()) {
+                processedValue = value.asLong();
+            }
+            else {
+                processedValue = value.asDouble();
+            }
+        }
+        else if (value.isBoolean()) {
+            processedValue = value.asBoolean();
+        }
+        else if (value.isArray()) {
+            Object[] arrayValues = new Object[value.size()];
+            for (int i = 0; i < value.size(); i++) {
+                JsonNode element = value.get(i);
+                if (element.isTextual()) {
+                    arrayValues[i] = element.asText().replace("'", "''");
+                }
+                else if (element.isNumber()) {
+                    arrayValues[i] = element.isInt() || element.isLong() ?
+                            element.asLong() : element.asDouble();
+                }
+                else if (element.isBoolean()) {
+                    arrayValues[i] = element.asBoolean();
+                }
+                else if (element.isNull()) {
+                    arrayValues[i] = null;
+                }
+                else {
+                    arrayValues[i] = element.toString();
+                }
+            }
+            processedValue = arrayValues;
+        }
+        else if (value.asText().equalsIgnoreCase("null")) {
+            processedValue = null;
+        }
+        else {
+            processedValue = value.toString();
+        }
+        addFilter(Filter.create(key, Filter.Operator.EQ, processedValue));
     }
 
     public UpdateTable addFilter(Filter filter)
@@ -95,25 +131,12 @@ public class UpdateTable
         return this;
     }
 
-    /**
-     * 添加要更新的列和值
-     *
-     * @param column 列名
-     * @param value 更新值
-     * @return UpdateTable实例
-     */
     public UpdateTable addUpdate(String column, Object value)
     {
         updates.put(column, value);
         return this;
     }
 
-    /**
-     * 从 JsonNode 添加要更新的列和值
-     *
-     * @param node JsonNode 对象
-     * @return UpdateTable实例
-     */
     public UpdateTable addUpdates(JsonNode node)
     {
         Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
@@ -173,15 +196,6 @@ public class UpdateTable
         return this;
     }
 
-    /**
-     * 添加批量更新条件（基于单列条件）
-     *
-     * @param column 条件列名
-     * @param values 条件值列表
-     * @param updateColumn 要更新的列名
-     * @param updateValue 更新的值
-     * @return UpdateTable实例
-     */
     public UpdateTable addBatchUpdate(String column, List<String> values,
             String updateColumn, Object updateValue)
     {
@@ -190,14 +204,6 @@ public class UpdateTable
         return this;
     }
 
-    /**
-     * 添加批量更新条件（基于多列条件）
-     *
-     * @param columns 条件列名列表
-     * @param valuesList 条件值组合列表
-     * @param updates 要更新的列和值的映射
-     * @return UpdateTable实例
-     */
     public UpdateTable addBatchUpdate(List<String> columns,
             List<List<String>> valuesList, Map<String, Object> updates)
     {
@@ -216,6 +222,15 @@ public class UpdateTable
         if (value instanceof Object[]) {
             Object[] array = (Object[]) value;
             return "(" + String.join(", ", formatArrayValues(array)) + ")";
+        }
+        if (value instanceof Long || value instanceof Integer) {
+            return String.valueOf(value);
+        }
+        if (value instanceof Double) {
+            double doubleValue = (Double) value;
+            if (doubleValue == Math.floor(doubleValue)) {
+                return String.valueOf(Math.round(doubleValue));
+            }
         }
         return String.valueOf(value);
     }
@@ -262,7 +277,7 @@ public class UpdateTable
         // 添加 WHERE 条件
         List<String> allConditions = new ArrayList<>();
 
-        // 添加普通过滤条件
+        // 添加过滤条件
         if (!filters.isEmpty()) {
             allConditions.add(filters.stream()
                     .map(Filter::build)
@@ -315,7 +330,6 @@ public class UpdateTable
         @Override
         public String build()
         {
-            // 如果没有在主更新中设置更新值，则在这里设置
             if (!updates.containsKey(updateColumn)) {
                 updates.put(updateColumn, updateValue);
             }
@@ -343,7 +357,6 @@ public class UpdateTable
         @Override
         public String build()
         {
-            // 将批量更新的值添加到主更新中
             updates.putAll(batchUpdates);
 
             String columnStr = columns.stream()

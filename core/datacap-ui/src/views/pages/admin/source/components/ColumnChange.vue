@@ -4,11 +4,11 @@
                width="40%"
                :title="$t('source.common.newColumn')"
                @on-close="onCancel">
-    <ShadcnForm v-model="formState" v-if="formState" @on-submit="onSubmit">
-      <ShadcnRow gutter="16">
-        <ShadcnCol v-for="(item, index) in formState.columns" span="12">
-          <ShadcnDivider orientation="left">{{ item.name }}</ShadcnDivider>
+    <ShadcnSkeleton v-if="loading" animation/>
 
+    <ShadcnForm v-else-if="formState" v-model="formState" @on-submit="onSubmit">
+      <ShadcnRow gutter="16">
+        <ShadcnCol v-for="(_item, index) in formState.columns" span="12">
           <ShadcnRow gutter="16">
             <ShadcnCol span="6">
               <ShadcnFormItem :name="`columns[${index}].name`"
@@ -25,7 +25,18 @@
               <ShadcnFormItem :name="`columns[${index}].type`"
                               :label="$t('source.common.columnType')"
                               :rules="[{ required: true, message: $t('source.validator.columnType.required') }]">
-                <ShadcnInput v-model="formState.columns[index].type" :placeholder="$t('source.placeholder.columnType')" :name="`columns[${index}].type`"/>
+                <ShadcnSelect v-model="formState.columns[index].type"
+                              :placeholder="$t('source.placeholder.columnType')"
+                              :loading="loading"
+                              :name="`columns[${index}].type`">
+                  <template #options>
+                    <ShadcnSelectOption v-for="dataType in dataTypes"
+                                        :key="dataType"
+                                        :value="dataType"
+                                        :label="dataType">
+                    </ShadcnSelectOption>
+                  </template>
+                </ShadcnSelect>
               </ShadcnFormItem>
             </ShadcnCol>
 
@@ -64,7 +75,11 @@
 
             <ShadcnCol span="4">
               <ShadcnFormItem :name="`columns[${index}].isNullable`" :label="$t('source.common.columnIsNullable')">
-                <ShadcnSwitch v-model="formState.columns[index].isNullable" :placeholder="$t('source.placeholder.columnIsNullable')" :name="`columns[${index}].isNullable`"/>
+                <ShadcnSwitch v-model="formState.columns[index].isNullable"
+                              :placeholder="$t('source.placeholder.columnIsNullable')"
+                              true-value="YES"
+                              false-value="NO"
+                              :name="`columns[${index}].isNullable`"/>
               </ShadcnFormItem>
             </ShadcnCol>
 
@@ -83,7 +98,7 @@
       <ShadcnSpace>
         <ShadcnButton type="default" @click="onCancel">{{ $t('common.cancel') }}</ShadcnButton>
 
-        <ShadcnButton submit :loading="submitting" :disabled="submitting">
+        <ShadcnButton submit :loading="saving" :disabled="saving">
           {{ $t('common.save') }}
         </ShadcnButton>
       </ShadcnSpace>
@@ -93,7 +108,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { StructureModel } from '@/model/structure'
+import MetadataService from '@/services/metadata'
+import HttpUtils from '@/utils/http'
 
 export default defineComponent({
   name: 'ColumnChange',
@@ -113,86 +129,107 @@ export default defineComponent({
     isVisible: {
       type: Boolean
     },
-    info: {
-      type: Object as () => StructureModel | null
+    column: {
+      type: String
     }
   },
   data()
   {
     return {
       loading: false,
-      submitting: false,
-      formState: null as unknown as TableModel
+      saving: false,
+      dataTypes: [],
+      formState: null as any
     }
   },
   created()
   {
-    this.formState = TableRequest.of()
-    this.formState.type = SqlType.MODIFY
     this.handleInitialize()
   },
   methods: {
     handleInitialize()
     {
-      if (this.info) {
+      const code = this.$route.params.source
+      const database = this.$route.params.database
+      const table = this.$route.params.table
+
+      this.formState = {
+        columns: []
+      }
+
+      if (code && database && table) {
         this.loading = true
-        ColumnService.getByCode(String(this.info.value))
-                     .then(response => {
-                       if (response.status) {
-                         const data = response.data
-                         const column: ColumnModel = {
-                           name: data.name,
-                           type: data.dataType,
-                           length: data.maximumLength,
-                           comment: data.comment,
-                           defaultValue: data.defaultValue,
-                           primaryKey: data.isKey === 'PRI',
-                           autoIncrement: data.extra === 'auto_increment',
-                           isNullable: data.isNullable,
-                           opened: true
-                         }
-                         if (this.formState.columns) {
-                           this.formState.columns.push(column)
-                         }
-                       }
+        HttpUtils.all([MetadataService.getColumn(code, database, table, { columns: [{ name: this.column }] }), MetadataService.getDataTypes(code)])
+                 .then(HttpUtils.spread((...responses) => {
+                   const [columnResponse, dataTypeResponse] = responses
+
+                   if (columnResponse.status && columnResponse.data && columnResponse.data.isSuccessful) {
+                     const primaryKey = columnResponse.data.columns.find(item => item.type_name === 'primary')
+
+                     columnResponse.data.columns
+                                   .filter(item => item.type_name === 'column')
+                                   .forEach(item => {
+                                     this.formState.columns.push({
+                                       name: item.object_name,
+                                       type: item.object_data_type,
+                                       length: item.object_length,
+                                       comment: item.object_comment,
+                                       defaultValue: item.object_default_value,
+                                       primaryKey: primaryKey !== undefined,
+                                       autoIncrement: item.extra === 'auto_increment',
+                                       isNullable: item.object_nullable
+                                     })
+                                   })
+                   }
+                   else {
+                     this.$Message.error({
+                       content: columnResponse.data.message,
+                       showIcon: true
                      })
-                     .finally(() => this.loading = false)
+                   }
+
+                   if (dataTypeResponse.status && dataTypeResponse.data && dataTypeResponse.data.isSuccessful) {
+                     this.dataTypes = dataTypeResponse.data.columns
+                   }
+                   else {
+                     this.$Message.error({
+                       content: dataTypeResponse.data.message,
+                       showIcon: true
+                     })
+                   }
+
+                 }))
+                 .finally(() => this.loading = false)
       }
     },
     onSubmit()
     {
-      if (this.info) {
-        this.submitting = true
-        TableService.manageColumn(String(this.info.tableId), this.formState)
-                    .then(response => {
-                      if (response.status) {
-                        if (response.data.isSuccessful) {
-                          const columns = this.formState
-                                              ?.columns
-                                              ?.map(item => item.name)
-                                              .join(', ') as string
-                          this.$Message.success({
-                            content: this.$t('source.tip.changeColumnSuccess').replace('$VALUE', columns),
-                            showIcon: true
-                          })
+      const code = this.$route.params.source
+      const database = this.$route.params.database
+      const table = this.$route.params.table
 
-                          this.onCancel()
-                        }
-                        else {
-                          this.$Message.error({
-                            content: response.data.message,
-                            showIcon: true
-                          })
-                        }
-                      }
-                      else {
-                        this.$Message.error({
-                          content: response.message,
-                          showIcon: true
-                        })
-                      }
-                    })
-                    .finally(() => this.submitting = false)
+      if (code && database && table) {
+        this.submitting = true
+        MetadataService.changeColumn(code, database, table, this.formState)
+                       .then(response => {
+                         if (response.status && response.data && response.data.isSuccessful) {
+                           const columns = this.formState.columns.map(item => item.name)
+                                               .join(', ') as string
+                           this.$Message.success({
+                             content: this.$t('source.tip.changeColumnSuccess').replace('$VALUE', columns),
+                             showIcon: true
+                           })
+
+                           this.onCancel()
+                         }
+                         else {
+                           this.$Message.error({
+                             content: response.data.message,
+                             showIcon: true
+                           })
+                         }
+                       })
+                       .finally(() => this.submitting = false)
       }
     },
     onCancel()

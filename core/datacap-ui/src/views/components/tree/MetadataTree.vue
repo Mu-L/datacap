@@ -1,17 +1,23 @@
 <template>
-  <div class="relative overflow-auto" style="height: 500px; max-height: 500px; max-width: 200px;">
-    <ShadcnSpin v-model="loading" class="mt-2.5" fixed/>
+  <div class="relative overflow-auto" style="height: 500px; max-height: 500px; max-width: 300px;">
+    <ShadcnSkeleton v-if="loading" animation class="mt-2"/>
 
-    <ShadcnTree v-model="value"
+    <ShadcnTree v-else-if="data.length > 0"
+                v-model="value"
                 :data="data"
                 :loadData="onLoadData"
                 @on-node-click="onNodeClick">
       <template #label="{ node }">
         <div class="flex items-center space-x-1">
           <ShadcnIcon class="text-xs font-semibold text-gray-500"
-                      size="16"
-                      :icon="node.level === 2 ? 'Table' : 'Database'"/>
-          <span class="text-xs font-normal text-gray-500">{{ node.title }}</span>
+                      size="13"
+                      :icon="node.level === 2 ? 'Database' :
+                              node.level === 3 ? 'Table' :
+                              node.level === 4 ? 'Columns' :
+                              'Database'
+                      ">
+          </ShadcnIcon>
+          <span class="text-sm font-normal text-gray-500">{{ node.title }}</span>
         </div>
       </template>
     </ShadcnTree>
@@ -20,11 +26,7 @@
 <script lang="ts">
 import { defineComponent, watch } from 'vue'
 import { StructureEnum, StructureModel } from '@/model/structure'
-
-import DatabaseService from '@/services/metadata.ts'
-import TableService from '@/services/table'
-import ColumnService from '@/services/column'
-
+import MetadataService from '@/services/metadata.ts'
 import { ObjectUtils } from '@/utils/object'
 
 export default defineComponent({
@@ -50,45 +52,84 @@ export default defineComponent({
   methods: {
     handleInitialize()
     {
-      this.data = []
-      this.loading = true
-      DatabaseService.getAllBySource(this.code as string)
-                     .then(response => {
-                       if (response.status) {
-                         response.data.forEach((item: any) => this.data.push({
-                           title: item.name, value: item.code, catalog: item.catalog, code: item.code,
-                           level: StructureEnum.DATABASE, isLeaf: false, children: []
-                         }))
-                       }
-                     })
-                     .finally(() => this.loading = false)
+      if (this.code) {
+        this.data = []
+        this.loading = true
+        MetadataService.getDatabaseBySource(this.code)
+                       .then(response => {
+                         if (response.status && response.data && response.data.isSuccessful) {
+                           response.data.columns.forEach(item => {
+                             const structure = {
+                               title: item.object_name,
+                               catalog: item.object_name,
+                               code: item.object_name,
+                               level: StructureEnum.DATABASE,
+                               value: item.object_name,
+                               isLeaf: false
+                             }
+                             this.data.push(structure)
+                           })
+                         }
+                         else {
+                           this.$Message.error({
+                             content: response.data.message,
+                             showIcon: true
+                           })
+                         }
+                       })
+                       .finally(() => this.loading = false)
+      }
     },
-    onLoadData(item: StructureModel, callback: any)
+    onLoadData(item: any, callback: any)
     {
       const children = [] as StructureModel[]
       if (item.level === StructureEnum.DATABASE) {
-        TableService.getAllByDatabase(item.code as string)
-                    .then(response => {
-                      if (response.status) {
-                        response.data.forEach((item: any) => children.push({
-                          title: item.name, value: item.code, database: item.database.name, catalog: item.catalog,
-                          level: StructureEnum.TABLE, type: item.type, engine: item.engine, isLeaf: false, children: []
-                        }))
-                      }
-                    })
-                    .finally(() => callback(children))
+        MetadataService.getTablesByDatabase(this.code, item.code)
+                       .then(response => {
+                         if (response.status && response.data && response.data.isSuccessful) {
+                           response.data.columns.forEach((value: any) => children.push({
+                             title: value.object_name,
+                             value: value.object_name,
+                             code: value.object_name,
+                             database: item.code,
+                             catalog: value.object_name,
+                             level: StructureEnum.TABLE,
+                             isLeaf: false
+                           }))
+                         }
+                         else {
+                           this.$Message.error({
+                             content: response.data.message,
+                             showIcon: true
+                           })
+                         }
+                       })
+                       .finally(() => callback(children))
       }
       else if (item.level === StructureEnum.TABLE) {
-        ColumnService.getAllByTable(item.code as string)
-                     .then(response => {
-                       if (response.status) {
-                         response.data.forEach((item: any) => children.push({
-                           title: item.name, value: item.code, database: item.table.database.name, table: item.table.name, catalog: item.catalog,
-                           code: item.code, level: StructureEnum.COLUMN, type: item.type, engine: item.engine, isLeaf: false
-                         }))
-                       }
-                     })
-                     .finally(() => callback(children))
+        MetadataService.getColumnsByTable(this.code, item.database, item.code)
+                       .then(response => {
+                         if (response.status && response.data && response.data.isSuccessful) {
+                           response.data.columns
+                                   .filter(value => value.type_name === 'column')
+                                   .forEach((value: any) => children.push({
+                                     title: value.object_name,
+                                     value: value.object_name,
+                                     database: item.database,
+                                     table: item.code,
+                                     catalog: value.object_name,
+                                     code: value.object_name,
+                                     level: StructureEnum.COLUMN
+                                   }))
+                         }
+                         else {
+                           this.$Message.error({
+                             content: response.data.message,
+                             showIcon: true
+                           })
+                         }
+                       })
+                       .finally(() => callback(children))
       }
       else {
         callback(children)

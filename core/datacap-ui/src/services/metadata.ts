@@ -84,12 +84,37 @@ class MetadataService
 
     updateData(code: string, database: string, table: string, configure: any): Promise<ResponseModel>
     {
-        return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/update-data`, configure)
+        return HttpUtils.put(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/update-data`, configure)
     }
 
     exportData(code: string, database: string, table: string, configure: any): Promise<ResponseModel>
     {
         return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/export-data`, configure)
+    }
+
+    createColumn(code: string, database: string, table: string, configure: any): Promise<ResponseModel>
+    {
+        return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/create-column`, configure)
+    }
+
+    dropColumn(code: string, database: string, table: string, configure: any): Promise<ResponseModel>
+    {
+        return HttpUtils.delete(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/drop-column`, configure)
+    }
+
+    getColumn(code: string, database: string, table: string, configure: any): Promise<ResponseModel>
+    {
+        return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/get-column`, configure)
+    }
+
+    changeColumn(code: string, database: string, table: string, configure: any): Promise<ResponseModel>
+    {
+        return HttpUtils.put(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/change-column`, configure)
+    }
+
+    insertData(code: string, database: string, table: string, configure: any): Promise<ResponseModel>
+    {
+        return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/insert-data`, configure)
     }
 }
 
