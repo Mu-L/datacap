@@ -34,6 +34,7 @@ import io.edurt.datacap.spi.generator.table.DropTable;
 import io.edurt.datacap.spi.generator.table.InsertTable;
 import io.edurt.datacap.spi.generator.table.SelectTable;
 import io.edurt.datacap.spi.generator.table.TruncateTable;
+import io.edurt.datacap.spi.generator.table.UpdateTable;
 import io.edurt.datacap.spi.model.Configure;
 import io.edurt.datacap.spi.model.Pagination;
 import io.edurt.datacap.spi.model.Response;
@@ -1059,21 +1060,33 @@ public interface PluginService
     default Response insertData(Configure configure, TableDefinition definition)
     {
         InsertTable tableDefinition = InsertTable.create(definition.getDatabase(), definition.getName())
-                .addValues(definition.getRows());
+                .addValues(definition.getRows())
+                .addPrimaryKeys(this.formatPrimaryKeys(configure, definition.getDatabase(), definition.getName()));
 
-        Response primaryKeys = this.getPrimaryKeys(configure, definition.getDatabase(), definition.getName());
-        if (primaryKeys.getIsSuccessful()) {
-            List<String> keys = primaryKeys.getColumns()
-                    .stream()
-                    .map(col -> {
-                        ObjectNode node = (ObjectNode) col;
+        return this.getResponse(
+                tableDefinition.build(),
+                configure,
+                definition
+        );
+    }
 
-                        return node.get("object_name").asText();
-                    })
-                    .collect(Collectors.toList());
+    /**
+     * 更新数据
+     * Update data
+     *
+     * @param configure 配置信息 | Configuration information
+     * @param definition 表配置定义 | Table configuration definition
+     * @return 执行结果 | Execution result
+     */
+    default Response updateData(Configure configure, TableDefinition definition)
+    {
+        UpdateTable tableDefinition = UpdateTable.create(definition.getDatabase(), definition.getName())
+                .addPrimaryKeys(this.formatPrimaryKeys(configure, definition.getDatabase(), definition.getName()));
 
-            tableDefinition.addPrimaryKeys(keys);
-        }
+        definition.getRows().forEach(row -> {
+            tableDefinition.addUpdates(row.get("row"));
+            tableDefinition.addFilters(row.get("original"));
+        });
 
         return this.getResponse(
                 tableDefinition.build(),
@@ -1181,6 +1194,27 @@ public interface PluginService
         catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    default List<String> formatPrimaryKeys(Configure configure, String database, String table)
+    {
+        List<String> columns = Lists.newArrayList();
+
+        Response primaryKeys = this.getPrimaryKeys(configure, database, table);
+        if (primaryKeys.getIsSuccessful()) {
+            List<String> keys = primaryKeys.getColumns()
+                    .stream()
+                    .map(col -> {
+                        ObjectNode node = (ObjectNode) col;
+
+                        return node.get("object_name").asText();
+                    })
+                    .collect(Collectors.toList());
+
+            columns.addAll(keys);
+        }
+
+        return columns;
     }
 
     default void destroy()

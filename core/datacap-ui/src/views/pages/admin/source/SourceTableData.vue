@@ -359,13 +359,31 @@ export default defineComponent({
         const originalColumn = cloneDeep(oldColumn)
         originalColumn[event.colDef.field] = event.oldValue
         this.dataCellChanged.changed = true
-        const column = {
-          column: event.colDef.field,
-          value: event.newValue,
-          original: originalColumn
+
+        // 检查是否已经存在相同original的记录
+        const existingIndex = this.dataCellChanged.columns.findIndex(
+            item => item.original.id === originalColumn.id
+        )
+
+        if (existingIndex !== -1) {
+          // 如果存在,则合并row对象
+          this.dataCellChanged.columns[existingIndex].row = {
+            ...this.dataCellChanged.columns[existingIndex].row,
+            [event.colDef.field]: event.newValue
+          }
         }
+        else {
+          // 如果不存在,则创建新记录
+          const column = {
+            row: {
+              [event.colDef.field]: event.newValue
+            },
+            original: originalColumn
+          }
+          this.dataCellChanged.columns.push(column)
+        }
+
         this.dataCellChanged.type = 'UPDATE'
-        this.dataCellChanged.columns.push(column)
       }
     },
     onSelectionChanged()
@@ -437,6 +455,7 @@ export default defineComponent({
         })
       }
       this.dataCellChanged.changed = true
+      this.dataCellChanged.type = null
       this.dataCellChanged.columns = this.newRows
       this.gridApi.setRowData(this.configure.datasets)
     },

@@ -395,7 +395,7 @@ export default defineComponent({
         type,
         title: `${ this.$t('common.' + type) } (${ items.length })`,
         level: StructureEnum.TYPE,
-        value: type,
+        value: `${type}_${new Date().getTime()}`,
         children: items.map(item => ({
           type: item.object_data_type || '',
           title: item.object_name,

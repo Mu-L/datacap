@@ -220,4 +220,15 @@ public class MetadataController
     {
         return this.service.insertData(code, database, table, configure);
     }
+
+    @PutMapping(value = "{code}/{database}/{table}/update-data")
+    public CommonResponse<Response> updateData(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.updateData(code, database, table, configure);
+    }
 }

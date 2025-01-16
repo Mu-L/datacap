@@ -87,36 +87,40 @@ export default defineComponent({
           preview: preview,
           rows: this.columns
         }
-        MetadataService.insertData(code, database, table, configure)
-                       .then(response => {
-                         if (response.status && response.data && response.data.isSuccessful) {
-                           if (preview) {
-                             this.contentDML = response.data.content
-                           }
-                           else {
-                             this.$Message.success({
-                               content: this.$t('source.tip.updateSuccess'),
-                               showIcon: true
-                             })
 
-                             this.onCancel()
-                           }
-                         }
-                         else {
-                           this.$Message.error({
-                             content: response.data.message,
-                             showIcon: true
-                           })
-                         }
-                       })
-                       .finally(() => {
-                         if (preview) {
-                           this.loading = false
-                         }
-                         else {
-                           this.submitting = false
-                         }
-                       })
+        const apiCall = this.isUpdate
+            ? MetadataService.updateData(code, database, table, configure)
+            : MetadataService.insertData(code, database, table, configure)
+
+        apiCall.then(response => {
+          if (response.status && response.data && response.data.isSuccessful) {
+            if (preview) {
+              this.contentDML = response.data.content
+            }
+            else {
+              this.$Message.success({
+                content: this.$t('source.tip.updateSuccess'),
+                showIcon: true
+              })
+
+              this.onCancel()
+            }
+          }
+          else {
+            this.$Message.error({
+              content: response.data.message,
+              showIcon: true
+            })
+          }
+        })
+               .finally(() => {
+                 if (preview) {
+                   this.loading = false
+                 }
+                 else {
+                   this.submitting = false
+                 }
+               })
       }
     },
     onSubmit()
