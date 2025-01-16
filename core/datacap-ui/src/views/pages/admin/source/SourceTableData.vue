@@ -60,6 +60,15 @@
             </ShadcnButton>
           </ShadcnTooltip>
 
+          <ShadcnTooltip :content="$t('source.common.copyRows')">
+            <ShadcnButton circle
+                          size="small"
+                          :disabled="dataSelectedChanged.columns.length === 0"
+                          @click="onAddOrCloneRow(true)">
+              <ShadcnIcon icon="Copy" size="15"/>
+            </ShadcnButton>
+          </ShadcnTooltip>
+
           <ShadcnTooltip :content="$t('source.common.deleteRows')">
             <ShadcnButton circle
                           size="small"
