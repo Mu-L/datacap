@@ -209,4 +209,15 @@ public class MetadataController
     {
         return this.service.changeColumn(code, database, table, configure);
     }
+
+    @PostMapping(value = "{code}/{database}/{table}/insert-data")
+    public CommonResponse<Response> insertData(
+            @PathVariable String code,
+            @PathVariable String database,
+            @PathVariable String table,
+            @RequestBody TableDefinition configure
+    )
+    {
+        return this.service.insertData(code, database, table, configure);
+    }
 }

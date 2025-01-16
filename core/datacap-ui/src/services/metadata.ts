@@ -84,7 +84,7 @@ class MetadataService
 
     updateData(code: string, database: string, table: string, configure: any): Promise<ResponseModel>
     {
-        return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/update-data`, configure)
+        return HttpUtils.put(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/update-data`, configure)
     }
 
     exportData(code: string, database: string, table: string, configure: any): Promise<ResponseModel>
@@ -110,6 +110,11 @@ class MetadataService
     changeColumn(code: string, database: string, table: string, configure: any): Promise<ResponseModel>
     {
         return HttpUtils.put(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/change-column`, configure)
+    }
+
+    insertData(code: string, database: string, table: string, configure: any): Promise<ResponseModel>
+    {
+        return HttpUtils.post(`${ DEFAULT_PATH }/${ code }/${ database }/${ table }/insert-data`, configure)
     }
 }
 

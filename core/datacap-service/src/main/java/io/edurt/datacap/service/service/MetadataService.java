@@ -43,4 +43,6 @@ public interface MetadataService
     CommonResponse<Response> getColumn(String code, String database, String table, TableDefinition configure);
 
     CommonResponse<Response> changeColumn(String code, String database, String table, TableDefinition configure);
+
+    CommonResponse<Response> insertData(String code, String database, String table, TableDefinition configure);
 }

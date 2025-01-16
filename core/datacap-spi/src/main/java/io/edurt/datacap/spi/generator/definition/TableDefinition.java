@@ -1,6 +1,11 @@
 package io.edurt.datacap.spi.generator.definition;
 
+import java.util.List;
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Lists;
 import io.edurt.datacap.spi.model.Pagination;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -9,8 +14,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.compress.utils.Sets;
-
-import java.util.Set;
 
 @Getter
 @Setter
@@ -33,6 +36,7 @@ public class TableDefinition
     private Set<ColumnDefinition> orders = Sets.newHashSet();
     private Set<ColumnDefinition> filters = Sets.newHashSet();
     private Pagination pagination;
+    private List<JsonNode> rows = Lists.newArrayList();
 
     private TableDefinition(String database, String name)
     {
@@ -90,6 +94,18 @@ public class TableDefinition
     public TableDefinition filters(Set<ColumnDefinition> filters)
     {
         this.filters = filters;
+        return this;
+    }
+
+    public TableDefinition pagination(Pagination pagination)
+    {
+        this.pagination = pagination;
+        return this;
+    }
+
+    public TableDefinition values(List<JsonNode> rows)
+    {
+        this.rows = rows;
         return this;
     }
 }
