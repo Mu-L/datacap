@@ -106,7 +106,7 @@
                                       trigger: ['.', '@'],
                                       headers: { 'Authorization': auth?.type + ' ' + auth?.token },
                                       transform: (response: any) => {
-                                        return response.data.columns.map((item: any) => ({
+                                        return response[0].data.columns.map((item: any) => ({
                                           label: item.object_name,
                                           insertText: item.object_name,
                                           detail: item.object_name,

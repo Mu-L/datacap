@@ -1,6 +1,7 @@
 <template>
   <ShadcnMenu>
     <ShadcnMenuItem v-for="item in items"
+                    class="w-full"
                     :name="item.title"
                     :to="item.href"
                     :active="$route.path === `${item.href}`">
