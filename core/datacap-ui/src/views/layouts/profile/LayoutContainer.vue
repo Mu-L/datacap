@@ -7,7 +7,7 @@
           <ShadcnLayoutSider class="mr-4">
             <LayoutSidebar/>
           </ShadcnLayoutSider>
-          <ShadcnLayoutMain class="ml-2">
+          <ShadcnLayoutMain class="ml-20">
             <ShadcnLayoutContent>
               <RouterView/>
             </ShadcnLayoutContent>

@@ -28,6 +28,7 @@
                 </template>
 
                 <ShadcnMenuItem v-for="children in item.children"
+                                class="w-full"
                                 :name="children.id"
                                 :active="$route.path === children.url"
                                 :to="children.url">
@@ -38,6 +39,7 @@
                 </ShadcnMenuItem>
               </ShadcnMenuSub>
               <ShadcnMenuItem v-else
+                              class="w-full"
                               :name="item.id"
                               :active="$route.path === item.url"
                               :to="item.url">
@@ -50,16 +52,16 @@
           </ShadcnMenu>
         </ShadcnLayoutHeader>
 
-        <ShadcnSpace>
+        <ShadcnSpace size="large">
           <!-- Language Switcher -->
-          <div class="mr-3 mt-2.5 items-center">
+          <div class="mt-2.5 items-center">
             <ShadcnTooltip :content="$t('common.feedback')">
               <ShadcnLink link="https://github.com/devlive-community/datacap" external target="_blank">
                 <ShadcnIcon icon="CircleHelp" :size="20"/>
               </ShadcnLink>
             </ShadcnTooltip>
           </div>
-          <div class="ml-3 mr-5 mt-1">
+          <div class="mt-1">
             <LanguageSwitcher @changeLanguage="onChangeLanguage($event)"/>
           </div>
           <!-- User Info -->
@@ -74,7 +76,11 @@
           <div v-else>
             <ShadcnDropdown position="right">
               <template #trigger>
-                <ShadcnAvatar :src="userInfo.avatar" :alt="userInfo.username"/>
+                <ShadcnAvatar class="mt-1"
+                              style="width: 2rem;"
+                              :src="userInfo.avatar"
+                              :alt="userInfo.username">
+                </ShadcnAvatar>
               </template>
 
               <ShadcnDropdownItem>
