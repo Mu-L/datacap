@@ -6,22 +6,17 @@
     <parent>
         <groupId>io.edurt.datacap</groupId>
         <artifactId>datacap</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>2025.1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>datacap-parser</artifactId>
     <description>DataCap - sql parser</description>
 
-    <properties>
-        <antlr4.version>4.12.0</antlr4.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
-            <version>${antlr4.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -46,7 +41,7 @@
             <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-maven-plugin</artifactId>
-                <version>${antlr4.version}</version>
+                <version>${dep.antlr4.version}</version>
                 <executions>
                     <execution>
                         <goals>

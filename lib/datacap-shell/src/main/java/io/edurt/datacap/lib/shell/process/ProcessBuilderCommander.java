@@ -7,6 +7,7 @@ import io.edurt.datacap.lib.logger.LoggerExecutor;
 import io.edurt.datacap.lib.shell.ShellCommander;
 import io.edurt.datacap.lib.shell.ShellConfigure;
 import io.edurt.datacap.lib.shell.ShellResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 @SuppressFBWarnings(value = {"REC_CATCH_EXCEPTION"},
         justification = "I prefer to suppress these FindBugs warnings")
+@Slf4j
 public class ProcessBuilderCommander
         extends ShellCommander
 {
@@ -34,7 +36,7 @@ public class ProcessBuilderCommander
     {
         LoggerExecutor loggerExecutor = this.configure.getLoggerExecutor();
         Logger logger = (Logger) loggerExecutor.getLogger();
-        logger.info("Execute pipeline on username {}", configure.getUsername());
+        logger.info("Execute task on username [ {} ]", configure.getUsername());
         ShellResponse shellResponse = new ShellResponse();
         shellResponse.setSuccessful(Boolean.TRUE);
         List<String> command = new ArrayList<>();
@@ -59,11 +61,11 @@ public class ProcessBuilderCommander
             process = builder.start();
             boolean exitCode = process.waitFor(configure.getTimeout(), TimeUnit.SECONDS);
             if (!exitCode) {
-                logger.info(String.format("Timeout %s seconds killed", configure.getTimeout()));
+                logger.info(String.format("Timeout [ %s ] seconds killed", configure.getTimeout()));
                 process.destroy();
                 shellResponse.setSuccessful(Boolean.FALSE);
                 shellResponse.setTimeout(true);
-                Preconditions.checkArgument(false, String.format("Timeout %s seconds", configure.getTimeout()));
+                Preconditions.checkArgument(false, String.format("Timeout [ %s ] seconds", configure.getTimeout()));
             }
 
             try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
@@ -83,14 +85,22 @@ public class ProcessBuilderCommander
             shellResponse.setCode(process.exitValue());
             if (process.exitValue() > 0) {
                 List<String> errors = new ArrayList<>();
-                new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8))
-                        .lines()
-                        .forEach(line -> {
-                            logger.error(line);
-                            errors.add(line);
-                        });
-                shellResponse.setErrors(errors);
-                shellResponse.setSuccessful(Boolean.FALSE);
+                try (InputStreamReader streamReader = new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8);
+                        BufferedReader reader = new BufferedReader(streamReader)) {
+                    reader.lines()
+                            .forEach(line -> {
+                                logger.error(line);
+                                errors.add(line);
+                            });
+                    shellResponse.setErrors(errors);
+                    shellResponse.setSuccessful(Boolean.FALSE);
+                }
+            }
+
+            logger.info("Execute task exit code [ {} ]", process.exitValue());
+            if (process.exitValue() == 0) {
+                shellResponse.setErrors(null);
+                shellResponse.setSuccessful(Boolean.TRUE);
             }
         }
         catch (Exception ex) {
@@ -101,9 +111,10 @@ public class ProcessBuilderCommander
             if (ObjectUtils.isNotEmpty(process)) {
                 process.destroy();
             }
-            logger.info("Execute end destroy logger components successful");
+            logger.info("Destroy logger executor");
             loggerExecutor.destroy();
         }
+        log.info("Execute task on username [ {} ] finished", configure.getUsername());
         return shellResponse;
     }
 }

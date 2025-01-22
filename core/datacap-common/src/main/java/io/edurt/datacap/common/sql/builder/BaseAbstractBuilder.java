@@ -4,6 +4,7 @@ package io.edurt.datacap.common.sql.builder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 // CHECKSTYLE:DISABLE:<CheckName>
@@ -111,6 +112,20 @@ abstract class BaseAbstractBuilder<T>
     public T DELETE_FROM(String table)
     {
         sql().statementType = SQLStatement.StatementType.DELETE;
+        sql().tables.add(table);
+        return getSelf();
+    }
+
+    public T TRUNCATE(String table)
+    {
+        sql().statementType = SQLStatement.StatementType.TRUNCATE;
+        sql().tables.add(table);
+        return getSelf();
+    }
+
+    public T DROP(String table)
+    {
+        sql().statementType = SQLStatement.StatementType.DROP;
         sql().tables.add(table);
         return getSelf();
     }
@@ -403,6 +418,32 @@ abstract class BaseAbstractBuilder<T>
         return getSelf();
     }
 
+    public T END()
+    {
+        sql().end = true;
+        return getSelf();
+    }
+
+    public T ALTER_TABLE(String table)
+    {
+        sql().statementType = SQLStatement.StatementType.ALTER;
+        sql().tables.add(table);
+        return getSelf();
+    }
+
+    public T AUTO_INCREMENT(String value)
+    {
+        sql().autoIncrement = value;
+        return getSelf();
+    }
+
+    public T SHOW_CREATE_TABLE(String table)
+    {
+        sql().statementType = SQLStatement.StatementType.SHOW;
+        sql().tables.add(table);
+        return getSelf();
+    }
+
     private SQLStatement sql()
     {
         return sql;
@@ -458,7 +499,7 @@ abstract class BaseAbstractBuilder<T>
 
         public enum StatementType
         {
-            DELETE, INSERT, SELECT, UPDATE
+            DELETE, INSERT, SELECT, UPDATE, ALTER, SHOW, TRUNCATE, DROP
         }
 
         private enum LimitingRowsStrategy
@@ -485,10 +526,10 @@ abstract class BaseAbstractBuilder<T>
             protected void appendClause(SafeAppendable builder, String offset, String limit)
             {
                 if (limit != null) {
-                    builder.append(" LIMIT ").append(limit);
+                    builder.append("\nLIMIT ").append(limit);
                 }
                 if (offset != null) {
-                    builder.append(" OFFSET ").append(offset);
+                    builder.append("\nOFFSET ").append(offset);
                 }
             }
         };
@@ -513,6 +554,8 @@ abstract class BaseAbstractBuilder<T>
         List<String> columns = new ArrayList<>();
         List<List<String>> valuesList = new ArrayList<>();
         boolean distinct;
+        boolean end;
+        String autoIncrement;
         String offset;
         String limit;
         LimitingRowsStrategy limitingRowsStrategy = LimitingRowsStrategy.NOP;
@@ -535,11 +578,19 @@ abstract class BaseAbstractBuilder<T>
                 String last = "________";
                 for (int i = 0, n = parts.size(); i < n; i++) {
                     String part = parts.get(i);
-                    if (i > 0 && !part.equals(AND) && !part.equals(OR) && !last.equals(AND) && !last.equals(OR)) {
-                        builder.append(conjunction);
+                    if (part != null) {
+                        if (i > 0 && !part.equals(AND) && !part.equals(OR) && !last.equals(AND) && !last.equals(OR)) {
+                            builder.append(conjunction);
+                        }
+                        builder.append(part);
+                        last = part;
                     }
-                    builder.append(part);
-                    last = part;
+                    else {
+                        if (i > 0) {
+                            builder.append(conjunction);
+                        }
+                        builder.append(null);
+                    }
                 }
                 builder.append(close);
             }
@@ -580,6 +631,9 @@ abstract class BaseAbstractBuilder<T>
             for (int i = 0; i < valuesList.size(); i++) {
                 sqlClause(builder, i > 0 ? "," : "VALUES", valuesList.get(i), "(", ")", ", ");
             }
+            if (end) {
+                builder.append(";");
+            }
             return builder.toString();
         }
 
@@ -588,6 +642,9 @@ abstract class BaseAbstractBuilder<T>
             sqlClause(builder, "DELETE FROM", tables, "", "", "");
             sqlClause(builder, "WHERE", where, "(", ")", " AND ");
             limitingRowsStrategy.appendClause(builder, null, limit);
+            if (end) {
+                builder.append(";");
+            }
             return builder.toString();
         }
 
@@ -598,6 +655,50 @@ abstract class BaseAbstractBuilder<T>
             sqlClause(builder, "SET", sets, "", "", ", ");
             sqlClause(builder, "WHERE", where, "(", ")", " AND ");
             limitingRowsStrategy.appendClause(builder, null, limit);
+            if (end) {
+                builder.append(";");
+            }
+            return builder.toString();
+        }
+
+        private String alterSQL(SafeAppendable builder)
+        {
+            sqlClause(builder, "ALTER TABLE", tables, "", "", "");
+            sqlClause(builder, "AUTO_INCREMENT", Collections.singletonList(autoIncrement), "= ", "", "");
+            limitingRowsStrategy.appendClause(builder, null, limit);
+            if (end) {
+                builder.append(";");
+            }
+            return builder.toString();
+        }
+
+        private String showSQL(SafeAppendable builder)
+        {
+            sqlClause(builder, "SHOW CREATE TABLE", tables, "", "", "");
+            limitingRowsStrategy.appendClause(builder, null, limit);
+            if (end) {
+                builder.append(";");
+            }
+            return builder.toString();
+        }
+
+        private String truncateSQL(SafeAppendable builder)
+        {
+            sqlClause(builder, "TRUNCATE TABLE", tables, "", "", "");
+            limitingRowsStrategy.appendClause(builder, null, limit);
+            if (end) {
+                builder.append(";");
+            }
+            return builder.toString();
+        }
+
+        private String dropSQL(SafeAppendable builder)
+        {
+            sqlClause(builder, "DROP TABLE", tables, "", "", "");
+            limitingRowsStrategy.appendClause(builder, null, limit);
+            if (end) {
+                builder.append(";");
+            }
             return builder.toString();
         }
 
@@ -625,6 +726,22 @@ abstract class BaseAbstractBuilder<T>
 
                 case UPDATE:
                     answer = updateSQL(builder);
+                    break;
+
+                case ALTER:
+                    answer = alterSQL(builder);
+                    break;
+
+                case SHOW:
+                    answer = showSQL(builder);
+                    break;
+
+                case TRUNCATE:
+                    answer = truncateSQL(builder);
+                    break;
+
+                case DROP:
+                    answer = dropSQL(builder);
                     break;
 
                 default:

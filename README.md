@@ -1,23 +1,26 @@
 <div align="center">
 
-<img width=68 height=65 src="core/datacap-web/console-fe/public/static/images/logo.png" />
+<img width=68 height=65 src="core/datacap-ui/public/static/images/logo.png" />
 
 # DataCap
 
 ---
 
-![Visitors](https://api.visitorbadge.io/api/combined?path=https%3A%2F%2Fgithub.com%2FEdurtIO%2Fdatacap.git&countColor=%23263759&style=flat&labelStyle=none)
+![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FEdurtIO%2Fdatacap.git&countColor=%23263759&style=flat&labelStyle=none)
 [![](https://tokei.rs/b1/github/EdurtIO/datacap)](https://github.com/EdurtIO/datacap)
 ![version](https://img.shields.io/github/v/release/EdurtIO/datacap.svg)
 
-![GitHub branch checks state](https://img.shields.io/github/checks-status/EdurtIO/datacap/develop?style=flat-square)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+![GitHub branch checks state](https://img.shields.io/github/checks-status/EdurtIO/datacap/dev?style=flat-square)
 ![GitHub Release Date](https://img.shields.io/github/release-date/EdurtIO/datacap?style=flat-square)
+
+![Docker Automated build](https://img.shields.io/docker/automated/qianmoq/datacap)
+![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/qianmoq/datacap?style=flat-square)
+![Docker Pulls](https://img.shields.io/docker/pulls/qianmoq/datacap?style=flat-square)
 
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/y/EdurtIO/datacap?style=flat-square)
 ![GitHub contributors](https://img.shields.io/github/contributors-anon/EdurtIO/datacap?style=flat-square)
 ![GitHub last commit](https://img.shields.io/github/last-commit/EdurtIO/datacap?style=flat-square)
-
-[![Security Status](https://www.murphysec.com/platform3/v3/badge/1629055559743877120.svg)](https://www.murphysec.com/accept?code=d1f9c5849bfdc699127f6141c8e0978c&type=1&from=2)
 
 </div>
 
@@ -27,11 +30,10 @@
 
 DataCap is integrated software for data transformation, integration, and visualization. Support a variety of data sources, file types, big data related database, relational database, NoSQL database, etc. Through the software can realize the management of multiple data sources, the data under the source of various operations conversion, making data charts, monitoring data sources and other functions.
 
-**Example**: [try.datacap.edurt.io](http://try.datacap.edurt.io/)
-
 | Username  | Password    |
 |:---------:|:------------|
 | `datacap` | `123456789` |
+|  `admin`  | `12345678`  |
 
 ### Require
 
@@ -52,133 +54,93 @@ DataCap can query data from any SQL-speaking datastore or data engine (ClickHous
 
 Here are some of the major database solutions that are supported:
 
-<p align="center">
-    <a href="https://clickhouse.com" target="_blank">
-        <img src="docs/docs/assets/plugin/clickhouse.png" alt="ClickHouse" height="50" />
-    </a>&nbsp;
-    <a href="https://www.mysql.com" target="_blank">
-        <img src="docs/docs/assets/plugin/mysql.png" alt="MySQL" height="50"/>
-    </a>&nbsp;
-    <a href="https://prestodb.io/" target="_blank">
-        <img src="docs/docs/assets/plugin/presto.png" alt="Presto" height="50"/>
-    </a>&nbsp;
-    <a href="https://redis.io/" target="_blank">
-        <img src="docs/docs/assets/plugin/redis.png" alt="Redis" height="50"/>
-    </a>&nbsp;
-    <a href="https://www.postgresql.org/" target="_blank">
-        <img src="docs/docs/assets/plugin/postgresql.png" alt="PostgreSQL" height="50"/>
-    </a>&nbsp;
-    <a href="https://trino.io/" target="_blank">
-        <img src="docs/docs/assets/plugin/trino.png" alt="Trino" height="50"/>
-    </a>&nbsp;
-    <a href="https://www.elastic.co/" target="_blank">
-        <img src="docs/docs/assets/plugin/elasticsearch.png" alt="ElasticSearch" height="50" />
-    </a>&nbsp;
-    <a href="https://druid.apache.org/" target="_blank">
-        <img src="docs/docs/assets/plugin/druid.png" alt="Druid" height="50" />
-    </a>&nbsp;
-    <a href="https://kyuubi.apache.org/" target="_blank">
-        <img src="docs/docs/assets/plugin/kyuubi.png" alt="Kyuubi" height="50"/>
-    </a>&nbsp;
-    <a href="https://hive.apache.org/" target="_blank">
-        <img src="docs/docs/assets/plugin/hive.png" alt="Hive" height="50" />
-    </a>&nbsp;
-    <a href="https://kylin.apache.org" target="_blank">
-        <img src="docs/docs/assets/plugin/kylin.png" alt="Kylin" height="50" />
-    </a>&nbsp;
-    <a href="https://ignite.apache.org/" target="_blank">
-        <img src="docs/docs/assets/plugin/ignite.png" alt="Ignite" height="50" />
-    </a>&nbsp;
-    <a href="https://www.ibm.com/db2/" target="_blank">
-        <img src="docs/docs/assets/plugin/ibmdb2.png" alt="IBM DB2" height="50" />
-    </a>&nbsp;
-    <a href="https://www.mongodb.com/" target="_blank">
-        <img src="docs/docs/assets/plugin/mongodb.png" alt="MongoDB" height="50" />
-    </a>&nbsp;
-    <a href="https://www.dremio.com/" target="_blank">
-        <img src="docs/docs/assets/plugin/dremio.png" alt="Dremio" height="50" />
-    </a>&nbsp;
-    <a href="https://www.monetdb.org/" target="_blank">
-        <img src="docs/docs/assets/plugin/monetdb.png" alt="MonetDB" height="50" />
-    </a>&nbsp;
-    <a href="https://phoenix.apache.org/" target="_blank">
-        <img src="docs/docs/assets/plugin/phoenix.png" alt="Phoenix" height="50" />
-    </a>&nbsp;
-    <a href="https://www.h2database.com/html/main.html" target="_blank">
-        <img src="docs/docs/assets/plugin/h2.png" alt="H2" height="50" />
-    </a>&nbsp;
-    <a href="https://www.microsoft.com/sql-server" target="_blank">
-        <img src="docs/docs/assets/plugin/sqlserver.svg" alt="SqlServer" height="60" />
-    </a>&nbsp;
-    <a href="https://www.oracle.com/" target="_blank">
-        <img src="docs/docs/assets/plugin/oracle.png" alt="Oracle" height="50" />
-    </a>&nbsp;
-    <a href="https://crate.io/" target="_blank">
-        <img src="docs/docs/assets/plugin/cratedb.png" alt="CrateDB" height="50" />
-    </a>&nbsp;
-    <a href="https://www.dameng.com/DM8.html" target="_blank">
-        <img src="docs/docs/assets/plugin/dameng.png" alt="DaMeng" height="50" />
-    </a>&nbsp;
-    <a href="https://tdengine.com/" target="_blank">
-        <img src="docs/docs/assets/plugin/tdengine.png" alt="TDengine" height="50" />
-    </a>&nbsp;
-    <a href="https://impala.apache.org/" target="_blank">
-        <img src="docs/docs/assets/plugin/impala.png" alt="Impala" height="50" />
-    </a>&nbsp;
-    <a href="https://www.oceanbase.com/" target="_blank">
-        <img src="docs/docs/assets/plugin/oceanbase.png" alt="OceanBase" height="50" />
-    </a>&nbsp;
-    <a href="https://neo4j.com/" target="_blank">
-        <img src="docs/docs/assets/plugin/neo4j.png" alt="Neo4j" height="50" />
-    </a>&nbsp;
-    <a href="https://iotdb.apache.org/" target="_blank">
-        <img src="docs/docs/assets/plugin/iotdb.png" alt="IoTDB" height="50" />
-    </a>&nbsp;
-    <a href="https://www.snowflake.com/" target="_blank">
-        <img src="docs/docs/assets/plugin/snowflake.png" alt="Snowflake" height="70" />
-    </a>&nbsp;
-    <a href="https://ydb.tech/" target="_blank">
-        <img src="docs/docs/assets/plugin/ydb.png" alt="YDB" height="50" />
-    </a>&nbsp;
-    <a href="https://zookeeper.apache.org/" target="_blank">
-        <img src="docs/docs/assets/plugin/zookeeper.png" alt="Zookeeper" height="50" />
-    </a>&nbsp;
-    <a href="https://duckdb.org/" target="_blank">
-        <img src="docs/docs/assets/plugin/duckdb.png" alt="DuckDB" height="50" />
-    </a>&nbsp;
-    <a href="https://www.alibabacloud.com/zh/product/object-storage-service" target="_blank">
-        <img src="docs/docs/assets/plugin/alioss.png" alt="Aliyun OSS" height="50" />
-    </a>&nbsp;
-    <a href="https://kafka.apache.org" target="_blank">
-        <img src="docs/docs/assets/plugin/kafka.png" alt="Apache Kafka" height="50" />
-    </a>
-</p>
+<div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+ <a href="https://clickhouse.com"><img src="docs/docs/assets/plugin/clickhouse.svg" alt="ClickHouse" height="60"/></a>
+ <a href="https://redis.io/"><img src="docs/docs/assets/plugin/redis.svg" alt="Redis" height="60"/></a>
+ <a href="https://www.postgresql.org/"><img src="docs/docs/assets/plugin/postgresql.svg" alt="PostgreSQL" height="60"/></a>
+ <a href="https://prestodb.io/"><img src="docs/docs/assets/plugin/presto.svg" alt="Presto" height="60"/></a>
+ <a href="https://www.mysql.com"><img src="docs/docs/assets/plugin/mysql.svg" alt="MySQL" height="60"/></a>
+ <a href="https://hive.apache.org/"><img src="docs/docs/assets/plugin/hive2x.svg" alt="Hive" height="60"/></a>
+ <a href="https://kyuubi.apache.org/"><img src="docs/docs/assets/plugin/kyuubi.svg" alt="Kyuubi" height="60"/></a>
+ <a href="https://druid.apache.org/"><img src="docs/docs/assets/plugin/druid.svg" alt="Druid" height="60"/></a>
+ <a href="https://www.elastic.co/"><img src="docs/docs/assets/plugin/elasticsearch8x.svg" alt="ElasticSearch" height="60"/></a>
+ <a href="https://trino.io/"><img src="docs/docs/assets/plugin/trino.svg" alt="Trino" height="60"/></a>
+ <a href="https://kylin.apache.org"><img src="docs/docs/assets/plugin/kylin.svg" alt="Kylin" height="60"/></a>
+ <a href="https://ignite.apache.org/"><img src="docs/docs/assets/plugin/ignite.svg" alt="Ignite" height="60"/></a>
+ <a href="https://www.ibm.com/db2/"><img src="docs/docs/assets/plugin/db2.svg" alt="IBM DB2" height="60"/></a>
+ <a href="https://www.mongodb.com/"><img src="docs/docs/assets/plugin/mongocommunity.svg" alt="MongoDB" height="60"/></a>
+ <a href="https://www.dremio.com/"><img src="docs/docs/assets/plugin/dremio.svg" alt="Dremio" height="60"/></a>
+ <a href="https://www.monetdb.org/"><img src="docs/docs/assets/plugin/monetdb.svg" alt="MonetDB" height="60"/></a>
+ <a href="https://phoenix.apache.org/"><img src="docs/docs/assets/plugin/phoenix.svg" alt="Phoenix" height="60"/></a>
+ <a href="https://www.h2database.com/"><img src="docs/docs/assets/plugin/h2.svg" alt="H2" height="60"/></a>
+ <a href="https://www.microsoft.com/sql-server"><img src="docs/docs/assets/plugin/sqlserver.svg" alt="SqlServer" height="60"/></a>
+ <a href="https://www.oracle.com/"><img src="docs/docs/assets/plugin/oracle.svg" alt="Oracle" height="60"/></a>
+ <a href="https://crate.io/"><img src="docs/docs/assets/plugin/cratedb.svg" alt="CrateDB" height="60"/></a>
+ <a href="https://www.dameng.com/"><img src="docs/docs/assets/plugin/dm.svg" alt="DaMeng" height="60"/></a>
+ <a href="https://tdengine.com/"><img src="docs/docs/assets/plugin/tdengine.svg" alt="TDengine" height="60"/></a>
+ <a href="https://impala.apache.org/"><img src="docs/docs/assets/plugin/impala.svg" alt="Impala" height="60"/></a>
+ <a href="https://www.oceanbase.com/"><img src="docs/docs/assets/plugin/oceanbase.svg" alt="OceanBase" height="60"/></a>
+ <a href="https://neo4j.com/"><img src="docs/docs/assets/plugin/neo4j.svg" alt="Neo4j" height="60"/></a>
+ <a href="https://iotdb.apache.org/"><img src="docs/docs/assets/plugin/iotdb.svg" alt="IoTDB" height="60"/></a>
+ <a href="https://www.snowflake.com/"><img src="docs/docs/assets/plugin/snowflake.svg" alt="Snowflake" height="60"/></a>
+ <a href="https://ydb.tech/"><img src="docs/docs/assets/plugin/ydb.svg" alt="YDB" height="60"/></a>
+ <a href="https://zookeeper.apache.org/"><img src="docs/docs/assets/plugin/zookeeper.svg" alt="Zookeeper" height="60"/></a>
+ <a href="https://duckdb.org/"><img src="docs/docs/assets/plugin/duckdb.svg" alt="DuckDB" height="60"/></a>
+ <a href="https://www.alibabacloud.com/product/oss"><img src="docs/docs/assets/plugin/alioss.svg" alt="Aliyun OSS" height="60"/></a>
+ <a href="https://kafka.apache.org"><img src="docs/docs/assets/plugin/kafka.svg" alt="Apache Kafka" height="60"/></a>
+ <a href="https://ceresdb.io/"><img src="docs/docs/assets/plugin/ceresdb.svg" alt="CeresDB" height="60"/></a>
+ <a href="https://greptime.com/"><img src="docs/docs/assets/plugin/greptimedb.svg" alt="GreptimeDB" height="60"/></a>
+ <a href="https://questdb.io/"><img src="docs/docs/assets/plugin/questdb.svg" alt="QuestDB" height="60"/></a>
+ <a href="https://doris.apache.org/"><img src="docs/docs/assets/plugin/doris.svg" alt="Apache Doris" height="60"/></a>
+ <a href="https://www.starrocks.io/"><img src="docs/docs/assets/plugin/starrocks.svg" alt="StarRocks" height="60"/></a>
+ <a href="https://www.alibabacloud.com/product/hologres"><img src="docs/docs/assets/plugin/hologres.svg" alt="Hologres" height="60"/></a>
+ <a href="https://hadoop.apache.org/"><img src="docs/docs/assets/plugin/hdfs.svg" alt="Apache Hdfs" height="60"/></a>
+ <a href="https://pinot.apache.org/"><img src="docs/docs/assets/plugin/pinot.svg" alt="Apache Pinot" height="60"/></a>
+ <a href="https://cassandra.apache.org/"><img src="docs/docs/assets/plugin/cassandra.svg" alt="Apache Cassandra" height="60"/></a>
+ <a href="https://matrixorigin.cn/"><img src="docs/docs/assets/plugin/matrixone.svg" alt="MatrixOne" height="60"/></a>
+ <a href="https://www.scylladb.com/"><img src="docs/docs/assets/plugin/scylladb.svg" alt="ScyllaDB" height="60"/></a>
+ <a href="https://www.paradedb.com/"><img src="docs/docs/assets/plugin/paradedb.svg" alt="ParadeDB" height="60"/></a>
+ <a href="https://www.timescale.com/"><img src="docs/docs/assets/plugin/timescale.svg" alt="Timescale" height="60"/></a>
+ <a href="https://solr.apache.org/"><img src="docs/docs/assets/plugin/solr.svg" alt="Apache Solr" height="60"/></a>
+ <a href="https://www.influxdata.com/"><img src="docs/docs/assets/plugin/influxdb.svg" alt="InfluxDB" height="60"/></a>
+</div>
+
+## System architecture
+
+---
+
+<img src="docs/docs/assets/architecture.jpg" width="100%" />
 
 ## Stargazers over time
 
 ---
 
-[![Stargazers over time](https://starchart.cc/EdurtIO/datacap.svg)](https://starchart.cc/EdurtIO/datacap)
+[![Star History Chart](https://api.star-history.com/svg?repos=devlive-community/datacap&type=Timeline)](https://star-history.com/#devlive-community/datacap&Timeline)
 
 ## Join Us
 
 ---
 
-Open the DingTalk software and scan the following QR code to join
+Open the DingTalk (left) or WeChat(right) software and scan the following QR code to join
 
-<img src="docs/docs/assets/dingtalk.png" width="200px" height="250px"/>
+<div>
+  <img src="docs/docs/assets/dingtalk.png" width="200px" height="200px"/>
+  <img src="docs/docs/assets/wechat.png" width="200px" height="200px"/>
+</div>
 
 ## Thank you
 
 ---
 
-- [Jetbrains](https://www.jetbrains.com/)
+[![Jetbrains](https://img.shields.io/badge/Development-Jetbrains-brightgreen?style=flat-square)](https://www.jetbrains.com/)
+[![App Store](https://img.shields.io/badge/App%20Store-Rainbond-brightgreen?style=flat-square)](https://www.rainbond.com/)
+[![View UI Plus](https://img.shields.io/badge/UI-View%20UI%20Plus-brightgreen?style=flat-square)](https://www.iviewui.com/view-ui-plus)
 
 ## Installation and Configuration
 
 ---
 
-[Extended documentation for DataCap](https://datacap.incubator.edurt.io)
+[Extended documentation for DataCap](https://datacap.devlive.org)
 
 ## Contributors
 

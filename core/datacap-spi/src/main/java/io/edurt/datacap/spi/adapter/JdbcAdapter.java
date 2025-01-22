@@ -1,72 +1,65 @@
 package io.edurt.datacap.spi.adapter;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import io.edurt.datacap.spi.FormatType;
+import io.edurt.datacap.spi.column.Column;
 import io.edurt.datacap.spi.column.JdbcColumn;
-import io.edurt.datacap.spi.connection.JdbcConfigure;
 import io.edurt.datacap.spi.connection.JdbcConnection;
-import io.edurt.datacap.spi.formatter.FormatterFactory;
+import io.edurt.datacap.spi.model.Configure;
 import io.edurt.datacap.spi.model.Response;
 import io.edurt.datacap.spi.model.Time;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 @Slf4j
-@SuppressFBWarnings(value = {"RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"},
-        justification = "I prefer to suppress these FindBugs warnings")
+@SuppressFBWarnings(value = {"RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"})
 public class JdbcAdapter
         implements Adapter
 {
-    protected JdbcConnection jdbcConnection;
+    protected io.edurt.datacap.spi.connection.Connection connection;
 
-    public JdbcAdapter(JdbcConnection jdbcConnection)
+    public JdbcAdapter(io.edurt.datacap.spi.connection.Connection connection)
     {
-        this.jdbcConnection = jdbcConnection;
-    }
-
-    protected Object handlerFormatter(FormatType format, List<String> headers, List<Object> columns)
-    {
-        return FormatterFactory.createFormatter(format, headers, columns).formatter();
+        this.connection = connection;
     }
 
     @Override
     public Response handlerExecute(String content)
     {
+        JdbcConnection jdbcConnection = (JdbcConnection) this.connection;
         Time processorTime = new Time();
         processorTime.setStart(new Date().getTime());
-        Response response = this.jdbcConnection.getResponse();
-        Connection connection = (Connection) this.jdbcConnection.getConnection();
-        JdbcConfigure configure = (JdbcConfigure) this.jdbcConnection.getConfigure();
+        Response response = jdbcConnection.getResponse();
+        Connection connection = (Connection) jdbcConnection.getConnection();
+        Configure configure = jdbcConnection.getConfigure();
+        log.debug("Execute sql \n{}", content);
         if (response.getIsConnected()) {
-            try (PreparedStatement statement = connection.prepareStatement(content)) {
+            try (Statement statement = connection.createStatement()) {
                 List<String> headers = new ArrayList<>();
                 List<String> types = new ArrayList<>();
                 List<Object> columns = new ArrayList<>();
-                try (ResultSet resultSet = statement.executeQuery()) {
-                    boolean isPresent = true;
-                    JdbcColumn jdbcColumn = new JdbcColumn(resultSet);
+                try (ResultSet resultSet = statement.executeQuery(content)) {
+                    Column jdbcColumn = new JdbcColumn(resultSet);
+                    ResultSetMetaData metaData = resultSet.getMetaData();
+                    int columnCount = metaData.getColumnCount();
+                    for (int i = 1; i <= columnCount; i++) {
+                        headers.add(metaData.getColumnName(i));
+                        types.add(jdbcColumn.mappingColumnType(metaData.getColumnTypeName(i)));
+                    }
                     while (resultSet.next()) {
-                        ResultSetMetaData metaData = resultSet.getMetaData();
-                        int columnCount = metaData.getColumnCount();
                         List<Object> _columns = new ArrayList<>();
                         for (int i = 1; i <= columnCount; i++) {
-                            if (isPresent) {
-                                headers.add(metaData.getColumnName(i));
-                                types.add(metaData.getColumnTypeName(i));
-                            }
-                            _columns.add(jdbcColumn.convert(metaData.getColumnTypeName(i), i));
+                            _columns.add(jdbcColumn.mappingColumnData(metaData.getColumnTypeName(i), i));
                         }
-                        isPresent = false;
-                        columns.add(handlerFormatter(configure.getFormat(), headers, _columns));
+                        columns.add(_columns);
                     }
                 }
                 catch (SQLException tryUpdateEx) {
@@ -75,10 +68,27 @@ public class JdbcAdapter
                             headers.add("result");
                             types.add(Integer.class.getSimpleName());
                             List<Object> _columns = new ArrayList<>();
-                            _columns.add(statement.executeUpdate());
-                            columns.add(handlerFormatter(configure.getFormat(), headers, _columns));
+                            connection.setAutoCommit(false);
+                            String[] parts = content.replaceAll("[\\r\\n|\\r|\\n]+", " ")
+                                    .split("(?<=\\);)|(?<=\\r\\n)|(?<=\\r)|(?<=\\n)|(?<=\\n;)|(?<=\\r;)|(?<=\\r\\n;)|(?<=;)");
+                            int count = 0;
+                            for (String part : parts) {
+                                if (!part.trim().isEmpty()) {
+                                    count += statement.executeUpdate(part);
+                                }
+                            }
+                            _columns.add(count);
+                            connection.commit();
+                            columns.add(_columns);
                         }
                         catch (SQLException updateEx) {
+                            try {
+                                connection.rollback();
+                            }
+                            catch (SQLException rollbackEx) {
+                                log.error("Rollback failed ", rollbackEx);
+                                throw new SQLException(rollbackEx);
+                            }
                             throw new SQLException(updateEx);
                         }
                     }
@@ -89,7 +99,7 @@ public class JdbcAdapter
                 finally {
                     response.setHeaders(headers);
                     response.setTypes(types);
-                    response.setColumns(columns);
+                    response.setColumns(handlerFormatter(configure.getPluginManager(), configure.getFormat(), headers, columns));
                     response.setIsSuccessful(Boolean.TRUE);
                 }
             }
@@ -102,7 +112,7 @@ public class JdbcAdapter
         processorTime.setEnd(new Date().getTime());
         response.setProcessor(processorTime);
         // It will be destroyed after the mission is closed
-        this.jdbcConnection.destroy();
+        jdbcConnection.destroy();
         return response;
     }
 }

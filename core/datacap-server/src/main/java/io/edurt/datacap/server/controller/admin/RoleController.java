@@ -1,49 +1,53 @@
 package io.edurt.datacap.server.controller.admin;
 
-import io.edurt.datacap.server.body.FilterBody;
-import io.edurt.datacap.server.common.Response;
-import io.edurt.datacap.server.entity.PageEntity;
-import io.edurt.datacap.server.entity.RoleEntity;
-import io.edurt.datacap.server.repository.RoleRepository;
-import io.edurt.datacap.server.service.RoleService;
-import io.edurt.datacap.server.validation.ValidationGroup;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
+import io.edurt.datacap.common.response.CommonResponse;
+import io.edurt.datacap.server.controller.BaseController;
+import io.edurt.datacap.service.entity.MenuEntity;
+import io.edurt.datacap.service.entity.RoleEntity;
+import io.edurt.datacap.service.repository.RoleRepository;
+import io.edurt.datacap.service.service.RoleService;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @RestController
-@RequestMapping(value = "/api/v1/admin/role")
+@RequestMapping(value = "/api/v1/role")
 public class RoleController
+        extends BaseController<RoleEntity>
 {
-    private final RoleRepository roleRepository;
-    private final RoleService roleService;
+    private final RoleRepository repository;
+    private final RoleService service;
 
-    public RoleController(RoleRepository roleRepository, RoleService roleService)
+    public RoleController(RoleRepository repository, RoleService service)
     {
-        this.roleRepository = roleRepository;
-        this.roleService = roleService;
+        super(repository, service);
+        this.repository = repository;
+        this.service = service;
     }
 
-    @PostMapping(value = "list")
-    public Response<PageEntity<RoleEntity>> getAllByFilter(@RequestBody FilterBody filter)
+    @RequestMapping(value = "{id}/menus", method = {RequestMethod.GET, RequestMethod.PUT})
+    public CommonResponse<? extends Object> getMenusByRoleId(@PathVariable(value = "id") Long id,
+            @RequestBody(required = false) Set<Long> nodes)
     {
-        return this.roleService.getAll(roleRepository, filter);
-    }
-
-    @RequestMapping(method = {RequestMethod.POST, RequestMethod.PUT})
-    public Response<RoleEntity> save(@RequestBody @Validated(ValidationGroup.Crud.Create.class) RoleEntity configure)
-    {
-        return this.roleService.saveOrUpdate(roleRepository, configure);
-    }
-
-    @GetMapping(value = "{id}")
-    public Response<RoleEntity> getInfo(@PathVariable(value = "id") Long id)
-    {
-        return this.roleService.getById(roleRepository, id);
+        if (ObjectUtils.isEmpty(nodes)) {
+            return service.getMenusByRoleId(id);
+        }
+        else {
+            return this.repository.findById(id)
+                    .map(item -> {
+                        Set<MenuEntity> menus = (Set<MenuEntity>) nodes.stream()
+                                .map(v -> MenuEntity.builder().id(v).build())
+                                .collect(Collectors.toSet());
+                        item.setMenus(menus);
+                        return service.saveOrUpdate(repository, item);
+                    })
+                    .orElse(CommonResponse.failure(String.format("Role [ %s ] not found", id)));
+        }
     }
 }

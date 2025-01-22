@@ -4,6 +4,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.spi.connection.HttpConfigure;
 import io.edurt.datacap.spi.connection.HttpConnection;
 import okhttp3.ConnectionPool;
+import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -13,9 +14,9 @@ import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
-@SuppressFBWarnings(value = {"NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"},
-        justification = "I prefer to suppress these FindBugs warnings")
+@SuppressFBWarnings(value = {"NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", "EI_EXPOSE_REP2"})
 public class HttpClient
 {
     private static final int CONNECTION_TIME_OUT = 200000;
@@ -36,10 +37,7 @@ public class HttpClient
                 .readTimeout(SOCKET_TIME_OUT, TimeUnit.MILLISECONDS)
                 .writeTimeout(SOCKET_TIME_OUT, TimeUnit.MILLISECONDS)
                 .connectionPool(connectionPool)
-                .retryOnConnectionFailure(configure.getAutoConnected())
                 .connectTimeout(CONNECTION_TIME_OUT, TimeUnit.MILLISECONDS)
-                .addInterceptor(new HttpRetryInterceptor(configure))
-                .addNetworkInterceptor(new HttpRetryInterceptor(configure))
                 .build();
     }
 
@@ -55,6 +53,9 @@ public class HttpClient
             case GET:
                 return this.get();
             case POST:
+                if (configure.isDecoded()) {
+                    return this.postEncoder();
+                }
                 return this.post();
             default:
                 return null;
@@ -93,6 +94,24 @@ public class HttpClient
         return execute(request);
     }
 
+    private String postEncoder()
+    {
+        AtomicReference<String> key = new AtomicReference<>();
+        AtomicReference<String> value = new AtomicReference<>();
+        configure.getParams().forEach((originKey, originValue) -> {
+            key.set(originKey);
+            value.set(originValue);
+        });
+        RequestBody body = new FormBody.Builder()
+                .add(key.get(), value.get())
+                .build();
+        Request request = new Request.Builder()
+                .url(httpConnection.formatJdbcUrl())
+                .method(HttpMethod.POST.name(), body)
+                .build();
+        return execute(request);
+    }
+
     private String execute(Request request)
     {
         String responseBody = null;
@@ -100,7 +119,7 @@ public class HttpClient
             Response response = okHttpClient.newCall(request).execute();
             responseBody = response.body().string();
         }
-        catch (IOException | NullPointerException e) {
+        catch (IOException e) {
             e.printStackTrace();
         }
         return responseBody;

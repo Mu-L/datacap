@@ -1,16 +1,18 @@
 package io.edurt.datacap.spi.connection;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.edurt.datacap.spi.model.Configure;
 import io.edurt.datacap.spi.model.Response;
 import io.edurt.datacap.spi.model.Time;
 
 import java.util.Date;
 
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 public abstract class Connection
 {
-    private final Configure configure;
-    private final Response response;
-    private Object connection;
+    protected final Configure configure;
+    protected final Response response;
+    protected Object connection;
 
     public Connection(Configure configure, Response response)
     {
@@ -22,8 +24,6 @@ public abstract class Connection
         connectionTime.setEnd(new Date().getTime());
         this.response.setConnection(connectionTime);
     }
-
-    protected abstract String formatJdbcUrl();
 
     protected abstract java.sql.Connection openConnection();
 

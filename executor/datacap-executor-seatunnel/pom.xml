@@ -6,17 +6,19 @@
     <parent>
         <groupId>io.edurt.datacap</groupId>
         <artifactId>datacap</artifactId>
-        <version>1.8.0-SNAPSHOT</version>
+        <version>2025.1.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>datacap-executor-seatunnel</artifactId>
-    <description>DataCap - Executor seatunnel</description>
+    <description>DataCap - Executor - Seatunnel</description>
 
     <dependencies>
         <dependency>
             <groupId>io.edurt.datacap</groupId>
-            <artifactId>datacap-spi</artifactId>
+            <artifactId>datacap-executor-spi</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.edurt.datacap</groupId>
@@ -24,5 +26,50 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${assembly-plugin.version}</version>
+                <configuration>
+                    <finalName>${project.artifactId}</finalName>
+                    <descriptors>
+                        <descriptor>../../configure/assembly/plugin.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/dependencies</outputDirectory>
+                            <excludeScope>provided</excludeScope>
+                            <includeScope>runtime</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
